@@ -25,6 +25,7 @@ public class testActivity extends Activity {
 
     OpenGLView openGLView;
     private String TAG = "TestActivity";
+    Piece knightTest = new Knight();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,5 +33,8 @@ public class testActivity extends Activity {
         openGLView = new OpenGLView(this);
         setContentView(openGLView);
         Log.d(TAG, "Constructor");
+
+        for(int i=0;i<knightTest.getMovementList().size();i++)
+            Log.e("KnightMoves", "x "+knightTest.getMovementList().get(i)[0]+ ", y "+knightTest.getMovementList().get(i)[1]);
     }
 }
