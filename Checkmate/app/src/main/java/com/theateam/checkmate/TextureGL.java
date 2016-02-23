@@ -31,7 +31,7 @@ public class TextureGL {
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
-    private short drawOrder[];
+    private short drawOrder[] = new short[6]; // TODO: Not [6]. This is here just for the testing phase
     private final int COORDS_PER_VERTEX = 2;
     private float coordinates[];
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
@@ -95,7 +95,7 @@ public class TextureGL {
         mCubeTextureCoordinates.put(TextureCoordinateData).position(0);
 
         ByteBuffer dlb = ByteBuffer.allocateDirect(coordinates.length * 2).order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer().put(drawOrder);
+        drawListBuffer = dlb.asShortBuffer().put(drawOrder); // Note: Overflow here? -> Check initializing.
         drawListBuffer.position(0);
 
         int vertexShader = OpenGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
@@ -109,7 +109,7 @@ public class TextureGL {
         mTextureDataHandle = setResource(mActivityContext, _resourceId);
     }
 
-    // Use to change theme
+    // Use to set/change theme
     public int setResource(final Context context, final int resourceId) {
         final int[] textureHandle = new int[1];
 
