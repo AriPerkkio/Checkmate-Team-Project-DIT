@@ -17,7 +17,11 @@ public class Piece {
     private Player player; // TODO Check initializing
 
     private String pieceType;
-    private List<int[][]> movementList;
+    private List<int[]> movementList;
+
+    public Piece(){
+
+    }
 
     public Player getPlayer(){
         return null; // TODO
@@ -29,5 +33,21 @@ public class Piece {
 
     public void remove(Player _player, Square _square){
         // TODO
+    }
+
+    public void setPieceType(String _pieceType){
+        this.pieceType = _pieceType;
+    }
+
+    public String getPieceType(){
+        return this.pieceType;
+    }
+
+    public void setMovementList(List<int[]> movements){
+        this.movementList = movements;
+    }
+
+    public List<int[]> getMovementList(){
+        return this.movementList;
     }
 }
