@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -31,7 +32,7 @@ public class TextureGL {
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
-    private short drawOrder[] = new short[6]; // TODO: Not [6]. This is here just for the testing phase
+    private short drawOrder[] = new short[12]; // TODO: Not [6]. This is here just for the testing phase
     private final int COORDS_PER_VERTEX = 2;
     private float coordinates[];
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
@@ -74,16 +75,23 @@ public class TextureGL {
             drawOrder[(i * 6) + 3] = (short) (last);
             drawOrder[(i * 6) + 4] = (short) (last + 2);
             drawOrder[(i * 6) + 5] = (short) (last + 3);
+            last = last + 4;
         }
+        Log.e("Coords size", ""+coordinates.length);
 
         // Here add texture coordinates for each piece, board, square etc.
         final float[] TextureCoordinateData =
                 new float[]{
-                        // Whole image
-                        0.0f, 0.0f, // bot left
-                        0.0f, 0.5f, // top left
-                        0.5f, 0.5f, // top right
-                        0.5f, 0.0f,  // bot right
+                        // Board
+                        0.0f, 0.0f, // bot left - actual top left
+                        0.0f, 0.5f, // top left - actual left bot
+                        0.5f, 0.5f, // top right - actual bot right
+                        0.5f, 0.0f,  // bot right - actual top right
+                        // Red Pawn
+                        0.5f, 0.8f, // bot left
+                        0.5f, 0.9f, // top left
+                        0.6f, 0.9f, // top right
+                        0.6f, 0.8f,  // bot right
                 };
 
         // Fill buffers
@@ -191,9 +199,6 @@ public class TextureGL {
         vertexBuffer.position(0);
     }
 }
-
-
-
 
 
 
