@@ -54,7 +54,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                        -1.0f, -1.0f,   // bottom left
                        1.0f, -1.0f,   // bottom right
                        1.0f,  1.0f,},//top right
-                       R.mipmap.ic_launcher); // Picture for the theme
+                       R.mipmap.wooden); // Picture for the theme
     }
 
     public void onDrawFrame(GL10 unused)
@@ -89,7 +89,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         float x = event.getX();
         float y = event.getY();
         float screenWidth = 1080;
-        float screenHeight = 1920 / 2;
+        float screenHeight = 1920/2;
 
         float sceneX = (x / screenWidth) * 2.0f - 1.0f;
         float sceneY = (y / screenHeight) * -2.0f + 1.0f; //if bottom is at -1. Otherwise same as X
