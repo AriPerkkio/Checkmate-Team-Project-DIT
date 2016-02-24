@@ -19,4 +19,5 @@ public class Square {
     public boolean hasPiece(){
         return true; // TODO
     }
+
 }
