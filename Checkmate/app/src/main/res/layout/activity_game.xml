@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF0000"
+    android:weightSum="16"
+    android:padding="5dp"> <!-- to show what the parent is -->
+    <LinearLayout
+        android:background="#00FF00"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="2" >
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/editText"
+            android:text="Text over here" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:background="#0000FF"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="9" >
+
+        <fragment
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:name="com.theateam.checkmate.GameFragment"
+            android:id="@+id/fragment"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+    <LinearLayout
+        android:background="#00FF00"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="5" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="coordinates"
+            android:id="@+id/coordinateText"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+</LinearLayout>
