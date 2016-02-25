@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -31,7 +32,7 @@ public class TextureGL {
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
-    private short drawOrder[] = new short[6]; // TODO: Not [6]. This is here just for the testing phase
+    private short drawOrder[];
     private final int COORDS_PER_VERTEX = 2;
     private float coordinates[];
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
@@ -64,6 +65,8 @@ public class TextureGL {
     public TextureGL(Context _context, float[] _coordinates, int _resourceId) {
         mActivityContext = _context;
         coordinates = _coordinates;
+        drawOrder = new short[(coordinates.length/8)*6];
+        Log.d("DrawOrder length", ""+drawOrder.length);
 
         // Fill drawOrder for each texture
         int last = 0;
@@ -74,16 +77,28 @@ public class TextureGL {
             drawOrder[(i * 6) + 3] = (short) (last);
             drawOrder[(i * 6) + 4] = (short) (last + 2);
             drawOrder[(i * 6) + 5] = (short) (last + 3);
+            last = last + 4;
         }
+        Log.e("Coords size", ""+coordinates.length);
 
         // Here add texture coordinates for each piece, board, square etc.
         final float[] TextureCoordinateData =
-                new float[]{
-                        // Whole image
-                        0.0f, 0.0f, // bot left
-                        0.0f, 0.5f, // top left
-                        0.5f, 0.5f, // top right
-                        0.5f, 0.0f,  // bot right
+                new float[]{ // We are using .png files which have y-axis inverted, so y coordinates 1-Y
+                        // Board
+                        0.0f, 1.0f- 1.0f, // top left
+                        0.0f, 1.0f- 0.5f, // left bot
+                        0.5f, 1.0f- 0.5f, // bot right
+                        0.5f, 1.0f- 1.0f, // top right
+                        // Red Pawn 1
+                        0.5f, 1.0f- 0.2f, // top left
+                        0.5f, 1.0f- 0.1f, // left bot
+                        0.6f, 1.0f- 0.1f, // bot right
+                        0.6f, 1.0f- 0.2f, // top right
+                        // Red Pawn 2
+                        0.5f, 1.0f- 0.2f, // top left
+                        0.5f, 1.0f- 0.1f, // left bot
+                        0.6f, 1.0f- 0.1f, // bot right
+                        0.6f, 1.0f- 0.2f, // top right
                 };
 
         // Fill buffers
@@ -191,9 +206,6 @@ public class TextureGL {
         vertexBuffer.position(0);
     }
 }
-
-
-
 
 
 
