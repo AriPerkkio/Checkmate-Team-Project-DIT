@@ -101,6 +101,20 @@ public class TextureGL {
                         0.6f, 1.0f- 0.2f, // top right
                 };
 
+        /*private float[] setupTextureCoords (List<float[]> coords) {
+            //Set up a List<> type object of all the coordinates
+            float[] ret = new float[coords.length()*8];
+            int count = 0;//to count through master float array
+            for( float[] f : coords ) {
+                for(int i = 0; i < 12; i++ ) {
+                    ret[count++] = f[i];
+                }
+            }
+            return ret;
+        }*/
+
+
+
         // Fill buffers
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4).order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer().put(coordinates);
