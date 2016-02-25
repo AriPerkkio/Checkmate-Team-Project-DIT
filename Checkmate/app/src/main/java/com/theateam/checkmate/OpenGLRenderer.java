@@ -10,6 +10,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 
+import java.util.List;
+import java.util.Vector;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -24,6 +27,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     private final Context mActivityContext;
+    private Coordinates allCoordinates = new Coordinates();
 
     // Matrix Initializations
     private final float[] mMVPMatrix = new float[16];
@@ -36,6 +40,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     // Picture for drawing
     private TextureGL picture;
+    private float[] coordinates;
+    private List<float[]> coordinateList = new Vector<>();
 
     public OpenGLRenderer(final Context activityContext)
     {
@@ -46,26 +52,24 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     public void onSurfaceCreated(GL10 unused, EGLConfig config)
     {
         Log.d("Renderer","onSurfaceCreated");
+        coordinateList.add(allCoordinates.boardCoordinates); // Board
+        coordinateList.add(allCoordinates.A2); // Pawn #1 Player One
+        coordinateList.add(allCoordinates.B2); // Pawn #2 Player One
+        coordinateList.add(allCoordinates.C2); // Pawn #3 Player One
+        coordinateList.add(allCoordinates.D2); // Pawn #4 Player One
+        coordinateList.add(allCoordinates.E2); // Pawn #5 Player One
+        coordinateList.add(allCoordinates.F2); // Pawn #6 Player One
+        coordinateList.add(allCoordinates.G2); // Pawn #7 Player One
+        coordinateList.add(allCoordinates.H2); // Pawn #8 Player One
+
+        coordinates = new float[coordinateList.size()*8];
+        coordinates = setupTextureCoordinates(coordinateList);
 
        // Initialize the 1st drawn picture
        picture = new TextureGL(mActivityContext,
-               new float[]{
-                       // Board
-                       -1.0f, 1.0f,   // top left
-                       -1.0f, -1.0f,   // bottom left
-                       1.0f, -1.0f,   // bottom right
-                       1.0f, 1.0f,  //top right
-                       // A2
-                       -0.90f, -0.44f,   // top left
-                       -0.90f, -0.65f,   // bottom left
-                       -0.68f, -0.65f,   // bottom right
-                       -0.68f, -0.44f,       //top right
-                       // A3
-                       -0.68f, -0.44f,   // top left
-                       -0.68f, -0.65f,   // bottom left
-                       -0.46f, -0.65f,   // bottom right
-                       -0.46f, -0.44f       //top right
-               }, R.mipmap.wooden); // Picture for the theme package
+               coordinates,
+               R.mipmap.wooden); // Picture for the theme package
+
     }
 
     public void onDrawFrame(GL10 unused)
@@ -114,6 +118,18 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         GLES20.glViewport(0, 0, width, height);
         float ratio = (float) width / height;
         Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+    }
+
+    // Combine multiple float[] together
+    public float[] setupTextureCoordinates(List<float[]> coordinateList){
+        float[] returnArray = new float[coordinateList.size()*8];
+        Log.e("Size of coordslist",""+coordinateList.size());
+
+        for(int i=0;i<coordinateList.size();i++) { // All the float[]
+            for(int x=0;x<8;x++)
+                returnArray[i * 8 + x] = coordinateList.get(i)[x];
+        }
+        return returnArray;
     }
 }
 
