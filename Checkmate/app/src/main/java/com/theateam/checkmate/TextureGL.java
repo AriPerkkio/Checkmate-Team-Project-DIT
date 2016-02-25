@@ -32,7 +32,7 @@ public class TextureGL {
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
-    private short drawOrder[] = new short[12]; // TODO: Not [6]. This is here just for the testing phase
+    private short drawOrder[];
     private final int COORDS_PER_VERTEX = 2;
     private float coordinates[];
     private final int vertexStride = COORDS_PER_VERTEX * 4; //Bytes per vertex
@@ -65,6 +65,8 @@ public class TextureGL {
     public TextureGL(Context _context, float[] _coordinates, int _resourceId) {
         mActivityContext = _context;
         coordinates = _coordinates;
+        drawOrder = new short[(coordinates.length/8)*6];
+        Log.d("DrawOrder length", ""+drawOrder.length);
 
         // Fill drawOrder for each texture
         int last = 0;
@@ -81,17 +83,22 @@ public class TextureGL {
 
         // Here add texture coordinates for each piece, board, square etc.
         final float[] TextureCoordinateData =
-                new float[]{
+                new float[]{ // We are using .png files which have y-axis inverted, so y coordinates 1-Y
                         // Board
-                        0.0f, 0.0f, // bot left - actual top left
-                        0.0f, 0.5f, // top left - actual left bot
-                        0.5f, 0.5f, // top right - actual bot right
-                        0.5f, 0.0f,  // bot right - actual top right
-                        // Red Pawn
-                        0.5f, 0.8f, // bot left
-                        0.5f, 0.9f, // top left
-                        0.6f, 0.9f, // top right
-                        0.6f, 0.8f,  // bot right
+                        0.0f, 1.0f- 1.0f, // top left
+                        0.0f, 1.0f- 0.5f, // left bot
+                        0.5f, 1.0f- 0.5f, // bot right
+                        0.5f, 1.0f- 1.0f, // top right
+                        // Red Pawn 1
+                        0.5f, 1.0f- 0.2f, // top left
+                        0.5f, 1.0f- 0.1f, // left bot
+                        0.6f, 1.0f- 0.1f, // bot right
+                        0.6f, 1.0f- 0.2f, // top right
+                        // Red Pawn 2
+                        0.5f, 1.0f- 0.2f, // top left
+                        0.5f, 1.0f- 0.1f, // left bot
+                        0.6f, 1.0f- 0.1f, // bot right
+                        0.6f, 1.0f- 0.2f, // top right
                 };
 
         // Fill buffers
