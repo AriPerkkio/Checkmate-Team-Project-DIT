@@ -5,12 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by AriPerkkio on 21/02/16.
@@ -59,6 +62,37 @@ public class TextureGL {
                     "gl_FragColor = (vColor * texture2D(u_Texture, v_TexCoordinate));" +
                     "}";
 
+    private float[] pawnCoordinates = new float[]{
+            // Red Pawn 2
+            0.5f, 1.0f- 0.2f, // top left
+            0.5f, 1.0f- 0.1f, // left bot
+            0.6f, 1.0f- 0.1f, // bot right
+            0.6f, 1.0f- 0.2f, // top right
+    };
+
+    private float[] boardCoordinates = new float[]{
+            // Board
+            0.0f, 1.0f- 1.0f, // top left
+            0.0f, 1.0f- 0.5f, // left bot
+            0.5f, 1.0f- 0.5f, // bot right
+            0.5f, 1.0f- 1.0f, // top right
+    };
+
+    private float[] kingCoordinates = new float[]{
+            0.1f, 1.0f - 0.2f, // top left
+            0.1f, 1.0f - 0.1f, // left bot
+            0.2f, 1.0f - 0.1f, // bot right
+            0.2f, 1.0f - 0.2f, // top right
+    };
+
+    private float[] queenCoordinates = new float[]{
+            0.0f, 1.0f - 0.2f, // top left
+            0.0f, 1.0f - 0.1f, // left bot
+            0.1f, 1.0f - 0.1f, // bot right
+            0.1f, 1.0f - 0.2f, // top right
+    };
+
+    private List<float[]> coordinateList = new Vector<>();
 
     // Constructor (Parameters with current coordinates for all the pictures, resourceId to pick
     // correct theme. )
@@ -81,25 +115,13 @@ public class TextureGL {
         }
         Log.e("Coords size", ""+coordinates.length);
 
+        coordinateList.add(boardCoordinates);
+        coordinateList.add(queenCoordinates);
+        coordinateList.add(kingCoordinates);
+
         // Here add texture coordinates for each piece, board, square etc.
-        final float[] TextureCoordinateData =
-                new float[]{ // We are using .png files which have y-axis inverted, so y coordinates 1-Y
-                        // Board
-                        0.0f, 1.0f- 1.0f, // top left
-                        0.0f, 1.0f- 0.5f, // left bot
-                        0.5f, 1.0f- 0.5f, // bot right
-                        0.5f, 1.0f- 1.0f, // top right
-                        // Red Pawn 1
-                        0.5f, 1.0f- 0.2f, // top left
-                        0.5f, 1.0f- 0.1f, // left bot
-                        0.6f, 1.0f- 0.1f, // bot right
-                        0.6f, 1.0f- 0.2f, // top right
-                        // Red Pawn 2
-                        0.5f, 1.0f- 0.2f, // top left
-                        0.5f, 1.0f- 0.1f, // left bot
-                        0.6f, 1.0f- 0.1f, // bot right
-                        0.6f, 1.0f- 0.2f, // top right
-                };
+        float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
+        Log.e("TextCoordsSize", ""+TextureCoordinateData.length);
 
         // Fill buffers
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4).order(ByteOrder.nativeOrder());
@@ -110,7 +132,7 @@ public class TextureGL {
         mCubeTextureCoordinates.put(TextureCoordinateData).position(0);
 
         ByteBuffer dlb = ByteBuffer.allocateDirect(coordinates.length * 2).order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer().put(drawOrder); // Note: Overflow here? -> Check initializing.
+        drawListBuffer = dlb.asShortBuffer().put(drawOrder); // Note: Overflow here? -> Check initialize loop
         drawListBuffer.position(0);
 
         int vertexShader = OpenGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
@@ -204,6 +226,18 @@ public class TextureGL {
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length* 4).order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer().put(pieceSelect);
         vertexBuffer.position(0);
+    }
+
+    // Combine multiple float[] together
+    public float[] setupTextureCoordinates(List<float[]> coordinateList){
+        float[] returnArray = new float[coordinateList.size()*8];
+        Log.e("Size of coordslist",""+coordinateList.size());
+
+        for(int i=0;i<coordinateList.size();i++) { // All the float[]
+            for(int x=0;x<8;x++)
+                returnArray[i * 8 + x] = coordinateList.get(i)[x];
+        }
+    return returnArray;
     }
 }
 

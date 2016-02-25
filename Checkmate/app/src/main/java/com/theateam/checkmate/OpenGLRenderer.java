@@ -47,7 +47,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     {
         Log.d("Renderer","onSurfaceCreated");
 
-        // Initialize the 1st drawn picture
+       // Initialize the 1st drawn picture
        picture = new TextureGL(mActivityContext,
                new float[]{
                        // Board
@@ -55,12 +55,12 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                        -1.0f, -1.0f,   // bottom left
                        1.0f, -1.0f,   // bottom right
                        1.0f, 1.0f,  //top right
-                       // Red Pawn 1
+                       // A2
                        -0.90f, -0.44f,   // top left
                        -0.90f, -0.65f,   // bottom left
                        -0.68f, -0.65f,   // bottom right
                        -0.68f, -0.44f,       //top right
-                       // Red Pawn 2
+                       // A3
                        -0.68f, -0.44f,   // top left
                        -0.68f, -0.65f,   // bottom left
                        -0.46f, -0.65f,   // bottom right
@@ -116,3 +116,4 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 }
+
