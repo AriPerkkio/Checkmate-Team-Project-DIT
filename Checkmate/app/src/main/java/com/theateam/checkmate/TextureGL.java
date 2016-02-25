@@ -123,6 +123,20 @@ public class TextureGL {
         float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
         Log.e("TextCoordsSize", ""+TextureCoordinateData.length);
 
+        /*private float[] setupTextureCoords (List<float[]> coords) {
+            //Set up a List<> type object of all the coordinates
+            float[] ret = new float[coords.length()*8];
+            int count = 0;//to count through master float array
+            for( float[] f : coords ) {
+                for(int i = 0; i < 12; i++ ) {
+                    ret[count++] = f[i];
+                }
+            }
+            return ret;
+        }*/
+
+
+
         // Fill buffers
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4).order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer().put(coordinates);
