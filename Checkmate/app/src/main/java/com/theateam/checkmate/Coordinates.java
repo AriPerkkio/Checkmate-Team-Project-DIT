@@ -5,6 +5,10 @@ package com.theateam.checkmate;
  */
 public class Coordinates {
 
+    public Coordinates(){
+
+    }
+
     /*
 
     //top left
@@ -455,5 +459,13 @@ public class Coordinates {
             -0.91121906f,-0.8617511f,       //bot left
             -0.6836519f, -0.8617511f,       //bot right
             -0.6836519f, -0.63779366f,      //top right
+    };
+
+    float[] boardCoordinates = new float[]{
+            // Board
+            -1.0f, 1.0f,   // top left
+            -1.0f, -1.0f,   // bottom left
+            1.0f, -1.0f,   // bottom right
+            1.0f, 1.0f,  //top right
     };
 }
