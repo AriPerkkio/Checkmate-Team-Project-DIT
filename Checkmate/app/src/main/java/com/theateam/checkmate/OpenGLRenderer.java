@@ -56,10 +56,15 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                        1.0f, -1.0f,   // bottom right
                        1.0f, 1.0f,  //top right
                        // Red Pawn 1
-                       -0.90f, -0.68f,   // top left
-                       -0.90f, -0.89f,   // bottom left
-                       -0.68f, -0.89f,   // bottom right
-                       -0.68f, -0.68f       //top right
+                       -0.90f, -0.44f,   // top left
+                       -0.90f, -0.65f,   // bottom left
+                       -0.68f, -0.65f,   // bottom right
+                       -0.68f, -0.44f,       //top right
+                       // Red Pawn 2
+                       -0.68f, -0.44f,   // top left
+                       -0.68f, -0.65f,   // bottom left
+                       -0.46f, -0.65f,   // bottom right
+                       -0.46f, -0.44f       //top right
                }, R.mipmap.wooden); // Picture for the theme package
     }
 
