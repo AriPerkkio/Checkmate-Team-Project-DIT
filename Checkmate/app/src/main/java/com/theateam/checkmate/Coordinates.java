@@ -1,12 +1,20 @@
 package com.theateam.checkmate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by deadmadness on 25/02/16.
  */
 public class Coordinates {
 
-    public Coordinates(){
+    public Map<String, float[]> coordinateList = new HashMap<>();
 
+    public Coordinates(){
+        coordinateList.put("A1", A1);
+        coordinateList.put("A2", A1);
+        coordinateList.put("A3", A1);
+        // TODO: Add all the coordinates to list like this
     }
 
     /*
@@ -563,6 +571,7 @@ public class Coordinates {
             0.6f, 1.0f- 0.0f, // bot right
             0.6f, 1.0f- 0.1f, // top right
     };
+
 }
 
 
