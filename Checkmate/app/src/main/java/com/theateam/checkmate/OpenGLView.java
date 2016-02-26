@@ -28,17 +28,17 @@ public class OpenGLView extends GLSurfaceView {
 
         float x = e.getX();
         float y = e.getY();
-        float screenWidth = 1080;
+        float screenWidth = 1080; // TODO: Read device's screen attributes and calculate ratio
         float screenHeight = 1920*0.5625f; // 9/16 = 0.5625
 
         float sceneX = (x/screenWidth)*2.0f - 1.0f;
         float sceneY = (y/screenHeight) * -2.0f + 1.0f; //if bottom is at -1. Otherwise same as X
 
-        GameActivity.coordinates.setText("X: "+sceneX+"\nY: "+sceneY);
-
-        Log.d("OpenGLView", "Click "+sceneX+", "+sceneY);
-        renderer.processTouchEvent(e); // Pass touch event to renderer
-        requestRender();
+        if(e.getAction() == MotionEvent.ACTION_UP) { // Launch action only when touch ends
+            GameActivity.coordinates.setText("X: " + sceneX + "\nY: " + sceneY);
+            renderer.processTouchEvent(e); // Pass touch event to renderer
+            requestRender();
+        }
         return true;
     }
 
