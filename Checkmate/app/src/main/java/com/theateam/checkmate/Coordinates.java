@@ -461,6 +461,7 @@ public class Coordinates {
             -0.6836519f, -0.63779366f,      //top right
     };
 
+    // Board on matrix
     float[] boardCoordinates = new float[]{
             // Board
             -1.0f, 1.0f,   // top left
@@ -468,4 +469,110 @@ public class Coordinates {
             1.0f, -1.0f,   // bottom right
             1.0f, 1.0f,  //top right
     };
+
+    // Texture coordinates
+    float[] boardTexture = new float[]{
+            0.0f, 1.0f- 1.0f, // top left
+            0.0f, 1.0f- 0.5f, // left bot
+            0.5f, 1.0f- 0.5f, // bot right
+            0.5f, 1.0f- 1.0f, // top right
+    };
+
+    // Player One
+    float[] queenPlayerOne = new float[]{
+            0.0f, 1.0f - 0.2f, // top left
+            0.0f, 1.0f - 0.1f, // left bot
+            0.1f, 1.0f - 0.1f, // bot right
+            0.1f, 1.0f - 0.2f, // top right
+    };
+
+    float[] kingPlayerOne = new float[]{
+            0.1f, 1.0f - 0.2f, // top left
+            0.1f, 1.0f - 0.1f, // left bot
+            0.2f, 1.0f - 0.1f, // bot right
+            0.2f, 1.0f - 0.2f, // top right
+    };
+
+    float[] bishopPlayerOne = new float[]{
+            0.2f, 1.0f - 0.2f, // top left
+            0.2f, 1.0f - 0.1f, // left bot
+            0.3f, 1.0f - 0.1f, // bot right
+            0.3f, 1.0f - 0.2f, // top right
+    };
+
+    float[] knightPlayerOne = new float[]{
+            0.3f, 1.0f - 0.2f, // top left
+            0.3f, 1.0f - 0.1f, // left bot
+            0.4f, 1.0f - 0.1f, // bot right
+            0.4f, 1.0f - 0.2f, // top right
+    };
+
+    float[] rookPlayerOne = new float[]{
+            0.4f, 1.0f - 0.2f, // top left
+            0.4f, 1.0f - 0.1f, // left bot
+            0.5f, 1.0f - 0.1f, // bot right
+            0.5f, 1.0f - 0.2f, // top right
+    };
+
+    float[] pawnPlayerOne = new float[]{
+            0.5f, 1.0f- 0.2f, // top left
+            0.5f, 1.0f- 0.1f, // left bot
+            0.6f, 1.0f- 0.1f, // bot right
+            0.6f, 1.0f- 0.2f, // top right
+    };
+
+    // Player Two
+    float[] queenPlayerTwo = new float[]{
+            0.0f, 1.0f - 0.1f, // top left
+            0.0f, 1.0f - 0.0f, // left bot
+            0.1f, 1.0f - 0.0f, // bot right
+            0.1f, 1.0f - 0.1f, // top right
+    };
+
+    float[] kingPlayerTwo = new float[]{
+            0.1f, 1.0f - 0.1f, // top left
+            0.1f, 1.0f - 0.0f, // left bot
+            0.2f, 1.0f - 0.0f, // bot right
+            0.2f, 1.0f - 0.1f, // top right
+    };
+
+    float[] bishopPlayerTwo = new float[]{
+            0.2f, 1.0f - 0.1f, // top left
+            0.2f, 1.0f - 0.0f, // left bot
+            0.3f, 1.0f - 0.0f, // bot right
+            0.3f, 1.0f - 0.1f, // top right
+    };
+
+    float[] knightPlayerTwo = new float[]{
+            0.3f, 1.0f - 0.1f, // top left
+            0.3f, 1.0f - 0.0f, // left bot
+            0.4f, 1.0f - 0.0f, // bot right
+            0.4f, 1.0f - 0.1f, // top right
+    };
+
+    float[] rookPlayerTwo = new float[]{
+            0.4f, 1.0f - 0.1f, // top left
+            0.4f, 1.0f - 0.0f, // left bot
+            0.5f, 1.0f - 0.0f, // bot right
+            0.5f, 1.0f - 0.1f, // top right
+    };
+
+    float[] pawnPlayerTwo = new float[]{
+            0.5f, 1.0f- 0.1f, // top left
+            0.5f, 1.0f- 0.0f, // left bot
+            0.6f, 1.0f- 0.0f, // bot right
+            0.6f, 1.0f- 0.1f, // top right
+    };
 }
+
+
+
+
+
+
+
+
+
+
+
+
