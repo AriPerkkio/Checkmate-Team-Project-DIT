@@ -62,36 +62,7 @@ public class TextureGL {
                     "gl_FragColor = (vColor * texture2D(u_Texture, v_TexCoordinate));" +
                     "}";
 
-    private float[] pawnCoordinates = new float[]{
-            // Red Pawn 2
-            0.5f, 1.0f- 0.2f, // top left
-            0.5f, 1.0f- 0.1f, // left bot
-            0.6f, 1.0f- 0.1f, // bot right
-            0.6f, 1.0f- 0.2f, // top right
-    };
-
-    private float[] boardCoordinates = new float[]{
-            // Board
-            0.0f, 1.0f- 1.0f, // top left
-            0.0f, 1.0f- 0.5f, // left bot
-            0.5f, 1.0f- 0.5f, // bot right
-            0.5f, 1.0f- 1.0f, // top right
-    };
-
-    private float[] kingCoordinates = new float[]{
-            0.1f, 1.0f - 0.2f, // top left
-            0.1f, 1.0f - 0.1f, // left bot
-            0.2f, 1.0f - 0.1f, // bot right
-            0.2f, 1.0f - 0.2f, // top right
-    };
-
-    private float[] queenCoordinates = new float[]{
-            0.0f, 1.0f - 0.2f, // top left
-            0.0f, 1.0f - 0.1f, // left bot
-            0.1f, 1.0f - 0.1f, // bot right
-            0.1f, 1.0f - 0.2f, // top right
-    };
-
+    private Coordinates allCoordinates = new Coordinates();
     private List<float[]> coordinateList = new Vector<>();
 
     // Constructor (Parameters with current coordinates for all the pictures, resourceId to pick
@@ -114,16 +85,42 @@ public class TextureGL {
             last = last + 4;
         }
         Log.e("Coords size", ""+coordinates.length);
-
-        coordinateList.add(boardCoordinates);
-        coordinateList.add(queenCoordinates);
-        coordinateList.add(kingCoordinates);
-        coordinateList.add(pawnCoordinates);
-        coordinateList.add(pawnCoordinates);
-        coordinateList.add(queenCoordinates);
-        coordinateList.add(kingCoordinates);
-        coordinateList.add(pawnCoordinates);
-        coordinateList.add(pawnCoordinates);
+        // Order of coordinateList must match OpenGLRenderer's coordinateList
+        coordinateList.add(allCoordinates.boardTexture); // Board
+        // Player One
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #1
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #2
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #3
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #4
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #5
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #6
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #7
+        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #8
+        coordinateList.add(allCoordinates.rookPlayerOne); // Rook #1 Player One
+        coordinateList.add(allCoordinates.knightPlayerOne); // Knight #1 Player One
+        coordinateList.add(allCoordinates.bishopPlayerOne); // Bishop #1 Player One
+        coordinateList.add(allCoordinates.kingPlayerOne); // King Player One
+        coordinateList.add(allCoordinates.queenPlayerOne); // Queen Player One
+        coordinateList.add(allCoordinates.bishopPlayerOne); // Bishop #2 Player One
+        coordinateList.add(allCoordinates.knightPlayerOne); // Knight #2 Player One
+        coordinateList.add(allCoordinates.rookPlayerOne); // Rook #2 Player One
+        // Player Two
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #1
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #2
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #3
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #4
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #5
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #6
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #7
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #8
+        coordinateList.add(allCoordinates.pawnPlayerTwo); // Rook #1 Player two
+        coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #1 Player two
+        coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #1 Player two
+        coordinateList.add(allCoordinates.kingPlayerTwo); // King Player two
+        coordinateList.add(allCoordinates.queenPlayerTwo); // Queen Player two
+        coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #2 Player two
+        coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #2 Player two
+        coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #2 Player two
 
         // Here add texture coordinates for each piece, board, square etc.
         float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
