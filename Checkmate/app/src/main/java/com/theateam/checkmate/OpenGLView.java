@@ -4,10 +4,9 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.TextView;
 
 /**
- * Created by arska on 23/02/16.
+ * Created by AriPerkkio on 23/02/16.
  */
 public class OpenGLView extends GLSurfaceView {
 
@@ -34,8 +33,10 @@ public class OpenGLView extends GLSurfaceView {
         float sceneX = (x/screenWidth)*2.0f - 1.0f;
         float sceneY = (y/screenHeight) * -2.0f + 1.0f; //if bottom is at -1. Otherwise same as X
 
+        String clickedSquare = renderer.coordinatesToSquare(sceneX, sceneY);
+
         if(e.getAction() == MotionEvent.ACTION_UP) { // Launch action only when touch ends
-            GameActivity.coordinates.setText("X: " + sceneX + "\nY: " + sceneY);
+            GameActivity.coordinates.setText("X: " + sceneX + "\nY: " + sceneY+ "\nSquare: "+ clickedSquare);
             renderer.processTouchEvent(e); // Pass touch event to renderer
             requestRender();
         }
