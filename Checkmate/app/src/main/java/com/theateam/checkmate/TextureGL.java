@@ -169,9 +169,11 @@ public class TextureGL {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
+            /*
             // Set transparent background
             GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
             GLES20.glEnable(GLES20.GL_BLEND);
+            */
 
             // Load the bitmap into the bound texture.
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);

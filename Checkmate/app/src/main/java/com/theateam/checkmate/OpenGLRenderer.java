@@ -55,39 +55,39 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         // Order of coordinateList must match TextureGL's textureCoordinates
         coordinateList.add(allCoordinates.boardCoordinates); // Board
         // Player one
-        coordinateList.add(allCoordinates.A2); // Pawn #1 Player One
-        coordinateList.add(allCoordinates.B2); // Pawn #2 Player One
-        coordinateList.add(allCoordinates.C2); // Pawn #3 Player One
-        coordinateList.add(allCoordinates.D2); // Pawn #4 Player One
-        coordinateList.add(allCoordinates.E2); // Pawn #5 Player One
-        coordinateList.add(allCoordinates.F2); // Pawn #6 Player One
-        coordinateList.add(allCoordinates.G2); // Pawn #7 Player One
-        coordinateList.add(allCoordinates.H2); // Pawn #8 Player One
-        coordinateList.add(allCoordinates.A1); // Rook #1 Player One
-        coordinateList.add(allCoordinates.B1); // Knight #1 Player One
-        coordinateList.add(allCoordinates.C1); // Bishop #1 Player One
-        coordinateList.add(allCoordinates.D1); // King Player One
-        coordinateList.add(allCoordinates.E1); // Queen Player One
-        coordinateList.add(allCoordinates.F1); // Bishop #2 Player One
-        coordinateList.add(allCoordinates.G1); // Knight #2 Player One
-        coordinateList.add(allCoordinates.H1); // Rook #2 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("A2")); // Pawn #1 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("B2")); // Pawn #2 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("C2")); // Pawn #3 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("D2")); // Pawn #4 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("E2")); // Pawn #5 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("F2")); // Pawn #6 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("G2")); // Pawn #7 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("H2")); // Pawn #8 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("A1")); // Rook #1 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("B1")); // Knight #1 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("C1")); // Bishop #1 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("D1")); // King Player One
+        coordinateList.add(allCoordinates.coordinateList.get("E1")); // Queen Player One
+        coordinateList.add(allCoordinates.coordinateList.get("F1")); // Bishop #2 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("G1")); // Knight #2 Player One
+        coordinateList.add(allCoordinates.coordinateList.get("H1")); // Rook #2 Player One
         // Player two
-        coordinateList.add(allCoordinates.A7); // Pawn #1 Player Two
-        coordinateList.add(allCoordinates.B7); // Pawn #2 Player Two
-        coordinateList.add(allCoordinates.C7); // Pawn #3 Player Two
-        coordinateList.add(allCoordinates.D7); // Pawn #4 Player Two
-        coordinateList.add(allCoordinates.E7); // Pawn #5 Player Two
-        coordinateList.add(allCoordinates.F7); // Pawn #6 Player Two
-        coordinateList.add(allCoordinates.G7); // Pawn #7 Player Two
-        coordinateList.add(allCoordinates.H7); // Pawn #8 Player Two
-        coordinateList.add(allCoordinates.A8); // Rook #1 Player Two
-        coordinateList.add(allCoordinates.B8); // Knight #1 Player Two
-        coordinateList.add(allCoordinates.C8); // Bishop #1 Player Two
-        coordinateList.add(allCoordinates.D8); // King Player Two
-        coordinateList.add(allCoordinates.E8); // Queen Player Two
-        coordinateList.add(allCoordinates.F8); // Bishop #2 Player Two
-        coordinateList.add(allCoordinates.G8); // Knight #2 Player Two
-        coordinateList.add(allCoordinates.H8); // Rook #2 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("A7")); // Pawn #1 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("B7")); // Pawn #2 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("C7")); // Pawn #3 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("D7")); // Pawn #4 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("E7")); // Pawn #5 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("F7")); // Pawn #6 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("G7")); // Pawn #7 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("H7")); // Pawn #8 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("A8")); // Rook #1 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("B8")); // Knight #1 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("C8")); // Bishop #1 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("D8")); // King Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("E8")); // Queen Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("F8")); // Bishop #2 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
 
         coordinates = new float[coordinateList.size()*8];
         coordinates = setupTextureCoordinates(coordinateList);
@@ -184,40 +184,40 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         // Find column
         // Check if x is between left and right
-        if(x>allCoordinates.A1[0] && x<allCoordinates.A1[4])
+        if(x>allCoordinates.coordinateList.get("A1")[0] && x<allCoordinates.coordinateList.get("A1")[4])
             returnText += "A";
-        if(x>allCoordinates.B1[0] && x<allCoordinates.B1[4])
+        if(x>allCoordinates.coordinateList.get("B1")[0] && x<allCoordinates.coordinateList.get("B1")[4])
             returnText += "B";
-        if(x>allCoordinates.C1[0] && x<allCoordinates.C1[4])
+        if(x>allCoordinates.coordinateList.get("C1")[0] && x<allCoordinates.coordinateList.get("C1")[4])
             returnText += "C";
-        if(x>allCoordinates.D1[0] && x<allCoordinates.D1[4])
+        if(x>allCoordinates.coordinateList.get("D1")[0] && x<allCoordinates.coordinateList.get("D1")[4])
             returnText += "D";
-        if(x>allCoordinates.E1[0] && x<allCoordinates.E1[4])
+        if(x>allCoordinates.coordinateList.get("E1")[0] && x<allCoordinates.coordinateList.get("E1")[4])
             returnText += "E";
-        if(x>allCoordinates.F1[0] && x<allCoordinates.F1[4])
+        if(x>allCoordinates.coordinateList.get("F1")[0] && x<allCoordinates.coordinateList.get("F1")[4])
             returnText += "F";
-        if(x>allCoordinates.G1[0] && x<allCoordinates.G1[4])
+        if(x>allCoordinates.coordinateList.get("G1")[0] && x<allCoordinates.coordinateList.get("G1")[4])
             returnText += "G";
-        if(x>allCoordinates.H1[0] && x<allCoordinates.H1[4])
+        if(x>allCoordinates.coordinateList.get("H1")[0] && x<allCoordinates.coordinateList.get("H1")[4])
             returnText += "H";
 
         // Find row
         // Check if y is between bottom and top
-        if(y<allCoordinates.A1[1] && x>allCoordinates.A1[3])
+        if(y<allCoordinates.coordinateList.get("A1")[1] && x>allCoordinates.coordinateList.get("A1")[3])
             returnText += "1";
-        if(y<allCoordinates.B1[1] && x>allCoordinates.B1[3])
+        if(y<allCoordinates.coordinateList.get("B1")[1] && x>allCoordinates.coordinateList.get("B1")[3])
             returnText += "2";
-        if(y<allCoordinates.C1[1] && x>allCoordinates.C1[3])
+        if(y<allCoordinates.coordinateList.get("C1")[1] && x>allCoordinates.coordinateList.get("C1")[3])
             returnText += "3";
-        if(y<allCoordinates.D1[1] && x>allCoordinates.D1[3])
+        if(y<allCoordinates.coordinateList.get("D1")[1] && x>allCoordinates.coordinateList.get("D1")[3])
             returnText += "4";
-        if(y<allCoordinates.E1[1] && x>allCoordinates.E1[3])
+        if(y<allCoordinates.coordinateList.get("E1")[1] && x>allCoordinates.coordinateList.get("E1")[3])
             returnText += "5";
-        if(y<allCoordinates.F1[1] && x>allCoordinates.F1[3])
+        if(y<allCoordinates.coordinateList.get("F1")[1] && x>allCoordinates.coordinateList.get("F1")[3])
             returnText += "6";
-        if(y<allCoordinates.G1[1] && x>allCoordinates.G1[3])
+        if(y<allCoordinates.coordinateList.get("G1")[1] && x>allCoordinates.coordinateList.get("G1")[3])
             returnText += "7";
-        if(y<allCoordinates.H1[1] && x>allCoordinates.H1[3])
+        if(y<allCoordinates.coordinateList.get("H1")[1] && x>allCoordinates.coordinateList.get("H1")[3])
             returnText += "8";
 
         //if(returnText.length()!=2)
