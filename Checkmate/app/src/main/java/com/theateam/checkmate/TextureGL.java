@@ -113,7 +113,7 @@ public class TextureGL {
         coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #6
         coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #7
         coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #8
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Rook #1 Player two
+        coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #1 Player two
         coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #1 Player two
         coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #1 Player two
         coordinateList.add(allCoordinates.kingPlayerTwo); // King Player two
@@ -169,11 +169,11 @@ public class TextureGL {
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
 
-            /*
+
             // Set transparent background
             GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
             GLES20.glEnable(GLES20.GL_BLEND);
-            */
+
 
             // Load the bitmap into the bound texture.
             GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
@@ -218,19 +218,21 @@ public class TextureGL {
     }
 
     public void changePieceCoordinates(int pieceSelect, float left, float right, float top, float bottom){
-        coordinates[8*pieceSelect] = left;
-        coordinates[1+8*pieceSelect] = top;
-        coordinates[2+8*pieceSelect] = left;
-        coordinates[3+8*pieceSelect] = bottom;
-        coordinates[4+8*pieceSelect] = right;
-        coordinates[5+8*pieceSelect] = bottom;
-        coordinates[6+8*pieceSelect] = right;
-        coordinates[7+8*pieceSelect] = top;
+
+        coordinates[    8 * pieceSelect] = left;
+        coordinates[1 + 8 * pieceSelect] = top;
+        coordinates[2 + 8 * pieceSelect] = left;
+        coordinates[3 + 8 * pieceSelect] = bottom;
+        coordinates[4 + 8 * pieceSelect] = right;
+        coordinates[5 + 8 * pieceSelect] = bottom;
+        coordinates[6 + 8 * pieceSelect] = right;
+        coordinates[7 + 8 * pieceSelect] = top;
 
         // Fill new coordinates to buffer
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length* 4).order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer().put(pieceSelect);
+        vertexBuffer = bb.asFloatBuffer().put(coordinates);
         vertexBuffer.position(0);
+
     }
 
     // Combine multiple float[] together
