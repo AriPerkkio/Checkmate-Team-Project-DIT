@@ -90,7 +90,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
 
         coordinates = new float[coordinateList.size()*8];
-        coordinates = setupTextureCoordinates(coordinateList);
+        coordinates = setupMatrixCoordinates(coordinateList);
 
        // Initialize the drawn picture
        picture = new TextureGL(mActivityContext,
@@ -139,6 +139,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         String clickedSquare = coordinatesToSquare(sceneX, sceneY);
         Log.d("Clicked Square: ", clickedSquare);
 
+        //TODO: This is just testing movement. Calls for movement will come from game logic
+        if(clickedSquare.equals("D2"))
+            movePiece(4, "D3");
+        if(clickedSquare.equals("D3"))
+            movePiece(4, "D4");
+        if(clickedSquare.equals("D4"))
+            movePiece(4, "D2");
+
         // TODO
         // gameController.selectedSquare(clickedSquare);
 
@@ -154,9 +162,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     }
 
     // Combine multiple float[] together
-    public float[] setupTextureCoordinates(List<float[]> coordinateList){
+    public float[] setupMatrixCoordinates(List<float[]> coordinateList){
         float[] returnArray = new float[coordinateList.size()*8];
-        Log.e("Size of coordslist",""+coordinateList.size());
 
         for(int i=0;i<coordinateList.size();i++) { // All the float[]
             for(int x=0;x<8;x++)
@@ -168,12 +175,15 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     // Called from game logic
     public void movePiece(int pieceSelect, String square){
         // TODO: Work-around for pieceSelect. One option is to add attribute to piece class
+
         // Get float[] coordinates for the given String square
         float[] target = allCoordinates.coordinateList.get(square);
 
         // TODO: Loop changePieceCoordinates in order to make it look like piece is moving
+        // TODO: In order to do that, we are required to know the source square?
 
-        picture.changePieceCoordinates(pieceSelect, target[0], target[1], target[2], target[3]);
+                                                //    LEFT        RIGHT     TOP       BOTTOM
+        picture.changePieceCoordinates(pieceSelect, target[0], target[4], target[1], target[3]);
     }
 
     public String coordinatesToSquare(float x, float y){
@@ -218,8 +228,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         if(y>allCoordinates.coordinateList.get("A8")[3] && y<allCoordinates.coordinateList.get("A8")[1])
             returnText += "8";
 
-        //if(returnText.length()!=2)
-          //  returnText = "OutOfBoard"; // Receiver should 1st check if "OutOfBoard"
+        // Check if click was out of the board
+        if(returnText.length()!=2) // This includes especially cases like "A", "1" etc. Also "A1234567" if it still occurs
+            returnText = "OutOfBoard"; // Receiver should 1st check if "OutOfBoard"
 
         return returnText;
     }
