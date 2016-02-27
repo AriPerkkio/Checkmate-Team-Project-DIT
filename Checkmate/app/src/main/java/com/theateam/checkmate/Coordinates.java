@@ -15,12 +15,12 @@ public class Coordinates {
     public ArrayList<float[]> rawCoords = new ArrayList<>();
 
     //size of square gap
-    private float squareGap = 0.21831646f;
+    private float squareGap = 0.224f;
 
     //left side of square
-    private float leftX = -0.90196836f;
+    private float leftX = -0.90f;
     //bottom of square
-    private float botY = -0.85619843f;
+    private float botY = -0.90f;
 
     //right side of sqaure
     private float rightX = leftX + squareGap;
