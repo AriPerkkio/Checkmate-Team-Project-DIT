@@ -182,6 +182,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         // TODO: Check comparing once Coordinates.java is complete
         // TODO: Checking positive and negative coordinates - how it should be done
 
+        Log.d("E3: ", "top: "+ allCoordinates.coordinateList.get("E3")[1]+"bot: "+ allCoordinates.coordinateList.get("E3")[3]);
+
         // Find column
         // Check if x is between left and right
         if(x>allCoordinates.coordinateList.get("A1")[0] && x<allCoordinates.coordinateList.get("A1")[4])
@@ -203,21 +205,21 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         // Find row
         // Check if y is between bottom and top
-        if(y<allCoordinates.coordinateList.get("A1")[1] && x>allCoordinates.coordinateList.get("A1")[3])
+        if(y<allCoordinates.coordinateList.get("A1")[1] && y>allCoordinates.coordinateList.get("A1")[3])
             returnText += "1";
-        if(y<allCoordinates.coordinateList.get("B1")[1] && x>allCoordinates.coordinateList.get("B1")[3])
+        if(y<allCoordinates.coordinateList.get("A2")[1] && y>allCoordinates.coordinateList.get("A2")[3])
             returnText += "2";
-        if(y<allCoordinates.coordinateList.get("C1")[1] && x>allCoordinates.coordinateList.get("C1")[3])
+        if(y<allCoordinates.coordinateList.get("A3")[1] && y>allCoordinates.coordinateList.get("A3")[3])
             returnText += "3";
-        if(y<allCoordinates.coordinateList.get("D1")[1] && x>allCoordinates.coordinateList.get("D1")[3])
+        if(y<allCoordinates.coordinateList.get("A4")[1] && y>allCoordinates.coordinateList.get("A4")[3])
             returnText += "4";
-        if(y<allCoordinates.coordinateList.get("E1")[1] && x>allCoordinates.coordinateList.get("E1")[3])
+        if(y<allCoordinates.coordinateList.get("A5")[1] && y>allCoordinates.coordinateList.get("A5")[3])
             returnText += "5";
-        if(y<allCoordinates.coordinateList.get("F1")[1] && x>allCoordinates.coordinateList.get("F1")[3])
+        if(y<allCoordinates.coordinateList.get("A6")[1] && y>allCoordinates.coordinateList.get("A6")[3])
             returnText += "6";
-        if(y<allCoordinates.coordinateList.get("G1")[1] && x>allCoordinates.coordinateList.get("G1")[3])
+        if(y<allCoordinates.coordinateList.get("A7")[1] && y>allCoordinates.coordinateList.get("A7")[3])
             returnText += "7";
-        if(y<allCoordinates.coordinateList.get("H1")[1] && x>allCoordinates.coordinateList.get("H1")[3])
+        if(y<allCoordinates.coordinateList.get("A8")[1] && y>allCoordinates.coordinateList.get("A8")[3])
             returnText += "8";
 
         //if(returnText.length()!=2)
