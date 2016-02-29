@@ -11,7 +11,7 @@ import android.view.MotionEvent;
 public class OpenGLView extends GLSurfaceView {
 
     private final OpenGLRenderer renderer;
-    private GameActivity gameActivity = new GameActivity();
+    public static OpenGLView instance;
 
 
     public OpenGLView(Context context){
@@ -20,6 +20,12 @@ public class OpenGLView extends GLSurfaceView {
         renderer = new OpenGLRenderer(context); // New instance of renderer
         setRenderer(renderer); // Set renderer as this view's graphics renderer
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY); // Render only when requestRender() called
+        instance = this;
+        renderer.viewInstance = this;
+    }
+
+    public static OpenGLView getInstance(){
+        return instance;
     }
 
     // Captures users clicks
