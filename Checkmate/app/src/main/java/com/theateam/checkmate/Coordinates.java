@@ -1,5 +1,6 @@
 package com.theateam.checkmate;
 
+import java.io.CharArrayReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,19 @@ public class Coordinates {
             }
         }
 
-        coordinateList.put("A1", rawCoords.get(0));
+        //Add coords to list with loop
+        StringBuilder sb = new StringBuilder("A1");
+        char startChar = 'A';
+        int c1_ = (int)startChar;
+        for( int i = 0; i < 8; i++ ) {
+            sb.setCharAt(0,(char)(c1_ + i));
+            for( int j = 0; j < 8; j++ ) {
+                sb.setCharAt(1, Character.forDigit((j+1),10));
+                coordinateList.put(sb.toString(),rawCoords.get(j + (i * 8)));
+            }
+        }
+
+        /*coordinateList.put("A1", rawCoords.get(0));
         coordinateList.put("A2", rawCoords.get(1));
         coordinateList.put("A3", rawCoords.get(2));
         coordinateList.put("A4", rawCoords.get(3));
@@ -102,7 +115,7 @@ public class Coordinates {
         coordinateList.put("H5", rawCoords.get(60));
         coordinateList.put("H6", rawCoords.get(61));
         coordinateList.put("H7", rawCoords.get(62));
-        coordinateList.put("H8", rawCoords.get(63));
+        coordinateList.put("H8", rawCoords.get(63));*/
 
 
         // TODO: Add all the coordinates to list like this
