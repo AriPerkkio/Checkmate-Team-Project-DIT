@@ -71,7 +71,6 @@ public class TextureGL {
         mActivityContext = _context;
         coordinates = _coordinates;
         drawOrder = new short[(coordinates.length/8)*6];
-        Log.d("DrawOrder length", ""+drawOrder.length);
 
         // Fill drawOrder for each texture
         int last = 0;
@@ -84,7 +83,7 @@ public class TextureGL {
             drawOrder[(i * 6) + 5] = (short) (last + 3);
             last = last + 4;
         }
-        Log.e("Coords size", ""+coordinates.length);
+
         // Order of coordinateList must match OpenGLRenderer's coordinateList
         coordinateList.add(allCoordinates.boardTexture); // Board
         // Player One
@@ -124,7 +123,6 @@ public class TextureGL {
 
         // Here add texture coordinates for each piece, board, square etc.
         float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
-        Log.e("TextCoordsSize", ""+TextureCoordinateData.length);
 
         // Fill buffers
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4).order(ByteOrder.nativeOrder());
@@ -238,7 +236,6 @@ public class TextureGL {
     // Combine multiple float[] together
     public float[] setupTextureCoordinates(List<float[]> coordinateList){
         float[] returnArray = new float[coordinateList.size()*8];
-        Log.e("Size of coordslist",""+coordinateList.size());
 
         for(int i=0;i<coordinateList.size();i++) { // All the float[]
             for(int x=0;x<8;x++)
