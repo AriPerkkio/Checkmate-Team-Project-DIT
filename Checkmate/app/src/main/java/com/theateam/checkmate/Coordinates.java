@@ -149,5 +149,61 @@ public class Coordinates {
             0.6f, 1.0f- 0.0f, // bot right
             0.6f, 1.0f- 0.1f, // top right
     };
+
+    float[] learningTool_cross_red = new float[] {
+            0.6f, 1.0f - 1.0f, //top left
+            0.6f, 1.0f - 0.9f, //bot left
+            0.7f, 1.0f - 0.9f, //bot right
+            0.7f, 1.0f - 1.0f  //top right
+    };
+
+    float[] learningTool_cross_green = new float[] {
+            0.6f, 1.0f - 0.9f, //top left
+            0.6f, 1.0f - 0.8f, //bot left
+            0.7f, 1.0f - 0.8f, //bot right
+            0.7f, 1.0f - 0.9f  //top right
+    };
+
+    float[] learningTool_cross_blue = new float[] {
+            0.6f, 1.0f - 0.8f, //top left
+            0.6f, 1.0f - 0.7f, //bot left
+            0.7f, 1.0f - 0.7f, //bot right
+            0.7f, 1.0f - 0.8f  //top right
+    };
+
+    float[] learningTool_cross_grey = new float[] {
+            0.6f, 1.0f - 0.7f, //top left
+            0.6f, 1.0f - 0.6f, //bot left
+            0.7f, 1.0f - 0.6f, //bot right
+            0.7f, 1.0f - 0.7f  //top right
+    };
+
+    float[] learningTool_circle_red = new float[] {
+            0.5f, 1.0f - 1.0f, //top left
+            0.5f, 1.0f - 0.9f, //bot left
+            0.6f, 1.0f - 0.9f, //bot right
+            0.6f, 1.0f - 1.0f  //top right
+    };
+
+    float[] learningTool_circle_green = new float[] {
+            0.5f, 1.0f - 0.9f, //top left
+            0.5f, 1.0f - 0.8f, //bot left
+            0.6f, 1.0f - 0.8f, //bot right
+            0.6f, 1.0f - 0.9f  //top right
+    };
+
+    float[] learningTool_circle_blue = new float[] {
+            0.5f, 1.0f - 0.8f, //top left
+            0.5f, 1.0f - 0.7f, //bot left
+            0.6f, 1.0f - 0.7f, //bot right
+            0.6f, 1.0f - 0.8f  //top right
+    };
+
+    float[] learningTool_circle_grey = new float[] {
+            0.5f, 1.0f - 0.7f, //top left
+            0.5f, 1.0f - 0.6f, //bot left
+            0.6f, 1.0f - 0.6f, //bot right
+            0.6f, 1.0f - 0.7f  //top right
+    };
 }
 
