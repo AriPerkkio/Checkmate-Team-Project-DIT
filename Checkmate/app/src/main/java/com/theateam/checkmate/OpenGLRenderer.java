@@ -162,11 +162,19 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         if(clickedSquare.equals("E3"))
             movePiece(pieceSelect, "D3", "E3");
 
+        //TODO: This is just testing piece eliminating. Calls for it will come from game logic
+        if(clickedSquare.equals("H5")) {
+            eliminatePiece(19, "C7");
+            eliminatePiece(20, "D7");
+            eliminatePiece(21, "E7");
+            eliminatePiece(22, "F7");
+            eliminatePiece(23, "G7");
+        }
 
         // TODO
         // gameController.selectedSquare(clickedSquare);
-
     }
+
 
     // Called i.e. when rotating screen landscape - portrait
     public void onSurfaceChanged(GL10 unused, int width, int height)
@@ -188,7 +196,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         return returnArray;
     }
 
-    // Called from game logic
+    // Moves specific piece from source to target
     public void movePiece(int pieceSelect, String targetSquare, String sourceSquare){
         // TODO: Work-around for pieceSelect. One option is to add attribute to piece class
 
@@ -213,6 +221,31 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         }
     }
 
+    // Makes pieces shrink until they disappear
+    public void eliminatePiece(int pieceSelect, String _square){
+
+        float[] square = allCoordinates.coordinateList.get(_square);
+        float left = square[0];
+        float right = square[4];
+        float top = square[1];
+        float bot = square[3];
+
+        int fadingCount = 250;
+        for(int i=0;i<fadingCount/2;i++){
+            left  -= ((square[0]-square[4])/fadingCount);
+            right -= ((square[4]-square[0])/fadingCount);
+            top   -= ((square[1]-square[3])/fadingCount);
+            bot   -= ((square[3]-square[1])/fadingCount);
+            picture.changePieceCoordinates(pieceSelect, left, right, top, bot);
+            SystemClock.sleep(5);
+            viewInstance.requestRender(); // Render picture after each movement
+            // Careful with this one. Too fast rendering throws runtime errors
+        }
+        // After making it disappear set it to 0,0,0,0 coordinates
+        picture.changePieceCoordinates(pieceSelect, 0.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    // Convert coordinates to String square
     public String coordinatesToSquare(float x, float y){
         String returnText = ""; // Consist of Column (A-H) and row (1-8)
 
