@@ -6,6 +6,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -28,6 +29,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     private final Context mActivityContext;
     private Coordinates allCoordinates = new Coordinates();
+    static OpenGLView viewInstance;
 
     // Matrix Initializations
     private final float[] mMVPMatrix = new float[16];
@@ -47,6 +49,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     {
         Log.d("Renderer", "Constructor");
         mActivityContext = activityContext; // catch the context
+        viewInstance = OpenGLView.getInstance();
     }
 
     public void onSurfaceCreated(GL10 unused, EGLConfig config)
@@ -96,7 +99,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
        picture = new TextureGL(mActivityContext,
                coordinates,
                R.mipmap.wooden); // Picture for the theme package
-
     }
 
     public void onDrawFrame(GL10 unused)
@@ -140,12 +142,26 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         Log.d("Clicked Square: ", clickedSquare);
 
         //TODO: This is just testing movement. Calls for movement will come from game logic
+        int pieceSelect = 12;
         if(clickedSquare.equals("D2"))
-            movePiece(4, "D3");
+            movePiece(pieceSelect, "D3", "D2");
         if(clickedSquare.equals("D3"))
-            movePiece(4, "D4");
+            movePiece(pieceSelect, "D4", "D3");
         if(clickedSquare.equals("D4"))
-            movePiece(4, "D2");
+            movePiece(pieceSelect, "D5", "D4");
+        if(clickedSquare.equals("D5"))
+            movePiece(pieceSelect, "D6", "D5");
+        if(clickedSquare.equals("D6"))
+            movePiece(pieceSelect, "E6", "D6");
+        if(clickedSquare.equals("E6"))
+            movePiece(pieceSelect, "E5", "E6");
+        if(clickedSquare.equals("E5"))
+            movePiece(pieceSelect, "E4", "E5");
+        if(clickedSquare.equals("E4"))
+            movePiece(pieceSelect, "E3", "E4");
+        if(clickedSquare.equals("E3"))
+            movePiece(pieceSelect, "D3", "E3");
+
 
         // TODO
         // gameController.selectedSquare(clickedSquare);
@@ -173,17 +189,28 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     }
 
     // Called from game logic
-    public void movePiece(int pieceSelect, String square){
+    public void movePiece(int pieceSelect, String targetSquare, String sourceSquare){
         // TODO: Work-around for pieceSelect. One option is to add attribute to piece class
 
         // Get float[] coordinates for the given String square
-        float[] target = allCoordinates.coordinateList.get(square);
+        float[] target = allCoordinates.coordinateList.get(targetSquare);
+        float[] source = allCoordinates.coordinateList.get(sourceSquare);
+        float left = source[0];
+        float right = source[4];
+        float top = source[1];
+        float bot = source[3];
 
-        // TODO: Loop changePieceCoordinates in order to make it look like piece is moving
-        // TODO: In order to do that, we are required to know the source square?
-
-                                                //    LEFT        RIGHT     TOP       BOTTOM
-        picture.changePieceCoordinates(pieceSelect, target[0], target[4], target[1], target[3]);
+        int movementCount = 250;
+        for(int i=0;i<movementCount;i++){
+            left  += ((target[0]-source[0])/movementCount);
+            right += ((target[4]-source[4])/movementCount);
+            top   += ((target[1]-source[1])/movementCount);
+            bot   += ((target[3]-source[3])/movementCount);
+            picture.changePieceCoordinates(pieceSelect, left, right, top, bot);
+            SystemClock.sleep(1);
+            viewInstance.requestRender(); // Render picture after each movement
+                                          // Careful with this one. Too fast rendering throws runtime errors
+        }
     }
 
     public String coordinatesToSquare(float x, float y){
