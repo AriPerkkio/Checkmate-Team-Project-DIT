@@ -217,20 +217,58 @@ public class TextureGL {
 
     public void changePieceCoordinates(int pieceSelect, float left, float right, float top, float bottom){
 
-        coordinates[    8 * pieceSelect] = left;
-        coordinates[1 + 8 * pieceSelect] = top;
-        coordinates[2 + 8 * pieceSelect] = left;
-        coordinates[3 + 8 * pieceSelect] = bottom;
-        coordinates[4 + 8 * pieceSelect] = right;
-        coordinates[5 + 8 * pieceSelect] = bottom;
-        coordinates[6 + 8 * pieceSelect] = right;
-        coordinates[7 + 8 * pieceSelect] = top;
-
+        if(OpenGLRenderer.rotated) {
+            coordinates[    8 * pieceSelect] = right;
+            coordinates[1 + 8 * pieceSelect] = bottom;
+            coordinates[2 + 8 * pieceSelect] = right;
+            coordinates[3 + 8 * pieceSelect] = top;
+            coordinates[4 + 8 * pieceSelect] = left;
+            coordinates[5 + 8 * pieceSelect] = top;
+            coordinates[6 + 8 * pieceSelect] = left;
+            coordinates[7 + 8 * pieceSelect] = bottom;
+        }
+        else
+        {
+            coordinates[8 * pieceSelect] = left;
+            coordinates[1 + 8 * pieceSelect] = top;
+            coordinates[2 + 8 * pieceSelect] = left;
+            coordinates[3 + 8 * pieceSelect] = bottom;
+            coordinates[4 + 8 * pieceSelect] = right;
+            coordinates[5 + 8 * pieceSelect] = bottom;
+            coordinates[6 + 8 * pieceSelect] = right;
+            coordinates[7 + 8 * pieceSelect] = top;
+        }
         // Fill new coordinates to buffer
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length* 4).order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer().put(coordinates);
         vertexBuffer.position(0);
 
+    }
+
+    public void rotateTextures(){
+
+        for(int i=1;i<33;i++) {
+            // Get initial values
+            float left  = coordinates[    8 * i];
+            float right = coordinates[4 + 8 * i];
+            float top   = coordinates[7 + 8 * i];
+            float bot   = coordinates[5 + 8 * i];
+
+            // Update rotation
+            coordinates[    8 * i] = right;
+            coordinates[1 + 8 * i] = bot;
+            coordinates[2 + 8 * i] = right;
+            coordinates[3 + 8 * i] = top;
+            coordinates[4 + 8 * i] = left;
+            coordinates[5 + 8 * i] = top;
+            coordinates[6 + 8 * i] = left;
+            coordinates[7 + 8 * i] = bot;
+        }
+
+        // Fill new coordinates to buffer
+        ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length* 4).order(ByteOrder.nativeOrder());
+        vertexBuffer = bb.asFloatBuffer().put(coordinates);
+        vertexBuffer.position(0);
     }
 
     // Combine multiple float[] together
