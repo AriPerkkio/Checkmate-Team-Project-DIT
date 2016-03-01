@@ -39,6 +39,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     // Angle of the view
     public volatile float mAngle;
+    public static boolean rotated = false; // Also accessed from TextureGL
 
     // Picture for drawing
     private TextureGL picture;
@@ -161,6 +162,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             movePiece(pieceSelect, "E3", "E4");
         if(clickedSquare.equals("E3"))
             movePiece(pieceSelect, "D3", "E3");
+        if(clickedSquare.equals("A1"))
+            rotate();
 
         //TODO: This is just testing piece eliminating. Calls for it will come from game logic
         if(clickedSquare.equals("H5")) {
@@ -245,48 +248,74 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         picture.changePieceCoordinates(pieceSelect, 0.0f, 0.0f, 0.0f, 0.0f);
     }
 
+    // Rotate board and pieces. Refresh the view
+    public void rotate(){
+
+        int rotateCount = 180;
+        for(int i=0;i<rotateCount;i++){
+            mAngle ++;
+            SystemClock.sleep(5);
+            viewInstance.requestRender();
+        }
+        if(rotated)
+            rotated = false;
+        else
+            rotated = true;
+        picture.rotateTextures();
+        viewInstance.requestRender();
+    }
+
     // Convert coordinates to String square
     public String coordinatesToSquare(float x, float y){
         String returnText = ""; // Consist of Column (A-H) and row (1-8)
 
+        // Original squares
+        String rowCharacters = "ABCDEFGH";
+        String columnNumbers = "12345678";
+
+        // Squares for rotated board
+        if(rotated) {
+            rowCharacters = "HGFEDCBA";
+            columnNumbers = "87654321";
+        }
         // Find column
         // Check if x is between left and right
         if(x>allCoordinates.coordinateList.get("A1")[0] && x<allCoordinates.coordinateList.get("A1")[4])
-            returnText += "A";
+            returnText += rowCharacters.charAt(0);
         if(x>allCoordinates.coordinateList.get("B1")[0] && x<allCoordinates.coordinateList.get("B1")[4])
-            returnText += "B";
+            returnText += rowCharacters.charAt(1);
         if(x>allCoordinates.coordinateList.get("C1")[0] && x<allCoordinates.coordinateList.get("C1")[4])
-            returnText += "C";
+            returnText += rowCharacters.charAt(2);
         if(x>allCoordinates.coordinateList.get("D1")[0] && x<allCoordinates.coordinateList.get("D1")[4])
-            returnText += "D";
+            returnText += rowCharacters.charAt(3);
         if(x>allCoordinates.coordinateList.get("E1")[0] && x<allCoordinates.coordinateList.get("E1")[4])
-            returnText += "E";
+            returnText += rowCharacters.charAt(4);
         if(x>allCoordinates.coordinateList.get("F1")[0] && x<allCoordinates.coordinateList.get("F1")[4])
-            returnText += "F";
+            returnText += rowCharacters.charAt(5);
         if(x>allCoordinates.coordinateList.get("G1")[0] && x<allCoordinates.coordinateList.get("G1")[4])
-            returnText += "G";
+            returnText += rowCharacters.charAt(6);
         if(x>allCoordinates.coordinateList.get("H1")[0] && x<allCoordinates.coordinateList.get("H1")[4])
-            returnText += "H";
+            returnText += rowCharacters.charAt(7);
 
         // Find row
         // Check if y is between bottom and top
             //                                    BOT <   y <  TOP
         if(allCoordinates.coordinateList.get("A1")[3] < y && y < allCoordinates.coordinateList.get("A1")[1])
-            returnText += "1";
+            returnText += columnNumbers.charAt(0);
         if(y>allCoordinates.coordinateList.get("A2")[3] && y<allCoordinates.coordinateList.get("A2")[1])
-            returnText += "2";
+            returnText += columnNumbers.charAt(1);
         if(y>allCoordinates.coordinateList.get("A3")[3] && y<allCoordinates.coordinateList.get("A3")[1])
-            returnText += "3";
+            returnText += columnNumbers.charAt(2);
         if(y>allCoordinates.coordinateList.get("A4")[3] && y<allCoordinates.coordinateList.get("A4")[1])
-            returnText += "4";
+            returnText += columnNumbers.charAt(3);
         if(y>allCoordinates.coordinateList.get("A5")[3] && y<allCoordinates.coordinateList.get("A5")[1])
-            returnText += "5";
+            returnText += columnNumbers.charAt(4);
         if(y>allCoordinates.coordinateList.get("A6")[3] && y<allCoordinates.coordinateList.get("A6")[1])
-            returnText += "6";
+            returnText += columnNumbers.charAt(5);
         if(y>allCoordinates.coordinateList.get("A7")[3] && y<allCoordinates.coordinateList.get("A7")[1])
-            returnText += "7";
+            returnText += columnNumbers.charAt(6);
         if(y>allCoordinates.coordinateList.get("A8")[3] && y<allCoordinates.coordinateList.get("A8")[1])
-            returnText += "8";
+            returnText += columnNumbers.charAt(7);
 
         // Check if click was out of the board
         if(returnText.length()!=2) // This includes especially cases like "A", "1" etc. Also "A1234567" if it still occurs
