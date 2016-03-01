@@ -205,5 +205,33 @@ public class Coordinates {
             0.6f, 1.0f - 0.6f, //bot right
             0.6f, 1.0f - 0.7f  //top right
     };
+
+    float[] learningTool_square_red = new float[] {
+            0.7f, 1.0f - 1.0f, //top left
+            0.7f, 1.0f - 0.9f, //bot left
+            0.8f, 1.0f - 0.9f, //bot right
+            0.8f, 1.0f - 1.0f  //top right
+    };
+
+    float[] learningTool_square_green = new float[] {
+            0.7f, 1.0f - 0.9f, //top left
+            0.7f, 1.0f - 0.8f, //bot left
+            0.8f, 1.0f - 0.8f, //bot right
+            0.8f, 1.0f - 0.9f  //top right
+    };
+
+    float[] learningTool_square_blue = new float[] {
+            0.7f, 1.0f - 0.8f, //top left
+            0.7f, 1.0f - 0.7f, //bot left
+            0.8f, 1.0f - 0.7f, //bot right
+            0.8f, 1.0f - 0.8f  //top right
+    };
+
+    float[] learningTool_square_grey = new float[] {
+            0.7f, 1.0f - 0.7f, //top left
+            0.7f, 1.0f - 0.6f, //bot left
+            0.8f, 1.0f - 0.6f, //bot right
+            0.8f, 1.0f - 0.7f  //top right
+    };
 }
 
