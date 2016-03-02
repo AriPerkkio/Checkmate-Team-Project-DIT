@@ -24,7 +24,7 @@ import java.util.Vector;
  */
 public class TextureGL {
     private final Context mActivityContext;
-    private final FloatBuffer mCubeTextureCoordinates;
+    private FloatBuffer mCubeTextureCoordinates;
     private int mTextureUniformHandle;
     private int mTextureCoordinateHandle;
     private final int mTextureCoordinateDataSize = 2;
@@ -64,6 +64,7 @@ public class TextureGL {
 
     private Coordinates allCoordinates = new Coordinates();
     private List<float[]> coordinateList = new Vector<>();
+    private float[] TextureCoordinateData;
 
     // Constructor (Parameters with current coordinates for all the pictures, resourceId to pick
     // correct theme. )
@@ -86,8 +87,8 @@ public class TextureGL {
 
         // Order of coordinateList must match OpenGLRenderer's coordinateList
         // Current IDs: 0 reserved for board
-        //              1-21 Square Highlights
-        //              22-38 Player One pieces
+        //              1-27 Square Highlights
+        //              28-44 Player One pieces
         //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardTexture); // Board
         // Learning tool
@@ -130,7 +131,7 @@ public class TextureGL {
 
         Log.d("Textr. CoLst size:", ""+coordinateList.size());
         // Here add texture coordinates for each piece, board, square etc.
-        float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
+        TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
 
         // Fill buffers
         ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4).order(ByteOrder.nativeOrder());
@@ -253,9 +254,25 @@ public class TextureGL {
 
     }
 
-    public void rotateTextures(){
+    public void changeTextureCoordinates(int textureSelect, float left, float right, float top, float bottom){
+        TextureCoordinateData[    8 * textureSelect] = right;
+        TextureCoordinateData[    8 * textureSelect] = right;
+        TextureCoordinateData[1 + 8 * textureSelect] = bottom;
+        TextureCoordinateData[2 + 8 * textureSelect] = right;
+        TextureCoordinateData[3 + 8 * textureSelect] = top;
+        TextureCoordinateData[4 + 8 * textureSelect] = left;
+        TextureCoordinateData[5 + 8 * textureSelect] = top;
+        TextureCoordinateData[6 + 8 * textureSelect] = left;
+        TextureCoordinateData[7 + 8 * textureSelect] = bottom;
 
-        for(int i=1;i<33;i++) {
+        mCubeTextureCoordinates = ByteBuffer.allocateDirect(TextureCoordinateData.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        mCubeTextureCoordinates.put(TextureCoordinateData).position(0);
+    }
+
+    public void rotatePieces(){
+
+        // Loop starts from player one pieces coordinate ids
+        for(int i=28;i<60;i++) {
             // Get initial values
             float left  = coordinates[    8 * i];
             float right = coordinates[4 + 8 * i];
