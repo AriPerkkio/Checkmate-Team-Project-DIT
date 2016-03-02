@@ -58,6 +58,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     public void onSurfaceCreated(GL10 unused, EGLConfig config)
     {
         Log.d("Renderer","onSurfaceCreated");
+
+        // TODO: This kind of initializing may not be used once Game Logic works.
+        // TODO: Game logic should call each piece to set up into its starting point.
+        // TODO: Only board is drawn by calling printBoard()
+
         // Order of coordinateList must match TextureGL's textureCoordinates
         // Current IDs: 0 reserved for board
         //              1-27 Square Highlights
@@ -153,7 +158,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         Log.d("Clicked Square: ", clickedSquare);
 
         //TODO: This is just testing movement. Calls for movement will come from game logic
-        int pieceSelect = 14;
+        int pieceSelect = 31;
         if(clickedSquare.equals("D2"))
             movePiece(pieceSelect, "D3", "D2");
         if(clickedSquare.equals("D3"))
@@ -177,11 +182,26 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         //TODO: This is just testing piece eliminating. Calls for it will come from game logic
         if(clickedSquare.equals("H5")) {
-            eliminatePiece(21, "C7");
-            eliminatePiece(22, "D7");
-            eliminatePiece(23, "E7");
+            eliminatePiece(46, "C7");
+            eliminatePiece(47, "D7");
+            eliminatePiece(48, "E7");
+            eliminatePiece(49, "F7");
         }
 
+        //TODO: This is just testing learning tool highlightin. Calls for it will come from game logic
+        if(clickedSquare.equals("H4")){
+            List<String[]> parameters = new Vector<>();
+            parameters.add(new String[]{"C7", "circle", "blue"});
+            parameters.add(new String[]{"D7", "circle", "red"});
+            parameters.add(new String[]{"E7", "cross", "blue"});
+            parameters.add(new String[]{"F7", "cross", "red"});
+            parameters.add(new String[]{"C6", "circle", "grey"});
+            parameters.add(new String[]{"D6", "circle", "green"});
+            parameters.add(new String[]{"E6", "cross", "grey"});
+            parameters.add(new String[]{"F6", "cross", "green"});
+            highlight(parameters);
+
+        }
         // TODO
         // gameController.selectedSquare(clickedSquare);
     }
@@ -269,19 +289,20 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             rotated = false;
         else
             rotated = true;
-        picture.rotateTextures();
+        picture.rotatePieces();
         viewInstance.requestRender();
     }
 
     // Highlight specific squares with chosen shape+color
     // List<String[]> list contains of Square and shape combinations
-    // I.e. {"A3", "Circle", "Blue"}
+    // I.e. {"A3", "circle", "blue"}
     public void highlight(List<String[]> list){
 
         for(int i=0; i<list.size();i++) {
             String square = list.get(i)[0];
             String shape = list.get(i)[1];
             String color = list.get(i)[2];
+            float[] learningToolTexture = allCoordinates.learningToolList.get(color+" "+shape);
 
             // Set square's coordinates
             picture.changePieceCoordinates(i + 1,
@@ -292,7 +313,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             );
 
             // Set shape and color
-            // TODO: TextureGL must have changeTextureCoordinates() method
+            picture.changeTextureCoordinates(i + 1,
+                    learningToolTexture[0], // Left
+                    learningToolTexture[4], // Right
+                    learningToolTexture[1], // Top
+                    learningToolTexture[3]  // Bottom
+            );
+
         }
     }
 
