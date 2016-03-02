@@ -21,7 +21,7 @@ public class OpenGLView extends GLSurfaceView {
         setRenderer(renderer); // Set renderer as this view's graphics renderer
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY); // Render only when requestRender() called
         instance = this;
-        renderer.viewInstance = this;
+        OpenGLRenderer.viewInstance = this;
     }
 
     public static OpenGLView getInstance(){
