@@ -1,7 +1,6 @@
 package com.theateam.checkmate;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 public class GameActivity extends Activity {
 
     public static TextView coordinates;
+    private GameController gameController = GameController.getInstance(); // At the moment this makes sure there is atleas one instance of gameController
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,5 +23,6 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         coordinates = (TextView) findViewById(R.id.coordinateText);
+
     }
 }
