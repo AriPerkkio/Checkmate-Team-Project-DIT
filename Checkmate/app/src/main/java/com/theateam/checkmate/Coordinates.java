@@ -13,6 +13,7 @@ import java.util.Map;
 public class Coordinates {
 
     public Map<String, float[]> coordinateList = new HashMap<>();
+    public Map<String, float[]> learningToolList = new HashMap<>();
 
     //size of square gap
     private float squareGap = 0.224f;
@@ -45,6 +46,15 @@ public class Coordinates {
                 });
             }
         }
+        // Add learning tool textures to map
+        learningToolList.put("blue circle", learningTool_circle_blue);
+        learningToolList.put("green circle", learningTool_circle_green);
+        learningToolList.put("grey circle", learningTool_circle_grey);
+        learningToolList.put("red circle", learningTool_circle_red);
+        learningToolList.put("blue cross", learningTool_cross_blue);
+        learningToolList.put("green cross", learningTool_cross_green);
+        learningToolList.put("grey cross", learningTool_cross_grey);
+        learningToolList.put("red cross", learningTool_cross_red);
     }
 
     // Board on matrix
