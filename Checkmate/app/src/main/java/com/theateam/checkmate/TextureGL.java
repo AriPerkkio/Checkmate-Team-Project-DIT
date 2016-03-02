@@ -85,7 +85,14 @@ public class TextureGL {
         }
 
         // Order of coordinateList must match OpenGLRenderer's coordinateList
+        // Current IDs: 0 reserved for board
+        //              1-21 Square Highlights
+        //              22-38 Player One pieces
+        //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardTexture); // Board
+        // Learning tool
+        for(int i=0;i<27;i++)
+            coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool #1-27
         // Player One
         coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #1
         coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #2
@@ -121,6 +128,7 @@ public class TextureGL {
         coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #2 Player two
         coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #2 Player two
 
+        Log.d("Textr. CoLst size:", ""+coordinateList.size());
         // Here add texture coordinates for each piece, board, square etc.
         float[] TextureCoordinateData = setupTextureCoordinates(coordinateList); // We are using .png files which have y-axis inverted, so y coordinates 1-Y
 
