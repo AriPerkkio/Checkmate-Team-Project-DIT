@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -57,7 +59,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     {
         Log.d("Renderer","onSurfaceCreated");
         // Order of coordinateList must match TextureGL's textureCoordinates
+        // Current IDs: 0 reserved for board
+        //              1-27 Square Highlights
+        //              28-44 Player One pieces
+        //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardCoordinates); // Board
+        // Learning tool
+        for(int i=0;i<27;i++)
+            coordinateList.add(allCoordinates.hideCoordinates);  // Learning Tool #1-27
         // Player one
         coordinateList.add(allCoordinates.coordinateList.get("A2")); // Pawn #1 Player One
         coordinateList.add(allCoordinates.coordinateList.get("B2")); // Pawn #2 Player One
@@ -93,6 +102,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
 
+        Log.d("Renrdr. CoLst size:", ""+coordinateList.size());
         coordinates = new float[coordinateList.size()*8];
         coordinates = setupMatrixCoordinates(coordinateList);
 
@@ -143,7 +153,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         Log.d("Clicked Square: ", clickedSquare);
 
         //TODO: This is just testing movement. Calls for movement will come from game logic
-        int pieceSelect = 12;
+        int pieceSelect = 14;
         if(clickedSquare.equals("D2"))
             movePiece(pieceSelect, "D3", "D2");
         if(clickedSquare.equals("D3"))
@@ -167,11 +177,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         //TODO: This is just testing piece eliminating. Calls for it will come from game logic
         if(clickedSquare.equals("H5")) {
-            eliminatePiece(19, "C7");
-            eliminatePiece(20, "D7");
-            eliminatePiece(21, "E7");
-            eliminatePiece(22, "F7");
-            eliminatePiece(23, "G7");
+            eliminatePiece(21, "C7");
+            eliminatePiece(22, "D7");
+            eliminatePiece(23, "E7");
         }
 
         // TODO
@@ -263,6 +271,29 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             rotated = true;
         picture.rotateTextures();
         viewInstance.requestRender();
+    }
+
+    // Highlight specific squares with chosen shape+color
+    // List<String[]> list contains of Square and shape combinations
+    // I.e. {"A3", "Circle", "Blue"}
+    public void highlight(List<String[]> list){
+
+        for(int i=0; i<list.size();i++) {
+            String square = list.get(i)[0];
+            String shape = list.get(i)[1];
+            String color = list.get(i)[2];
+
+            // Set square's coordinates
+            picture.changePieceCoordinates(i + 1,
+                    allCoordinates.coordinateList.get(square)[0], // Left
+                    allCoordinates.coordinateList.get(square)[4], // Right
+                    allCoordinates.coordinateList.get(square)[1], // Top
+                    allCoordinates.coordinateList.get(square)[3]  // Bottom
+            );
+
+            // Set shape and color
+            // TODO: TextureGL must have changeTextureCoordinates() method
+        }
     }
 
     // Convert coordinates to String square
