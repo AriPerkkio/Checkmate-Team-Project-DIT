@@ -20,7 +20,7 @@ public class Coordinates {
     //left side of square
     private float leftX = -0.90f;
     //bottom of square
-    private float botY = -0.90f;
+    private float botY = -0.89f;
 
     //right side of sqaure
     private float rightX = leftX + squareGap;
@@ -54,6 +54,13 @@ public class Coordinates {
             -1.0f, -1.0f,   // bottom left
             1.0f, -1.0f,   // bottom right
             1.0f, 1.0f,  //top right
+    };
+
+    float[] hideCoordinates = new float[]{
+            0.0f, 0.0f, //top left
+            0.0f, 0.0f, //bot left
+            0.0f, 0.0f, //bot right
+            0.0f, 0.0f,  //top right
     };
 
     // Texture coordinates
