@@ -13,6 +13,7 @@ import java.util.Map;
 public class Coordinates {
 
     public Map<String, float[]> coordinateList = new HashMap<>();
+    public Map<String, float[]> learningToolList = new HashMap<>();
 
     //size of square gap
     private float squareGap = 0.224f;
@@ -20,7 +21,7 @@ public class Coordinates {
     //left side of square
     private float leftX = -0.90f;
     //bottom of square
-    private float botY = -0.90f;
+    private float botY = -0.89f;
 
     //right side of sqaure
     private float rightX = leftX + squareGap;
@@ -45,6 +46,15 @@ public class Coordinates {
                 });
             }
         }
+        // Add learning tool textures to map
+        learningToolList.put("blue circle", learningTool_circle_blue);
+        learningToolList.put("green circle", learningTool_circle_green);
+        learningToolList.put("grey circle", learningTool_circle_grey);
+        learningToolList.put("red circle", learningTool_circle_red);
+        learningToolList.put("blue cross", learningTool_cross_blue);
+        learningToolList.put("green cross", learningTool_cross_green);
+        learningToolList.put("grey cross", learningTool_cross_grey);
+        learningToolList.put("red cross", learningTool_cross_red);
     }
 
     // Board on matrix
@@ -54,6 +64,13 @@ public class Coordinates {
             -1.0f, -1.0f,   // bottom left
             1.0f, -1.0f,   // bottom right
             1.0f, 1.0f,  //top right
+    };
+
+    float[] hideCoordinates = new float[]{
+            0.0f, 0.0f, //top left
+            0.0f, 0.0f, //bot left
+            0.0f, 0.0f, //bot right
+            0.0f, 0.0f,  //top right
     };
 
     // Texture coordinates
