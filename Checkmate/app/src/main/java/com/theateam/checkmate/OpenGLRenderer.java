@@ -30,8 +30,10 @@ import javax.microedition.khronos.opengles.GL10;
 public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     private final Context mActivityContext;
-    private Coordinates allCoordinates = new Coordinates();
-    static OpenGLView viewInstance;
+    private Coordinates allCoordinates = new Coordinates(); // For texture and matrix coordinates
+    static OpenGLView viewInstance = OpenGLView.getInstance(); // Used for renderRequests
+    static OpenGLRenderer instance; // For the current instance
+    static GameController gameController = GameController.getInstance(); // Used for passing clicked square
 
     // Matrix Initializations
     private final float[] mMVPMatrix = new float[16];
@@ -40,21 +42,33 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     private float[] mRotationMatrix = new float[16];
 
     // Angle of the view
-    public volatile float mAngle;
+    public float mAngle; // Angle of view
     public static boolean rotated = false; // Also accessed from TextureGL
 
     // Picture for drawing
-    private TextureGL picture;
-    private float[] coordinates;
-    private List<float[]> coordinateList = new Vector<>();
+    private TextureGL picture; // Includes all the textures
+    private float[] coordinates; // For matrix coordinates
+    private List<float[]> coordinateList = new Vector<>(); // Matrix coordinates for each texture
 
     public OpenGLRenderer(final Context activityContext)
     {
         Log.d("Renderer", "Constructor");
         mActivityContext = activityContext; // catch the context
-        viewInstance = OpenGLView.getInstance();
+        viewInstance = OpenGLView.getInstance(); // Initialize all the instances
+        instance = this;
+        GameController.graphics = this;
+
+        if(gameController==null){ // Error checking
+            Log.e("Renderer", "GameController reinitializing");
+            gameController= GameController.getInstance();
+        }
     }
 
+    public static OpenGLRenderer getInstance(){ // Get reference for current instance
+        return instance;
+    }
+
+    // Called when view created
     public void onSurfaceCreated(GL10 unused, EGLConfig config)
     {
         Log.d("Renderer","onSurfaceCreated");
@@ -107,25 +121,24 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
 
-        Log.d("Renrdr. CoLst size:", ""+coordinateList.size());
+        Log.d("Renrdr. CoordList size:", ""+coordinateList.size()); // See if matches with TextureGL's log output
         coordinates = new float[coordinateList.size()*8];
-        coordinates = setupMatrixCoordinates(coordinateList);
+        coordinates = setupMatrixCoordinates(coordinateList); // Combine multiple float[]s to one
 
        // Initialize the drawn picture
-       picture = new TextureGL(mActivityContext,
-               coordinates,
+       picture = new TextureGL(mActivityContext, // OpenGLView's context
+               coordinates, // Starting point coordinates
                R.mipmap.wooden); // Picture for the theme package
     }
 
+    // Called for each print
     public void onDrawFrame(GL10 unused)
     {
-        //Log.d("Renderer", "onDrawFrame");
-
+        // Clear everything before draw - otherwise rotating looks strange
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
         // Set eyes to selected place, xyz
         Matrix.setLookAtM(mVMatrix, 0, 0, 0, 3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-        // Sets the view I guess
+        // Sets the view projection
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
         // Rotate the view by mAngle as degrees
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, -1.0f);
@@ -144,66 +157,24 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         return shader;
     }
 
+    // For getting touch events from OpenGLView
     public void processTouchEvent(MotionEvent event) {
 
-        float x = event.getX();
-        float y = event.getY();
-        float screenWidth = 1080;
+        float x = event.getX(); // Get horizontal pixel value
+        float y = event.getY(); // Get vertical pixel value
+        float screenWidth = 1080; // Setup screen props
         float screenHeight =  1920*0.5625f; // 9/16 = 0.5625
 
+        // Convert pixels into OpenGL coordinate system
         float sceneX = (x / screenWidth) * 2.0f - 1.0f;
-        float sceneY = (y / screenHeight) * -2.0f + 1.0f; //if bottom is at -1. Otherwise same as X
+        float sceneY = (y / screenHeight) * -2.0f + 1.0f;
 
+        // Convert coordinates into chessboard's square
         String clickedSquare = coordinatesToSquare(sceneX, sceneY);
         Log.d("Clicked Square: ", clickedSquare);
 
-        //TODO: This is just testing movement. Calls for movement will come from game logic
-        int pieceSelect = 31;
-        if(clickedSquare.equals("D2"))
-            movePiece(pieceSelect, "D3", "D2");
-        if(clickedSquare.equals("D3"))
-            movePiece(pieceSelect, "D4", "D3");
-        if(clickedSquare.equals("D4"))
-            movePiece(pieceSelect, "D5", "D4");
-        if(clickedSquare.equals("D5"))
-            movePiece(pieceSelect, "D6", "D5");
-        if(clickedSquare.equals("D6"))
-            movePiece(pieceSelect, "E6", "D6");
-        if(clickedSquare.equals("E6"))
-            movePiece(pieceSelect, "E5", "E6");
-        if(clickedSquare.equals("E5"))
-            movePiece(pieceSelect, "E4", "E5");
-        if(clickedSquare.equals("E4"))
-            movePiece(pieceSelect, "E3", "E4");
-        if(clickedSquare.equals("E3"))
-            movePiece(pieceSelect, "D3", "E3");
-        if(clickedSquare.equals("A1"))
-            rotate();
-
-        //TODO: This is just testing piece eliminating. Calls for it will come from game logic
-        if(clickedSquare.equals("H5")) {
-            eliminatePiece(46, "C7");
-            eliminatePiece(47, "D7");
-            eliminatePiece(48, "E7");
-            eliminatePiece(49, "F7");
-        }
-
-        //TODO: This is just testing learning tool highlightin. Calls for it will come from game logic
-        if(clickedSquare.equals("H4")){
-            List<String[]> parameters = new Vector<>();
-            parameters.add(new String[]{"C7", "circle", "blue"});
-            parameters.add(new String[]{"D7", "circle", "red"});
-            parameters.add(new String[]{"E7", "cross", "blue"});
-            parameters.add(new String[]{"F7", "cross", "red"});
-            parameters.add(new String[]{"C6", "circle", "grey"});
-            parameters.add(new String[]{"D6", "circle", "green"});
-            parameters.add(new String[]{"E6", "cross", "grey"});
-            parameters.add(new String[]{"F6", "cross", "green"});
-            highlight(parameters);
-
-        }
-        // TODO
-        // gameController.selectedSquare(clickedSquare);
+        // Pass info to gameController
+        gameController.selectSquare(clickedSquare);
     }
 
 
@@ -211,17 +182,18 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     public void onSurfaceChanged(GL10 unused, int width, int height)
     {
         Log.d("Renderer","onSurfaceChanged");
-        GLES20.glViewport(0, 0, width, height);
-        float ratio = (float) width / height;
-        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        // Set window attributes again since screen props changed
+        GLES20.glViewport(0, 0, width, height); // Reset screen dimensions
+        float ratio = (float) width / height; // Calculate screen ratio
+        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7); // Pass changed values
     }
 
     // Combine multiple float[] together
     public float[] setupMatrixCoordinates(List<float[]> coordinateList){
-        float[] returnArray = new float[coordinateList.size()*8];
+        float[] returnArray = new float[coordinateList.size()*8]; // Size multiplied by 2D corner count
 
         for(int i=0;i<coordinateList.size();i++) { // All the float[]
-            for(int x=0;x<8;x++)
+            for(int x=0;x<8;x++) // All the coordinates
                 returnArray[i * 8 + x] = coordinateList.get(i)[x];
         }
         return returnArray;
@@ -229,7 +201,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     // Moves specific piece from source to target
     public void movePiece(int pieceSelect, String targetSquare, String sourceSquare){
-        // TODO: Work-around for pieceSelect. One option is to add attribute to piece class
+
+        // TODO: Knights movement may require different direction
 
         // Get float[] coordinates for the given String square
         float[] target = allCoordinates.coordinateList.get(targetSquare);
@@ -239,14 +212,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         float top = source[1];
         float bot = source[3];
 
-        int movementCount = 250;
-        for(int i=0;i<movementCount;i++){
+        int movementCount = 250; // Adjusting this determines speed
+        for(int i=0;i<movementCount;i++){ // Loop in small steps to create animation
             left  += ((target[0]-source[0])/movementCount);
             right += ((target[4]-source[4])/movementCount);
             top   += ((target[1]-source[1])/movementCount);
             bot   += ((target[3]-source[3])/movementCount);
             picture.changePieceCoordinates(pieceSelect, left, right, top, bot);
-            SystemClock.sleep(1);
+            SystemClock.sleep(1); // Sleep 1ms
             viewInstance.requestRender(); // Render picture after each movement
                                           // Careful with this one. Too fast rendering throws runtime errors
         }
@@ -255,20 +228,21 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     // Makes pieces shrink until they disappear
     public void eliminatePiece(int pieceSelect, String _square){
 
+        // Get coordinates for given square
         float[] square = allCoordinates.coordinateList.get(_square);
         float left = square[0];
         float right = square[4];
         float top = square[1];
         float bot = square[3];
 
-        int fadingCount = 250;
+        int fadingCount = 250; // Fading speed is determined by this
         for(int i=0;i<fadingCount/2;i++){
             left  -= ((square[0]-square[4])/fadingCount);
             right -= ((square[4]-square[0])/fadingCount);
             top   -= ((square[1]-square[3])/fadingCount);
             bot   -= ((square[3]-square[1])/fadingCount);
             picture.changePieceCoordinates(pieceSelect, left, right, top, bot);
-            SystemClock.sleep(5);
+            SystemClock.sleep(5); // Sleep 5ms
             viewInstance.requestRender(); // Render picture after each movement
             // Careful with this one. Too fast rendering throws runtime errors
         }
@@ -279,22 +253,19 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     // Rotate board and pieces. Refresh the view
     public void rotate(){
 
-        int rotateCount = 180;
+        int rotateCount = 180; // Rotation speed and angle is determined by this
         for(int i=0;i<rotateCount;i++){
-            mAngle ++;
-            SystemClock.sleep(5);
+            mAngle ++; // Increase current angle
+            SystemClock.sleep(5); // Sleep 5ms
             viewInstance.requestRender();
         }
-        if(rotated)
-            rotated = false;
-        else
-            rotated = true;
-        picture.rotatePieces();
+        rotated = !rotated; // Invert status of rotation
+        picture.rotatePieces(); // Rotate all the pieces 180 degrees
         viewInstance.requestRender();
     }
 
     // Highlight specific squares with chosen shape+color
-    // List<String[]> list contains of Square and shape combinations
+    // List<String[]> list consists of Square and shape combinations
     // I.e. {"A3", "circle", "blue"}
     public void highlight(List<String[]> list){
 
@@ -302,6 +273,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             String square = list.get(i)[0];
             String shape = list.get(i)[1];
             String color = list.get(i)[2];
+            // Get chosen learningTool texture
             float[] learningToolTexture = allCoordinates.learningToolList.get(color+" "+shape);
 
             // Set square's coordinates
