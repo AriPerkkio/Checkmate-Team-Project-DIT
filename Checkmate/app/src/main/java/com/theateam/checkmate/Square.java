@@ -10,8 +10,13 @@ public class Square {
 
     // Attributes
     // References to other clases
-    private Piece piece = new Piece(null, null, 0); // Initialize Square and Player as null to indicate
-                                                 // an empty square
+    private Piece piece = null; // Initialize as null - it's always first thing to check
+    private String id;
+
+    // Id as in "A1", "A2", etc.
+    public Square(String _id){
+        id = _id;
+    }
 
     public Piece getPiece(){
         return this.piece;
@@ -23,5 +28,9 @@ public class Square {
 
     public void setPiece(Piece _piece){
         this.piece = _piece;
+    }
+
+    public String getId(){
+        return id;
     }
 }
