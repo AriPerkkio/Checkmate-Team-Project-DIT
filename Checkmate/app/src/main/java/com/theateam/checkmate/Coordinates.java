@@ -55,6 +55,7 @@ public class Coordinates {
         learningToolList.put("green cross", learningTool_cross_green);
         learningToolList.put("grey cross", learningTool_cross_grey);
         learningToolList.put("red cross", learningTool_cross_red);
+        learningToolList.put("green square",learningTool_square_green);
         learningToolList.put("empty empty", hideCoordinates);
     }
 

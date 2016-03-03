@@ -76,7 +76,7 @@ public class GameController {
 
         selectedPiece = board.getSquare(_square).getPiece();
         highlights.clear();
-        highlights.add(new String[]{clickedSquare, "cross", "red"});
+        highlights.add(new String[]{clickedSquare, "square", "green"});
         graphics.highlight(highlights);
 
 
