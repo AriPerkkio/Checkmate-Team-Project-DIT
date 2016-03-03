@@ -55,22 +55,21 @@ public class GameController {
         clickedSquare = _square;
 
         if(clickedSquare.equals("OutOfBoard")) {
+            highlightsOff();
             GameActivity.coordinates.setText(_square);
             return false;
         }
 
         // Check if there is a piece on the clicked square and enable it
         if(board.getSquare(_square).getPiece()==null){
+            highlightsOff();
             GameActivity.coordinates.setText("Square: "+ clickedSquare+ "\nNo Piece.");
             return false;
         }
 
         // Check if previously clicked piece is the same one and disable it
         if(selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece())){
-            selectedPiece = null; // Set as null, so that third press re-enables it again.
-            highlights.clear();
-            highlights.add(new String[]{"hide", "empty", "empty"});
-            graphics.highlight(highlights);
+            highlightsOff();
             GameActivity.coordinates.setText("Square: "+ clickedSquare+ "\nNo Piece.");
             return true;
         }
@@ -93,6 +92,13 @@ public class GameController {
         /** DEBUG **/
 
         return true;
+    }
+
+    public void highlightsOff(){
+        selectedPiece = null; // Set as null, so that third press re-enables it again.
+        highlights.clear();
+        highlights.add(new String[]{"hide", "empty", "empty"});
+        graphics.highlight(highlights);
     }
 
 
