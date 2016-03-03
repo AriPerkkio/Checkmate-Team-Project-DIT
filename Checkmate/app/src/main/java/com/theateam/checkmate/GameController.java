@@ -17,8 +17,8 @@ public class GameController {
     String clickedSquare;
 
     //References for other classes
-    private Board board = new Board();
-    private Player playerOne = new Player(); // Always Human
+    private Board board;
+    private Player playerOne = new Player("Human"); // Always Human
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
     static GameController instance;
 
@@ -91,6 +91,9 @@ public class GameController {
             parameters.add(new String[]{"F6", "cross", "green"});
             graphics.highlight(parameters);
         }
+        playerTwo = new Player("AI");
+        board = new Board(playerOne, playerTwo);
+        board.logBoardPrint();
     }
 }
 
