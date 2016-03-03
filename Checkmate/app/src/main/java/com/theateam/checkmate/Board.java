@@ -92,16 +92,44 @@ public class Board {
     }
 
     // Tester
-    public void logBoardPrint(){
-        for(int i = 7;i>=0;i--)
-                Log.d("Board","["+
-                        squareList[0][i].getPiece().getTextureId()+"] ["+
-                        squareList[1][i].getPiece().getTextureId()+"] ["+
-                        squareList[2][i].getPiece().getTextureId()+"] ["+
-                        squareList[3][i].getPiece().getTextureId()+"] ["+
-                        squareList[4][i].getPiece().getTextureId()+"] ["+
-                        squareList[5][i].getPiece().getTextureId()+"] ["+
-                        squareList[6][i].getPiece().getTextureId()+"] ["+
-                        squareList[7][i].getPiece().getTextureId()+"]");
+    public void logBoardPrint() {
+
+        for (int i = 7; i >= 0; i--) {
+            int idOne = 0,
+                    idTwo = 0,
+                    idThree = 0,
+                    idFour = 0,
+                    idFive = 0,
+                    idSix = 0,
+                    idSeven = 0,
+                    idEight = 0;
+
+            if(squareList[0][i].getPiece()!= null)
+                idOne = squareList[0][i].getPiece().getTextureId();
+            if(squareList[1][i].getPiece()!= null)
+                idTwo = squareList[1][i].getPiece().getTextureId();
+            if(squareList[2][i].getPiece()!= null)
+                idThree = squareList[2][i].getPiece().getTextureId();
+            if(squareList[3][i].getPiece()!= null)
+                idFour = squareList[3][i].getPiece().getTextureId();
+            if(squareList[4][i].getPiece()!= null)
+                idFive = squareList[4][i].getPiece().getTextureId();
+            if(squareList[5][i].getPiece()!= null)
+                idSix = squareList[5][i].getPiece().getTextureId();
+            if(squareList[6][i].getPiece()!= null)
+                idSeven = squareList[6][i].getPiece().getTextureId();
+            if(squareList[7][i].getPiece()!= null)
+                idEight = squareList[7][i].getPiece().getTextureId();
+
+            Log.d("Board", "[" +
+                    idOne + "] [" +
+                    idTwo + "] [" +
+                    idThree + "] [" +
+                    idFour+ "] [" +
+                    idFive + "] [" +
+                    idSix + "] [" +
+                    idSeven + "] [" +
+                    idEight + "]");
+        }
     }
 }
