@@ -33,9 +33,11 @@ public class Board {
     public Board(Player playerOne, Player playerTwo){
 
         // Initialize array
-        for(int x=0;x<8;x++)
-            for(int y=0;y<8;y++)
-                squareList[x][y] = new Square();
+        for(int x=0;x<8;x++) {
+            char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
+            for (int y = 0; y < 8; y++)
+                squareList[x][y] = new Square(startChar+""+(y+1));
+        }
 
         // Player One
         squareList[0][0].setPiece(new Rook(squareList[0][0], playerOne, playerOne.pieceIds.get("playerOne_rook_1")));
@@ -74,8 +76,15 @@ public class Board {
 
     }
 
-    public Square getSquare(int _square[][]){
-        return null; // TODO
+    public Square getSquare(String _square){
+        Square returnSquare;
+        for(int x=0;x<8;x++)
+            for(int y=0;y<8;y++){
+                if(squareList[x][y].getId().equals(_square))
+                    return squareList[x][y];
+            }
+        Log.e("Board.getSquare", "Not found: "+_square);
+        return null; // No square found - Error
     }
 
     public List<Square> getValidMoves(Piece _piece){
@@ -84,7 +93,7 @@ public class Board {
 
     // Tester
     public void logBoardPrint(){
-        for(int i = 0;i<8;i++)
+        for(int i = 7;i>=0;i--)
                 Log.d("Board","["+
                         squareList[0][i].getPiece().getTextureId()+"] ["+
                         squareList[1][i].getPiece().getTextureId()+"] ["+
