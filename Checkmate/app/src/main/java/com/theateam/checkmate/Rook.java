@@ -15,8 +15,8 @@ public class Rook extends Piece {
     private List<int[]> rookMoves = new Vector<>();
 
     //constructor
-    public Rook() {
-        super();
+    public Rook(Square initialSquare, Player owner, int textureId) {
+        super(initialSquare, owner, textureId);
 
         this.canCastle = false;
 

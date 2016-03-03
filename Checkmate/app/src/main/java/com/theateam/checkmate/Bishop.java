@@ -10,8 +10,8 @@ public class Bishop extends Piece{
 
     private List<int[]> bishopMoves = new Vector<>();
 
-    public Bishop(){
-        super();
+    public Bishop(Square initialSquare, Player owner, int textureId) {
+        super(initialSquare, owner, textureId);
 
         // Set piece type
         this.setPieceType("Bishop");

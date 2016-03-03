@@ -276,13 +276,23 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             // Get chosen learningTool texture
             float[] learningToolTexture = allCoordinates.learningToolList.get(color+" "+shape);
 
-            // Set square's coordinates
-            picture.changePieceCoordinates(i + 1,
-                    allCoordinates.coordinateList.get(square)[0], // Left
-                    allCoordinates.coordinateList.get(square)[4], // Right
-                    allCoordinates.coordinateList.get(square)[1], // Top
-                    allCoordinates.coordinateList.get(square)[3]  // Bottom
-            );
+            if(square.equals("hide")){
+                picture.changePieceCoordinates(i + 1,
+                        allCoordinates.hideCoordinates[0], // Left
+                        allCoordinates.hideCoordinates[4], // Right
+                        allCoordinates.hideCoordinates[1], // Top
+                        allCoordinates.hideCoordinates[3]  // Bottom
+                );
+            }
+            else {
+                // Set square's coordinates
+                picture.changePieceCoordinates(i + 1,
+                        allCoordinates.coordinateList.get(square)[0], // Left
+                        allCoordinates.coordinateList.get(square)[4], // Right
+                        allCoordinates.coordinateList.get(square)[1], // Top
+                        allCoordinates.coordinateList.get(square)[3]  // Bottom
+                );
+            }
 
             // Set shape and color
             picture.changeTextureCoordinates(i + 1,
