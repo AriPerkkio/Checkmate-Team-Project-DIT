@@ -10,7 +10,8 @@ public class Square {
 
     // Attributes
     // References to other clases
-    private Piece piece = new Piece();
+    private Piece piece = new Piece(null, null, 0); // Initialize Square and Player as null to indicate
+                                                 // an empty square
 
     public Piece getPiece(){
         return this.piece;
@@ -20,4 +21,7 @@ public class Square {
         return true; // TODO
     }
 
+    public void setPiece(Piece _piece){
+        this.piece = _piece;
+    }
 }
