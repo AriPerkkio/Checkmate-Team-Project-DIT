@@ -29,7 +29,7 @@ public class Piece {
     }
 
     public Player getPlayer(){
-        return null; // TODO
+        return player;
     }
 
     public void setPlayer(Player _player){
