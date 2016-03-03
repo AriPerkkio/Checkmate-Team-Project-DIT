@@ -63,4 +63,13 @@ public class Piece {
     public int getTextureId(){
         return textureId;
     }
+
+    public void setSquare(Square _square){
+        square = _square;
+        square.setPiece(this);
+    }
+
+    public Square getSquare(){
+        return square;
+    }
 }
