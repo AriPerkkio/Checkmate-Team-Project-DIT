@@ -1,5 +1,7 @@
 package com.theateam.checkmate;
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -15,6 +17,7 @@ public class GameController {
 
     // Attributes
     String clickedSquare;
+    List<String[]> highlights = new Vector<>();
 
     //References for other classes
     private Board board;
@@ -30,6 +33,8 @@ public class GameController {
     private GameController(){
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
+        playerTwo = new Player("AI"); // Can be set as AI or human
+        board = new Board(playerOne, playerTwo);
     }
 
     public static GameController getInstance(){
@@ -39,17 +44,61 @@ public class GameController {
     }
 
     public void movePiece(Piece _piece, Square from, Square target){
-        // TODO: Pieces should have ID number
-        //graphics.movePiece(_piece.getPieceId(), from, target);
+        graphics.movePiece(_piece.getTextureId(), from.getId(), target.getId());
     }
 
-    public void selectSquare(String _square){
-        //selectedPiece = board.getSquare(_square).getPiece();
-        // if(selectedPiece==null) break;
-        // /squareList = selectedPiece.
+    // Boolean so that method can be broke if needed - see "return false" -statements
+    public boolean selectSquare(String _square){
 
-        // TODO: Function tests are here now. Will be replaced later on
+        // TODO: GameActivity.coordinates.setText -passing is here just in testing phase
+
         clickedSquare = _square;
+
+        if(clickedSquare.equals("OutOfBoard")) {
+            GameActivity.coordinates.setText(_square);
+            return false;
+        }
+
+        // Check if there is a piece on the clicked square and enable it
+        if(board.getSquare(_square).getPiece()==null){
+            GameActivity.coordinates.setText("Square: "+ clickedSquare+ "\nNo Piece.");
+            return false;
+        }
+
+        // Check if previously clicked piece is the same one and disable it
+        if(selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece())){
+            selectedPiece = null; // Set as null, so that third press re-enables it again.
+            highlights.clear();
+            highlights.add(new String[]{"hide", "empty", "empty"});
+            graphics.highlight(highlights);
+            GameActivity.coordinates.setText("Square: "+ clickedSquare+ "\nNo Piece.");
+            return true;
+        }
+
+        selectedPiece = board.getSquare(_square).getPiece();
+        highlights.clear();
+        highlights.add(new String[]{clickedSquare, "cross", "red"});
+        graphics.highlight(highlights);
+
+
+
+        /** DEBUG **/
+        Log.d("SelectedPiece",selectedPiece.getPlayer().toString()+""+selectedPiece.getPieceType()+ " ID: "+selectedPiece.getTextureId());
+        String printText =
+                "Square: "+ clickedSquare+
+                "\nPiece: "+selectedPiece.getPlayer().toString()+"-"+
+                selectedPiece.getPieceType()+ " \nPieceTextureID: "+selectedPiece.getTextureId();
+        GameActivity.coordinates.setText(printText);
+        //board.logBoardPrint();
+        /** DEBUG **/
+
+        return true;
+    }
+
+
+    // Adding tests here
+    public void tests(String _square){
+
         int pieceSelect = 31;
         if(clickedSquare.equals("D2"))
             graphics.movePiece(pieceSelect, "D3", "D2");
@@ -80,20 +129,17 @@ public class GameController {
 
         // Learning tool tests
         if(clickedSquare.equals("H4")){
-            List<String[]> parameters = new Vector<>();
-            parameters.add(new String[]{"C7", "circle", "blue"});
-            parameters.add(new String[]{"D7", "circle", "red"});
-            parameters.add(new String[]{"E7", "cross", "blue"});
-            parameters.add(new String[]{"F7", "cross", "red"});
-            parameters.add(new String[]{"C6", "circle", "grey"});
-            parameters.add(new String[]{"D6", "circle", "green"});
-            parameters.add(new String[]{"E6", "cross", "grey"});
-            parameters.add(new String[]{"F6", "cross", "green"});
-            graphics.highlight(parameters);
+            highlights.clear();
+            highlights.add(new String[]{"C7", "circle", "blue"});
+            highlights.add(new String[]{"D7", "circle", "red"});
+            highlights.add(new String[]{"E7", "cross", "blue"});
+            highlights.add(new String[]{"F7", "cross", "red"});
+            highlights.add(new String[]{"C6", "circle", "grey"});
+            highlights.add(new String[]{"D6", "circle", "green"});
+            highlights.add(new String[]{"E6", "cross", "grey"});
+            highlights.add(new String[]{"F6", "cross", "green"});
+            graphics.highlight(highlights);
         }
-        playerTwo = new Player("AI");
-        board = new Board(playerOne, playerTwo);
-        board.logBoardPrint();
     }
 }
 
