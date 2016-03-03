@@ -79,4 +79,9 @@ public class Player {
         _piece.setPlayer(this);
         Log.d("Player", _piece.getPieceType()+" added");
     }
+
+    // Used to print debug info about current player
+    public String toString(){
+        return type+ "";
+    }
 }
