@@ -1,5 +1,7 @@
 package com.theateam.checkmate;
 
+import android.util.Log;
+
 import java.util.List;
 
 /**
@@ -18,13 +20,20 @@ public class Piece {
 
     private String pieceType;
     private List<int[]> movementList;
+    private int textureId;
 
-    public Piece(){
-
+    public Piece(Square initialSquare, Player owner, int _textureId){
+        square = initialSquare;
+        player = owner;
+        textureId = _textureId;
     }
 
     public Player getPlayer(){
         return null; // TODO
+    }
+
+    public void setPlayer(Player _player){
+        this.player = _player;
     }
 
     public void enablePiece(){
@@ -49,5 +58,9 @@ public class Piece {
 
     public List<int[]> getMovementList(){
         return this.movementList;
+    }
+
+    public int getTextureId(){
+        return textureId;
     }
 }

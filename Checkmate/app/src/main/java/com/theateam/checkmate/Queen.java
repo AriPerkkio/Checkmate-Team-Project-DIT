@@ -10,8 +10,8 @@ public class Queen extends Piece{
 
     private List<int[]>queenMoves = new Vector<>();
 
-    public Queen(){
-        super();
+    public Queen(Square initialSquare, Player owner, int textureId) {
+        super(initialSquare, owner, textureId);
 
         // Set piece type
         this.setPieceType("Queen");

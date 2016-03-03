@@ -15,8 +15,8 @@ public class King extends Piece {
     private boolean canCastle;
 
     //constructor
-    public King(){
-        super();
+    public King(Square initialSquare, Player owner, int textureId) {
+        super(initialSquare, owner, textureId);
 
         //initial state of king
         inCheck = false;
