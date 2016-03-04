@@ -117,6 +117,7 @@ public class GameController {
         // Check if previously clicked piece is the same one and disable it
         if(selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece())){
             highlights.clear();
+            selectedPiece = null;
             highlightsOff();
             GameActivity.coordinates.setText("Square: "+ _square+ "\nNo Piece.");
             return false;
@@ -161,8 +162,6 @@ public class GameController {
                     returnListOne.add(board.getSquare(column + "" + row));
                 else if(!board.getSquare(column + "" + row).getPiece().getPlayer().equals(selectedPiece.getPlayer()))
                     returnListTwo.add(board.getSquare(column + "" + row));
-
-
             }
         }
         return new List[]{returnListOne, returnListTwo};
