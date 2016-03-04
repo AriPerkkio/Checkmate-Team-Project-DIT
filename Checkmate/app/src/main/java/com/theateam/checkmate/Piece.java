@@ -15,8 +15,8 @@ public class Piece {
 
     // Attributes
     // References to other classes
-    private Square square; // TODO Check initializing
-    private Player player; // TODO Check initializing
+    private Square square;
+    private Player player;
 
     private String pieceType;
     private List<int[]> movementList;
@@ -37,11 +37,13 @@ public class Piece {
     }
 
     public void enablePiece(){
-        // TODO
+        // TODO: Is this every used
     }
 
-    public void remove(Player _player, Square _square){
-        // TODO
+    // Used when piece is eliminated
+    public void remove(){
+        this.player = null;
+        this.square = null;
     }
 
     public void setPieceType(String _pieceType){
