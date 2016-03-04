@@ -21,7 +21,7 @@ public class GameController {
 
     //References for other classes
     private Board board;
-    private Player playerOne = new Player("Human"); // Always Human
+    private Player playerOne = new Player("Human", true); // Always Human
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
     static GameController instance;
 
@@ -34,7 +34,7 @@ public class GameController {
     private GameController(){
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI"); // Can be set as AI or human
+        playerTwo = new Player("AI", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -58,10 +58,16 @@ public class GameController {
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         // Allow piece movement to highlighted squares
-        if(selectedPiece!=null && board.getSquare(clickedSquare)!=null)
+        if(selectedPiece!=null && board.getSquare(clickedSquare)!=null) {
             if (squareList.contains(board.getSquare(clickedSquare)))
                 movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());
-
+            else if(squareListTwo.contains(board.getSquare(clickedSquare))){
+                int tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
+                board.getSquare(clickedSquare).getPiece().remove();
+                movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());
+                graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId());
+            }
+        }
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if(!checkSquare(clickedSquare)) // True means new piece was clicked
             return false;
@@ -136,46 +142,57 @@ public class GameController {
     }
 
     public void highlightsOff(){
-        String[] empty = new String[]{"hide", "empty", "empty"};
-
-        int count = 27-highlights.size();
-
+        String[] empty = new String[]{"hide", "empty", "empty"}; // Sets empty texture and empty coordinates
+        int count = 27-highlights.size(); // Get count for loop
         for(int i=0;i<count;i++)
             highlights.add(empty);
-
         graphics.highlight(highlights);
         highlights.clear();
     }
 
-    // TODO: Clean pawn movement checking
-    // TODO: Pawn capture movement is unique
+    // Returns [0] moves for empty squares, [1] movements for captures
     public List<Square>[] getValidMoves(Piece _piece){
-        List<Square> returnListOne = new Vector<>();
-        List<Square> returnListTwo = new Vector<>();
-        List<int[]> pieceMovements = _piece.getMovementList();
-        char column;
-        int row;
-        String fromSquare = _piece.getSquare().getId();
-        int direction = 0;
-        if(!_piece.getPlayer().isHuman())
-            direction = -2;
-        Log.d("Direction:", ""+direction);
+        List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
+        List<Square> returnListTwo = new Vector<>(); // Holds capture movements
+        List<int[]> pieceMovements = _piece.getMovementList(); // Get pieces movements into int[]
 
-        for(int i=0;i<pieceMovements.size();i++) {
-            column = (char) ((int) fromSquare.charAt(0) + pieceMovements.get(i)[0]);
-            row = Integer.parseInt("" + fromSquare.charAt(1)) + pieceMovements.get(i)[1];
-            if(_piece.getPieceType().equals("Pawn"))
-                row= row+direction;
-            if ((int) column >= (int) 'A' && (int) column <= (int) 'H' &&
-                 row > 0 && row < 9) {
+        char column; // As in 'A' - 'H'
+        int row; // 1-8
+        String fromSquare = _piece.getSquare().getId(); // Get piece's square
+        int direction = 0; // Used for pawns to indicate movement direction
+        if(!_piece.getPlayer().isFirst()) // Check if piece belongs to first player
+            direction = -2;
+
+        for(int i=0;i<pieceMovements.size();i++) { // Check all the movements
+            column = (char) ((int) fromSquare.charAt(0) + pieceMovements.get(i)[0]); // Calculate new column by adding initial column + movement's column
+            row = Integer.parseInt("" + fromSquare.charAt(1)) + pieceMovements.get(i)[1]; // Calculate new row same way as above
+            if(_piece.getPieceType().equals("Pawn")) // If it's pawn increase the row count by direction check number
+                row = row+direction;
+            if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that new square is between A1-H8
                 Log.d("getValidMoves", column + "" + row);
-                if(board.getSquare(column + "" + row).getPiece()==null)
-                    returnListOne.add(board.getSquare(column + "" + row));
-                else if(!board.getSquare(column + "" + row).getPiece().getPlayer().equals(selectedPiece.getPlayer()))
-                    returnListTwo.add(board.getSquare(column + "" + row));
+                if(board.getSquare(column + "" + row).getPiece()==null) // Check if square is empty
+                    returnListOne.add(board.getSquare(column + "" + row)); // Add empty square to list
+                else if(!board.getSquare(column + "" + row).getPiece().getPlayer().equals(selectedPiece.getPlayer())) // Check if square has enemy piece in it
+                    returnListTwo.add(board.getSquare(column + "" + row)); // Add enemy piece's square to other list
             }
         }
-        return new List[]{returnListOne, returnListTwo};
+        // For all the pieces capture movements are unique - so clear capture movements calculated above and get new ones
+        if(_piece.getPieceType().equals("Pawn")) {
+            returnListTwo.clear(); // Clear captures that were made above - pawns cant eliminate with [0,1] movement
+            List<int[]> extraCaptures = ((Pawn) _piece).getCaptureMovement(); // Cast piece to pawn and get capture movements
+            for (int i = 0; i < extraCaptures.size(); i++) { // Check all capture movements
+                column = (char) ((int) fromSquare.charAt(0) + extraCaptures.get(i)[0]); // Calculate new column
+                row = direction + Integer.parseInt("" + fromSquare.charAt(1)) + extraCaptures.get(i)[1]; // Calculate new row
+                if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that square is valid
+                    Log.d("extraMoves", column + "" + row);
+                    // Check that square has enemy piece in it
+                    if(board.getSquare(column + "" + row).getPiece()!=null &&
+                      !board.getSquare(column + "" + row).getPiece().getPlayer().equals(selectedPiece.getPlayer()))
+                        returnListTwo.add(board.getSquare(column + "" + row)); // Add enemy piece's square to list
+                }
+            }
+        }
+        return new List[]{returnListOne, returnListTwo}; // return value [0] valid moves, [1] capture moves
     }
 
 
