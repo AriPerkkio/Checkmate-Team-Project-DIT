@@ -73,7 +73,7 @@ public class Player {
     }
 
     public boolean isHuman(){
-        return type.equals("Human");
+        return !type.equals("Human");
     }
 
     public boolean isFirst(){
