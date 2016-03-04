@@ -52,11 +52,15 @@ public class GameController {
 
     // Boolean so that method can be broke if needed - see "return false" -statements
     public boolean selectSquare(String _square){
-        //highlights.clear();
 
-        // TODO: GameActivity.coordinates.setText -passing is here just in testing phase
-        //tests(_square);
-        clickedSquare = _square;
+        //tests(_square); // See tests function
+
+        clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
+
+        // Allow piece movement to highlighted squares
+        if(selectedPiece!=null && board.getSquare(clickedSquare)!=null)
+            if (squareList.contains(board.getSquare(clickedSquare)))
+                movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());
 
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if(!checkSquare(clickedSquare)) // True means new piece was clicked
@@ -65,8 +69,29 @@ public class GameController {
         // Get piece
         selectedPiece = board.getSquare(clickedSquare).getPiece();
 
-        // Get valid moves
+        // Get valid moves and captures and highlight them
+        processMovements(selectedPiece);
+
+        /** DEBUG **/
+        // TODO: GameActivity.coordinates.setText -passing is here just in testing phase
+        Log.d("SelectedPiece",selectedPiece.getPlayer().toString()+""+selectedPiece.getPieceType()+ " ID: "+selectedPiece.getTextureId());
+        String printText =
+                "Square: "+ clickedSquare+
+                "\nPiece: "+selectedPiece.getPlayer().toString()+"-"+
+                selectedPiece.getPieceType()+ " \nPieceTextureID: "+selectedPiece.getTextureId();
+        GameActivity.coordinates.setText(printText);
+
+        board.logBoardPrint();
+        /** DEBUG **/
+
+        highlightsOff(); // Reset all the highlights
+
+        return true;
+    }
+
+    public void processMovements(Piece selectedPiece){
         squareList.clear(); // Empty all moves
+        squareListTwo.clear();
         squareList = getValidMoves(selectedPiece)[0]; // Valid moves
         squareListTwo = getValidMoves(selectedPiece)[1]; // Valid capture moves
 
@@ -81,21 +106,6 @@ public class GameController {
             if(squareListTwo.get(i)!=null)
                 highlights.add(new String[]{squareListTwo.get(i).getId(), "cross", "red"});
         graphics.highlight(highlights);
-
-        /** DEBUG **/
-        Log.d("SelectedPiece",selectedPiece.getPlayer().toString()+""+selectedPiece.getPieceType()+ " ID: "+selectedPiece.getTextureId());
-        String printText =
-                "Square: "+ clickedSquare+
-                "\nPiece: "+selectedPiece.getPlayer().toString()+"-"+
-                selectedPiece.getPieceType()+ " \nPieceTextureID: "+selectedPiece.getTextureId();
-        GameActivity.coordinates.setText(printText);
-
-        board.logBoardPrint();
-        /** DEBUG **/
-
-        highlightsOff(); // Reset all the highlights
-
-        return true;
     }
 
     public boolean checkSquare(String _square){
@@ -138,6 +148,7 @@ public class GameController {
     }
 
     // TODO: Clean pawn movement checking
+    // TODO: Pawn capture movement is unique
     public List<Square>[] getValidMoves(Piece _piece){
         List<Square> returnListOne = new Vector<>();
         List<Square> returnListTwo = new Vector<>();
