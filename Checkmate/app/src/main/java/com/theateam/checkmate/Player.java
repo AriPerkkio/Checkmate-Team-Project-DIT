@@ -23,10 +23,12 @@ public class Player {
     private double timer;
     private String color;
     private String type;
+    private boolean first; // True if player is first to start / bottom one / white pieces
     public Map<String, Integer> pieceIds = new HashMap<>();
 
-    public Player(String _type){
+    public Player(String _type, boolean isFirst){
         type = _type;
+        first = isFirst;
 
         // Setup IDs for graphic drawing (TextureID)
         int startingId = 28; // This is dependent of the graphics coordinate order
@@ -72,6 +74,10 @@ public class Player {
 
     public boolean isHuman(){
         return type.equals("Human");
+    }
+
+    public boolean isFirst(){
+        return first;
     }
 
     public void addPiece(Piece _piece){
