@@ -28,6 +28,7 @@ public class GameController {
     // Initialized by methods of other classes
     private Player playerTwo; // Either Human or AI
     private List<Square> squareList = new Vector<>(); // Holds info about possible moves
+    private List<Square> squareListTwo = new Vector<>(); // Holds info about possible capture moves
     private Piece selectedPiece;
 
     private GameController(){
@@ -66,7 +67,8 @@ public class GameController {
 
         // Get valid moves
         squareList.clear(); // Empty all moves
-        squareList = getValidMoves(selectedPiece);
+        squareList = getValidMoves(selectedPiece)[0]; // Valid moves
+        squareListTwo = getValidMoves(selectedPiece)[1]; // Valid capture moves
 
         highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square
 
@@ -74,6 +76,10 @@ public class GameController {
         for(int i=0;i<squareList.size();i++)
             if(squareList.get(i)!=null)
                 highlights.add(new String[]{squareList.get(i).getId(), "circle", "green"});
+        // Highlight valid capture moves
+        for(int i=0;i<squareListTwo.size();i++)
+            if(squareListTwo.get(i)!=null)
+                highlights.add(new String[]{squareListTwo.get(i).getId(), "cross", "red"});
         graphics.highlight(highlights);
 
         /** DEBUG **/
@@ -131,8 +137,9 @@ public class GameController {
     }
 
     // TODO: Clean pawn movement checking
-    public List<Square> getValidMoves(Piece _piece){
-        List<Square> returnList = new Vector<>();
+    public List<Square>[] getValidMoves(Piece _piece){
+        List<Square> returnListOne = new Vector<>();
+        List<Square> returnListTwo = new Vector<>();
         List<int[]> pieceMovements = _piece.getMovementList();
         char column;
         int row;
@@ -150,10 +157,15 @@ public class GameController {
             if ((int) column >= (int) 'A' && (int) column <= (int) 'H' &&
                  row > 0 && row < 9) {
                 Log.d("getValidMoves", column + "" + row);
-                returnList.add(board.getSquare(column + "" + row));
+                if(board.getSquare(column + "" + row).getPiece()==null)
+                    returnListOne.add(board.getSquare(column + "" + row));
+                else if(!board.getSquare(column + "" + row).getPiece().getPlayer().equals(selectedPiece.getPlayer()))
+                    returnListTwo.add(board.getSquare(column + "" + row));
+
+
             }
         }
-        return returnList;
+        return new List[]{returnListOne, returnListTwo};
     }
 
 
