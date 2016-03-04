@@ -24,10 +24,12 @@ public class Pawn extends Piece {
         pawnMoves.add(new int[]{0,1});
         captureMovement.add(new int[]{1,1});
         captureMovement.add(new int[]{-1,1});
-        captureMovement.add(new int[]{-1,-1});
-        captureMovement.add(new int[]{1,-1});
 
         this.setMovementList(pawnMoves);
+    }
+
+    public List<int[]> getCaptureMovement(){
+        return captureMovement;
     }
 
     public Piece promote(Piece newPiece){
