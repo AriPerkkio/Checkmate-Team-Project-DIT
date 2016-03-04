@@ -22,10 +22,9 @@ public class Pawn extends Piece {
         this.setPieceType("Pawn");
 
         pawnMoves.add(new int[]{0,1});
-        pawnMoves.add(new int[]{0,-1});
         captureMovement.add(new int[]{1,1});
         captureMovement.add(new int[]{-1,1});
-        captureMovement.add(new int[]{-1,-1}); // TODO May be removed later
+        captureMovement.add(new int[]{-1,-1});
         captureMovement.add(new int[]{1,-1});
 
         this.setMovementList(pawnMoves);
