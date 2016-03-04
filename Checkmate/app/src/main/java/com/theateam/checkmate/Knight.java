@@ -17,14 +17,14 @@ public class Knight extends Piece{
         this.setPieceType("Knight");
 
         // Initialize movementList runtime
-        knightMoves.add(new int[]{1 ,3});
-        knightMoves.add(new int[]{3 ,1});
-        knightMoves.add(new int[]{-1 ,3});
-        knightMoves.add(new int[]{-3 ,1});
-        knightMoves.add(new int[]{-1,-3});
-        knightMoves.add(new int[]{-3,-1});
-        knightMoves.add(new int[]{1, -3});
-        knightMoves.add(new int[]{3, -1});
+        knightMoves.add(new int[]{1 ,2});
+        knightMoves.add(new int[]{2 ,1});
+        knightMoves.add(new int[]{-1 ,2});
+        knightMoves.add(new int[]{-2 ,1});
+        knightMoves.add(new int[]{-1,-2});
+        knightMoves.add(new int[]{-2,-1});
+        knightMoves.add(new int[]{1, -2});
+        knightMoves.add(new int[]{2, -1});
         this.setMovementList(knightMoves);
     }
 }
