@@ -51,6 +51,7 @@ public class GameController {
 
     // Boolean so that method can be broke if needed - see "return false" -statements
     public boolean selectSquare(String _square){
+        //highlights.clear();
 
         // TODO: GameActivity.coordinates.setText -passing is here just in testing phase
         //tests(_square);
@@ -62,15 +63,18 @@ public class GameController {
 
         // Get piece
         selectedPiece = board.getSquare(clickedSquare).getPiece();
+
         // Get valid moves
         squareList.clear(); // Empty all moves
         squareList = getValidMoves(selectedPiece);
-        // TODO JAMAL: Highlight squareList with learningTool's green X
 
-        highlights.clear();
-        highlights.add(new String[]{clickedSquare, "square", "green"});
+        highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square
+
+        // Highlight valid moves
+        for(int i=0;i<squareList.size();i++)
+            if(squareList.get(i)!=null)
+                highlights.add(new String[]{squareList.get(i).getId(), "circle", "green"});
         graphics.highlight(highlights);
-
 
         /** DEBUG **/
         Log.d("SelectedPiece",selectedPiece.getPlayer().toString()+""+selectedPiece.getPieceType()+ " ID: "+selectedPiece.getTextureId());
@@ -81,14 +85,16 @@ public class GameController {
         GameActivity.coordinates.setText(printText);
 
         board.logBoardPrint();
-
         /** DEBUG **/
+
+        highlightsOff(); // Reset all the highlights
 
         return true;
     }
 
     public boolean checkSquare(String _square){
         if(_square.equals("OutOfBoard")) {
+            selectedPiece = null; // Set as null, so that third press re-enables it again.
             highlightsOff();
             GameActivity.coordinates.setText(_square);
             return false;
@@ -96,6 +102,7 @@ public class GameController {
 
         // Check if there is a piece on the clicked square and enable it
         if(board.getSquare(_square).getPiece()==null){
+            selectedPiece = null; // Set as null, so that third press re-enables it again.
             highlightsOff();
             GameActivity.coordinates.setText("Square: "+ _square+ "\nNo Piece.");
             return false;
@@ -103,6 +110,7 @@ public class GameController {
 
         // Check if previously clicked piece is the same one and disable it
         if(selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece())){
+            highlights.clear();
             highlightsOff();
             GameActivity.coordinates.setText("Square: "+ _square+ "\nNo Piece.");
             return false;
@@ -111,25 +119,39 @@ public class GameController {
     }
 
     public void highlightsOff(){
-        selectedPiece = null; // Set as null, so that third press re-enables it again.
-        highlights.clear();
-        highlights.add(new String[]{"hide", "empty", "empty"});
+        String[] empty = new String[]{"hide", "empty", "empty"};
+
+        int count = 27-highlights.size();
+
+        for(int i=0;i<count;i++)
+            highlights.add(empty);
+
         graphics.highlight(highlights);
+        highlights.clear();
     }
 
-    // TODO JAMAL: Check that movements are in A-H, 1-8. At the moment they go over the board
+    // TODO: Clean pawn movement checking
     public List<Square> getValidMoves(Piece _piece){
         List<Square> returnList = new Vector<>();
         List<int[]> pieceMovements = _piece.getMovementList();
         char column;
         int row;
         String fromSquare = _piece.getSquare().getId();
+        int direction = 0;
+        if(!_piece.getPlayer().isHuman())
+            direction = -2;
+        Log.d("Direction:", ""+direction);
 
         for(int i=0;i<pieceMovements.size();i++) {
             column = (char) ((int) fromSquare.charAt(0) + pieceMovements.get(i)[0]);
-            row = Integer.parseInt(""+fromSquare.charAt(1)) + pieceMovements.get(i)[1];
-            Log.d("getValidMoves", column+""+row);
-            returnList.add(board.getSquare(column+""+row));
+            row = Integer.parseInt("" + fromSquare.charAt(1)) + pieceMovements.get(i)[1];
+            if(_piece.getPieceType().equals("Pawn"))
+                row= row+direction;
+            if ((int) column >= (int) 'A' && (int) column <= (int) 'H' &&
+                 row > 0 && row < 9) {
+                Log.d("getValidMoves", column + "" + row);
+                returnList.add(board.getSquare(column + "" + row));
+            }
         }
         return returnList;
     }
@@ -164,19 +186,6 @@ public class GameController {
             graphics.eliminatePiece(49, "F7");
         }
 
-        // Learning tool tests
-        if(_square.equals("H4")){
-            highlights.clear();
-            highlights.add(new String[]{"C7", "circle", "blue"});
-            highlights.add(new String[]{"D7", "circle", "red"});
-            highlights.add(new String[]{"E7", "cross", "blue"});
-            highlights.add(new String[]{"F7", "cross", "red"});
-            highlights.add(new String[]{"C6", "circle", "grey"});
-            highlights.add(new String[]{"D6", "circle", "green"});
-            highlights.add(new String[]{"E6", "cross", "grey"});
-            highlights.add(new String[]{"F6", "cross", "green"});
-            graphics.highlight(highlights);
-        }
     }
 }
 
