@@ -4,6 +4,7 @@ package com.theateam.checkmate;
 import android.util.Log;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by AriPerkkio on 21/02/16.
@@ -83,12 +84,112 @@ public class Board {
                 if(squareList[x][y].getId().equals(_square))
                     return squareList[x][y];
             }
-        Log.e("Board.getSquare", "Not found: "+_square);
+        //Log.e("Board.getSquare", "Not found: "+_square);
         return null; // No square found - Error
     }
 
-    public List<Square> getValidMoves(Piece _piece){
-        return null; // TODO
+
+    // Returns [0] moves for empty squares, [1] movements for captures
+    // Steps:
+    // 1. Calculate squares within movement range to returnListOne and ones within capture range to returnlistTwo
+    // 2. For pawns, recalculate captureMovements
+    // 3. Check if calculated moves are valid by checking if there are pieces between the squares
+    //    * First check vertical movement
+    //    * Second check is for horizontal movements
+    // TODO: Glitch in vertical movement when column value decreasing
+    // TODO: Plenty of testing required here. See Log output - compare it to drawn graphics
+
+    public List<Square>[] getValidMoves(Piece _piece) {
+        List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
+        List<Square> returnListTwo = new Vector<>(); // Holds capture movements
+        List<int[]> pieceMovements = _piece.getMovementList(); // Get pieces movements into int[]
+
+        char column; // As in 'A' - 'H'
+        int row; // 1-8
+        String fromSquare = _piece.getSquare().getId(); // Get piece's square
+        int direction = 0; // Used for pawns to indicate movement direction
+        if (!_piece.getPlayer().isFirst()) // Check if piece belongs to first player
+            direction = -2;
+
+        for (int i = 0; i < pieceMovements.size(); i++) { // Check all the movements
+            column = (char) ((int) fromSquare.charAt(0) + pieceMovements.get(i)[0]); // Calculate new column by adding initial column + movement's column
+            row = Integer.parseInt("" + fromSquare.charAt(1)) + pieceMovements.get(i)[1]; // Calculate new row same way as above
+            if (_piece.getPieceType().equals("Pawn")) // If it's pawn increase the row count by direction check number
+                row = row + direction;
+            if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that new square is between A1-H8
+                if (getSquare(column + "" + row).getPiece() == null) // Check if square is empty
+                    returnListOne.add(getSquare(column + "" + row)); // Add empty square to list
+                else if (!getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer())) // Check if square has enemy piece in it
+                    returnListTwo.add(getSquare(column + "" + row)); // Add enemy piece's square to other list
+            }
+        }
+        // For all the pawns capture movements are unique - so clear capture movements calculated above and get new ones
+        if (_piece.getPieceType().equals("Pawn")) {
+            returnListTwo.clear(); // Clear captures that were made above - pawns cant eliminate with [0,1] movement
+            List<int[]> extraCaptures = ((Pawn) _piece).getCaptureMovement(); // Cast piece to pawn and get capture movements
+            for (int i = 0; i < extraCaptures.size(); i++) { // Check all capture movements
+                column = (char) ((int) fromSquare.charAt(0) + extraCaptures.get(i)[0]); // Calculate new column
+                row = direction + Integer.parseInt("" + fromSquare.charAt(1)) + extraCaptures.get(i)[1]; // Calculate new row
+                if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that square is valid
+                    // Check that square has enemy piece in it
+                    if (getSquare(column + "" + row).getPiece() != null &&
+                            !getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer()))
+                        returnListTwo.add(getSquare(column + "" + row)); // Add enemy piece's square to list
+                }
+            }
+        }
+
+        // Check if there is a piece between valid move and current position - if true, remove the move
+        for (int i = 0; i < returnListOne.size(); i++) { // Test all moves
+            column = returnListOne.get(i).getId().charAt(0); // get current move column
+            row = Integer.parseInt("" + returnListOne.get(i).getId().charAt(1)); // get current move row
+            char currentColumn = fromSquare.charAt(0); // get start square column
+            int currentRow = Integer.parseInt(fromSquare.charAt(1) + ""); // get start square row
+            int difRow = row - currentRow; // Calculate amount of difference between rows
+            int factor = 1;
+            // Check and remove vertical movements
+            for (int y = 1; y < Math.abs(difRow); y++) {
+                if (!_piece.getPlayer().isFirst())
+                    factor = -1;
+
+                if ((currentRow + y * factor) < currentRow && (currentRow + y * factor) > row || (currentRow + y * factor) > currentRow && (currentRow + y * factor) < row) { // Don't check squares that are not between the two
+                    if (column == currentColumn && // In vertical movements columns match
+                            getSquare(column + "" + (currentRow + y * factor)) != null && // Check that given square is within range - board return null is square is not found
+                            getSquare(column + "" + (currentRow + y * factor)).getPiece() != null) {  // Check that there is a piece in the square
+                        returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
+                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                    }
+                }
+            }
+            // Check and remove horizontal movements
+            int difColumn = ((int) column - (int) currentColumn);
+            for (int x = 1; x < Math.abs(difColumn); x++) {
+                if (row == currentRow) { // In horizontal movement rows match
+                    Log.d("Between", currentColumn + "" + currentRow + " - " + column + row);
+                    if ((x + (int) currentColumn) < (int) currentColumn && (x + (int) currentColumn) > (int) column || (x + (int) currentColumn) > (int) currentColumn && (x + (int) currentColumn) < (int) column){ // Don't check squares that are not between the two
+                        Log.d("is +", (char) (x + (int) currentColumn) + "" + row);
+                        if (getSquare((char) (x + (int) currentColumn) + "" + row) != null && // Moving right: check that square exists
+                                getSquare((char) (x + (int) currentColumn) + "" + row).getPiece() != null// Moving right: Check square for a piece
+                                ) {
+                            Log.e("Removing", getSquare(column + "" + row).getId());
+                            returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
+                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        }
+                    }
+                }
+                if (((int) currentColumn) - x < (int) currentColumn && ((int) currentColumn) - x > (int) column || ((int) currentColumn) - x > (int) currentColumn && ((int) currentColumn) - x < (int) column){ // Don't check squares that are not between the two
+                    Log.d("is -", (char) ((int) currentColumn-x) + "" + row);
+                    if (getSquare((char) ((int) currentColumn)-x + "" + row) != null && // Moving right: check that square exists
+                            getSquare((char) ((int) currentColumn)-x + "" + row).getPiece() != null// Moving right: Check square for a piece
+                            ) {
+                        Log.e("Removing 2", getSquare(column + "" + row).getId());
+                        returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
+                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                    }
+                }
+            }
+        }
+        return new List[]{returnListOne, returnListTwo}; // return value [0] valid moves, [1] capture moves
     }
 
     // Tester
