@@ -94,10 +94,10 @@ public class Board {
     // 1. Calculate squares within movement range to returnListOne and ones within capture range to returnlistTwo
     // 2. For pawns, recalculate captureMovements
     // 3. Check if calculated moves are valid by checking if there are pieces between the squares
-    //    * First check vertical movement
-    //    * Second check is for horizontal movements
-    // TODO: Glitch in vertical movement when column value decreasing
-    // TODO: Plenty of testing required here. See Log output - compare it to drawn graphics
+    //    * First check vertical movement, up and down
+    //    * Second check is for horizontal movements, left and right
+    // TODO: Diagonally movement check left. I.e. check if there is a piece between A1 and C3 in B2
+    // TODO: Plenty of testing required here.
 
     public List<Square>[] getValidMoves(Piece _piece) {
         List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
@@ -111,6 +111,7 @@ public class Board {
         if (!_piece.getPlayer().isFirst()) // Check if piece belongs to first player
             direction = -2;
 
+        // Calculate all the squares that are within piece's movement range
         for (int i = 0; i < pieceMovements.size(); i++) { // Check all the movements
             column = (char) ((int) fromSquare.charAt(0) + pieceMovements.get(i)[0]); // Calculate new column by adding initial column + movement's column
             row = Integer.parseInt("" + fromSquare.charAt(1)) + pieceMovements.get(i)[1]; // Calculate new row same way as above
@@ -138,25 +139,47 @@ public class Board {
                 }
             }
         }
+        returnListOne = checkMovementList(returnListOne, _piece); // Check if given squares are valid for movements
+        returnListTwo = checkMovementList(returnListTwo, _piece); // Check if given capture movements are valid
+
+        return new List[]{returnListOne, returnListTwo}; // return value [0] valid moves, [1] capture moves
+    }
+
+
+    // Isolated into its own function in order to use it for movements and capture moves
+    // Function to check if given squareList has invalid movements - It checks if there are pieces between two squares
+    // I.e. Checks if between A1 and A5 there is a piece in A3. If there is a piece, A5 is removed
+    public List<Square> checkMovementList(List<Square> _squareList, Piece _piece){
+        char column; // As in 'A' - 'H'
+        int row; // 1-8
+        String fromSquare = _piece.getSquare().getId(); // Get piece's square
 
         // Check if there is a piece between valid move and current position - if true, remove the move
-        for (int i = 0; i < returnListOne.size(); i++) { // Test all moves
-            column = returnListOne.get(i).getId().charAt(0); // get current move column
-            row = Integer.parseInt("" + returnListOne.get(i).getId().charAt(1)); // get current move row
+        for (int i = 0; i < _squareList.size(); i++) { // Test all moves
+
+            column = _squareList.get(i).getId().charAt(0); // get current move column
+            row = Integer.parseInt("" + _squareList.get(i).getId().charAt(1)); // get current move row
             char currentColumn = fromSquare.charAt(0); // get start square column
             int currentRow = Integer.parseInt(fromSquare.charAt(1) + ""); // get start square row
             int difRow = row - currentRow; // Calculate amount of difference between rows
-            int factor = 1;
+
             // Check and remove vertical movements
             for (int y = 1; y < Math.abs(difRow); y++) {
-                if (!_piece.getPlayer().isFirst())
-                    factor = -1;
-
-                if ((currentRow + y * factor) < currentRow && (currentRow + y * factor) > row || (currentRow + y * factor) > currentRow && (currentRow + y * factor) < row) { // Don't check squares that are not between the two
+                // Moving from lower row number to higher one, i.e. 1-8
+                if (row>(currentRow + y) && (currentRow + y)>currentRow ) { // Don't check squares that are not between the two
                     if (column == currentColumn && // In vertical movements columns match
-                            getSquare(column + "" + (currentRow + y * factor)) != null && // Check that given square is within range - board return null is square is not found
-                            getSquare(column + "" + (currentRow + y * factor)).getPiece() != null) {  // Check that there is a piece in the square
-                        returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
+                            getSquare(column + "" + (currentRow + y)) != null && // Check that given square is within range - board return null if square is not found
+                            getSquare(column + "" + (currentRow + y)).getPiece() != null) {  // Check that there is a piece in the square
+                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                    }
+                }
+                // Moving from higher row number to lower one, i.e. 8-1
+                if (row<(currentRow - y) && (currentRow - y)<currentRow ) { // Don't check squares that are not between the two
+                    if (column == currentColumn && // In vertical movements columns match
+                            getSquare(column + "" + (currentRow -y)) != null && // Check that given square is within range - board return null if square is not found
+                            getSquare(column + "" + (currentRow -y)).getPiece() != null) {  // Check that there is a piece in the square
+                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
                         i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
                     }
                 }
@@ -164,34 +187,31 @@ public class Board {
             // Check and remove horizontal movements
             int difColumn = ((int) column - (int) currentColumn);
             for (int x = 1; x < Math.abs(difColumn); x++) {
-                if (row == currentRow) { // In horizontal movement rows match
-                    Log.d("Between", currentColumn + "" + currentRow + " - " + column + row);
-                    if ((x + (int) currentColumn) < (int) currentColumn && (x + (int) currentColumn) > (int) column || (x + (int) currentColumn) > (int) currentColumn && (x + (int) currentColumn) < (int) column){ // Don't check squares that are not between the two
-                        Log.d("is +", (char) (x + (int) currentColumn) + "" + row);
-                        if (getSquare((char) (x + (int) currentColumn) + "" + row) != null && // Moving right: check that square exists
-                                getSquare((char) (x + (int) currentColumn) + "" + row).getPiece() != null// Moving right: Check square for a piece
-                                ) {
-                            Log.e("Removing", getSquare(column + "" + row).getId());
-                            returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
-                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
-                        }
+
+                // Moving from H-A
+                if ((int) currentColumn < ((int) currentColumn + x) && ((int) currentColumn + x)< (int) column ){ // Don't check squares that are not between the two
+                    if (row == currentRow && // In horizontal movement rows are the same
+                            getSquare((char) ((int) currentColumn + x) + "" + row) != null && // Moving right: check that square exists
+                            getSquare((char) ((int) currentColumn + x) + "" + row).getPiece() != null// Moving right: Check square for a piece
+                            ) {
+                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
                     }
                 }
-                if (((int) currentColumn) - x < (int) currentColumn && ((int) currentColumn) - x > (int) column || ((int) currentColumn) - x > (int) currentColumn && ((int) currentColumn) - x < (int) column){ // Don't check squares that are not between the two
-                    Log.d("is -", (char) ((int) currentColumn-x) + "" + row);
-                    if (getSquare((char) ((int) currentColumn)-x + "" + row) != null && // Moving right: check that square exists
-                            getSquare((char) ((int) currentColumn)-x + "" + row).getPiece() != null// Moving right: Check square for a piece
+                // Moving from A-H
+                if ((int) currentColumn > ((int) currentColumn - x) && ((int) currentColumn - x)> (int) column ){ // Don't check squares that are not between the two
+                    if (row == currentRow && // In horizontal movement rows are the same
+                            getSquare((char) ((int) currentColumn - x) + "" + row) != null && // Moving right: check that square exists
+                            getSquare((char) ((int) currentColumn - x) + "" + row).getPiece() != null// Moving right: Check square for a piece
                             ) {
-                        Log.e("Removing 2", getSquare(column + "" + row).getId());
-                        returnListOne.remove(getSquare(column + "" + row)); // Remove square from list
+                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
                         i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
                     }
                 }
             }
         }
-        return new List[]{returnListOne, returnListTwo}; // return value [0] valid moves, [1] capture moves
+        return _squareList;
     }
-
     // Tester
     public void logBoardPrint() {
 
