@@ -92,7 +92,7 @@ public class TextureGL {
         //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardTexture); // Board
         // Learning tool
-        for(int i=0;i<27;i++)
+        for(int i=0;i<28;i++)
             coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool #1-27
         // Player One
         coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #1
