@@ -28,6 +28,7 @@ public class GameController {
 
     // Initialized by methods of other classes
     private Player playerTwo; // Either Human or AI
+    private List<Square>[] bothSquareLists;
     private List<Square> squareList = new Vector<>(); // Holds info about possible moves
     private List<Square> squareListTwo = new Vector<>(); // Holds info about possible capture moves
     private Piece selectedPiece;
@@ -36,7 +37,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as AI or human
+        playerTwo = new Player("AI", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -90,7 +91,7 @@ public class GameController {
                         selectedPiece.getPieceType() + " \nPieceTextureID: " + selectedPiece.getTextureId();
         GameActivity.coordinates.setText(printText);
 
-        board.logBoardPrint();
+        //board.logBoardPrint();
         /** DEBUG **/
 
         highlightsOff(); // Reset all the highlights
@@ -121,8 +122,9 @@ public class GameController {
     public void processMovements() {
         squareList.clear(); // Empty all moves
         squareListTwo.clear();
-        squareList = board.getValidMoves(selectedPiece)[0]; // Valid moves
-        squareListTwo = board.getValidMoves(selectedPiece)[1]; // Valid capture moves
+        bothSquareLists = board.getValidMoves(selectedPiece);
+        squareList = bothSquareLists[0]; // Valid moves
+        squareListTwo = bothSquareLists[1]; // Valid capture moves
 
         highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square
 
