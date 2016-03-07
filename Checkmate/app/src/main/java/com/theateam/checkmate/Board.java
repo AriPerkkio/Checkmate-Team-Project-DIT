@@ -78,7 +78,6 @@ public class Board {
     }
 
     public Square getSquare(String _square){
-        Square returnSquare;
         for(int x=0;x<8;x++)
             for(int y=0;y<8;y++){
                 if(squareList[x][y].getId().equals(_square))
@@ -96,7 +95,7 @@ public class Board {
     // 3. Check if calculated moves are valid by checking if there are pieces between the squares
     //    * First check vertical movement, up and down
     //    * Second check is for horizontal movements, left and right
-    // TODO: Diagonally movement check left. I.e. check if there is a piece between A1 and C3 in B2
+    //    * Third check is for diagonal movements. Each of the four directions are checked individually
     // TODO: Plenty of testing required here.
 
     public List<Square>[] getValidMoves(Piece _piece) {
@@ -109,7 +108,7 @@ public class Board {
         String fromSquare = _piece.getSquare().getId(); // Get piece's square
         int direction = 0; // Used for pawns to indicate movement direction
         if (!_piece.getPlayer().isFirst()) // Check if piece belongs to first player
-            direction = -2;
+            direction = -2; // Makes player two pawns go down
 
         // Calculate all the squares that are within piece's movement range
         for (int i = 0; i < pieceMovements.size(); i++) { // Check all the movements
@@ -206,6 +205,47 @@ public class Board {
                             ) {
                         _squareList.remove(getSquare(column + "" + row)); // Remove square from list
                         i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                    }
+                }
+            }
+            // Check and remove diagonally movements
+            if(Math.abs(difColumn)==Math.abs(difRow)){ // Difference between columns and rows are the same - it's diagonally
+                for(int xy=1;xy<Math.abs(difColumn);xy++){
+                    // Moving up-right, i.e. A1 - D4
+                    if((int) currentColumn < (int) currentColumn+xy && (int) currentColumn+xy < (int) column // Column between current col and checking col
+                            && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
+                        if(getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy))!= null && // Check if square is between A-H, 1-8
+                                getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
+                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
+                            i = -1; // Reset counter
+                        }
+                    }
+                    // Moving down-right, i.e. A8 - C6
+                    if((int) currentColumn < (int) currentColumn+xy && (int) currentColumn+xy < (int) column // Column between current col and checking col
+                            && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
+                        if(getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy))!= null && // Check if square is between A-H, 1-8
+                                getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
+                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
+                            i = -1; // Reset counter
+                        }
+                    }
+                    // Moving up-left, i.e. C6-A8
+                    if((int) currentColumn > (int) currentColumn-xy && (int) currentColumn-xy > (int) column // Column between current col and checking col
+                            && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
+                        if(getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy))!= null && // Check if square is between A-H, 1-8
+                                getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
+                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
+                            i = -1; // Reset counter
+                        }
+                    }
+                    // Moving down-left, i.e. C6-A8
+                    if((int) currentColumn > (int) currentColumn-xy && (int) currentColumn-xy > (int) column // Column between current col and checking col
+                            && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
+                        if(getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy))!= null && // Check if square is between A-H, 1-8
+                                getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
+                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
+                            i = -1; // Reset counter
+                        }
                     }
                 }
             }
