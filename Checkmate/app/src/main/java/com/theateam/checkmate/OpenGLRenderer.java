@@ -84,7 +84,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardCoordinates); // Board
         // Learning tool
-        for(int i=0;i<27;i++)
+        for(int i=0;i<28;i++)
             coordinateList.add(allCoordinates.hideCoordinates);  // Learning Tool #1-27
         // Player one
         coordinateList.add(allCoordinates.coordinateList.get("A2")); // Pawn #1 Player One
