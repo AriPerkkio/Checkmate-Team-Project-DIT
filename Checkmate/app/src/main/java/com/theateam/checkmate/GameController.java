@@ -33,11 +33,12 @@ public class GameController {
     private List<Square> squareListTwo = new Vector<>(); // Holds info about possible capture moves
     private Piece selectedPiece;
     private boolean turn = true; // True indicates that it's playerOne's turn
+    private boolean testsDone = false;
 
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as AI or human
+        playerTwo = new Player("Human", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -91,10 +92,11 @@ public class GameController {
                         selectedPiece.getPieceType() + " \nPieceTextureID: " + selectedPiece.getTextureId();
         GameActivity.coordinates.setText(printText);
 
-        //board.logBoardPrint();
+        board.logBoardPrint();
         /** DEBUG **/
 
         highlightsOff(); // Reset all the highlights
+        //tests(); // See function
         return true;
     }
 
@@ -179,7 +181,7 @@ public class GameController {
     // Sets all the remaining highlighting textures as empty and calls graphics to show them
     public void highlightsOff() {
         String[] empty = new String[]{"hide", "empty", "empty"}; // Sets empty texture and empty coordinates
-        int count = 27 - highlights.size(); // Get count for loop
+        int count = 28 - highlights.size(); // Get count for loop
         for (int i = 0; i < count; i++)
             highlights.add(empty);
         graphics.highlight(highlights);
@@ -193,5 +195,26 @@ public class GameController {
             SystemClock.sleep(500); // Sleep 500ms to make rotating and highlightsOff smoother
             graphics.rotate(); // Rotate board and pieces
         }
+    }
+
+    // Save the queen, aka kill the rest
+    public void tests(){
+        if(!testsDone){
+            for(int x=0;x<8;x++) {
+                char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
+                for (int y = 1; y <= 8; y++) {
+                    Log.d("tests()", startChar + "" + y);
+                    if (board.getSquare(startChar + "" + y).getPiece()!=null && !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen")) {
+                        Log.d("tests() eliminate", board.getSquare(startChar + "" + y).getPiece().getPieceType());
+                        board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
+                        graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
+                        board.getSquare(startChar + "" + y).setPiece(null);
+                    }
+                }
+            }
+            selectedPiece = board.getSquare("D1").getPiece(); //Avoids null pointter for selected piece
+            testsDone = true;
+        }
+
     }
 }
