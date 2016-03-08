@@ -272,7 +272,7 @@ public class TextureGL {
     public void rotatePieces(){
 
         // Loop starts from player one pieces coordinate ids
-        for(int i=28;i<60;i++) {
+        for(int i=29;i<61;i++) {
             // Get initial values
             float left  = coordinates[    8 * i];
             float right = coordinates[4 + 8 * i];
