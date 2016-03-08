@@ -71,11 +71,8 @@ public class GameController {
         selectedPiece = board.getSquare(clickedSquare).getPiece();
 
         // Check if clicked piece belongs to other player and break here
-        if (turn && selectedPiece.getPlayer().equals(playerTwo)) {
-            selectedPiece = null; // Reset selectedPiece back to null
-            return false; // Break this function
-        }
-        if (!turn && selectedPiece.getPlayer().equals(playerOne)) {
+        if (turn && selectedPiece.getPlayer().equals(playerTwo) ||
+           !turn && selectedPiece.getPlayer().equals(playerOne)) {
             selectedPiece = null; // Reset selectedPiece back to null
             return false; // Break this function
         }
