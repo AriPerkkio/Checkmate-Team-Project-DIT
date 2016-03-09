@@ -84,7 +84,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardCoordinates); // Board
         // Learning tool
-        for(int i=0;i<28;i++)
+        for(int i=0;i<TextureGL.count;i++)
             coordinateList.add(allCoordinates.hideCoordinates);  // Learning Tool #1-27
         // Player one
         coordinateList.add(allCoordinates.coordinateList.get("A2")); // Pawn #1 Player One
@@ -120,6 +120,12 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("F8")); // Bishop #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
+        // Extra graphics
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Window
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #1
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #2
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #3
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #4
 
         Log.d("Renrdr. CoordList size:", ""+coordinateList.size()); // See if matches with TextureGL's log output
         coordinates = new float[coordinateList.size()*8];
@@ -303,6 +309,22 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             );
 
         }
+    }
+
+    public void promotePawn(int pieceSelect, String textureName){
+
+        if(allCoordinates.promotePieces.get(textureName) == null)
+            Log.e("Rendr.PromotePawn", "Name: "+textureName);
+
+        float[] texture = allCoordinates.promotePieces.get(textureName);
+
+        picture.changeTextureCoordinates(pieceSelect,
+                texture[4],
+                texture[0],
+                texture[3],
+                texture[1]
+        );
+
     }
 
     // Convert coordinates to String square
