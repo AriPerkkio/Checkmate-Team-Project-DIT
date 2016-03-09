@@ -101,7 +101,13 @@ public class Board {
     public List<Square>[] getValidMoves(Piece _piece) {
         List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
         List<Square> returnListTwo = new Vector<>(); // Holds capture movements
-        List<int[]> pieceMovements = _piece.getMovementList(); // Get pieces movements into int[]
+        List<int[]> pieceMovements = new Vector<>(); // Holds pieces movement capabilities
+
+        // Since pieceMovements list may be edited later we cannot use its reference
+        // i.e. List<int[]> pieceMovements = _piece.getMovementList() is not allowed
+        // Work-around is to loop through movementList and add them to pieceMovements list
+        for(int i=0;i<_piece.getMovementList().size();i++)
+            pieceMovements.add(_piece.getMovementList().get(i));
 
         char column; // As in 'A' - 'H'
         int row; // 1-8
@@ -109,6 +115,10 @@ public class Board {
         int direction = 0; // Used for pawns to indicate movement direction
         if (!_piece.getPlayer().isFirst()) // Check if piece belongs to first player
             direction = -2; // Makes player two pawns go down
+        // Check pawns for starting move - [0,2] moving.
+        if (_piece.getPieceType().equals("Pawn") && // Pieces that are in x2 or x7 can move 2 steps - aka starting move
+            (fromSquare.charAt(1)=='2' || fromSquare.charAt(1)=='7'))
+            pieceMovements.add(new int[]{0, (2 + direction)}); // Add extra move to list
 
         // Calculate all the squares that are within piece's movement range
         for (int i = 0; i < pieceMovements.size(); i++) { // Check all the movements
