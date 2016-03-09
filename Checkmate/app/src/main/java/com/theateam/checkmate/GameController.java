@@ -101,7 +101,7 @@ public class GameController {
         /** DEBUG **/
 
         highlightsOff(); // Reset all the highlights
-        //tests(); // See function
+        tests(); // See function
         return true;
     }
 
@@ -220,7 +220,10 @@ public class GameController {
                selectedPiece.getSquare().getId().charAt(1)=='8'){
                 Log.d("PawnPromote set on", "#2");
                 pawnPromoting = true;
-                // TODO: graphics.promotePawnWindow();
+                if(selectedPiece.getPlayer().isFirst())
+                    graphics.pawnPromoteOn("PlayerOne");
+                else
+                    graphics.pawnPromoteOn("PlayerTwo");
                 return true;
             }
         }
@@ -299,7 +302,7 @@ public class GameController {
             textureName+="PlayerOne";
         else
             textureName+="PlayerTwo";
-        // TODO: graphics.pawnPromoteWindowOff();
+        graphics.pawnPromoteOff();
         graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
         selectedPiece.remove(); // Get rid of current pawn
         graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
