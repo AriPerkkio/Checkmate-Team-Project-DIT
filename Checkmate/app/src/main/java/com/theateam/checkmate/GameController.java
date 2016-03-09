@@ -101,7 +101,7 @@ public class GameController {
         /** DEBUG **/
 
         highlightsOff(); // Reset all the highlights
-        tests(); // See function
+        //tests(); // See function
         return true;
     }
 
