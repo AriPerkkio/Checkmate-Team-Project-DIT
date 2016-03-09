@@ -14,6 +14,7 @@ public class Coordinates {
 
     public Map<String, float[]> coordinateList = new HashMap<>();
     public Map<String, float[]> learningToolList = new HashMap<>();
+    public Map<String, float[]> promotePieces = new HashMap<>();
 
     //size of square gap
     private float squareGap = 0.224f;
@@ -27,6 +28,12 @@ public class Coordinates {
     private float rightX = leftX + squareGap;
     //top side of square
     private float topY = botY + squareGap;
+
+    float[] promotePawnWindow;
+    float[] promotePawnOne;
+    float[] promotePawnTwo;
+    float[] promotePawnThree;
+    float[] promotePawnFour;
 
     public Coordinates() {
 
@@ -60,6 +67,52 @@ public class Coordinates {
         learningToolList.put("grey square",learningTool_square_grey);
         learningToolList.put("red square",learningTool_square_red);
         learningToolList.put("empty empty", hideCoordinates);
+
+        // Add textures for pawn promoting
+        promotePieces.put("rookPlayerOne", rookPlayerOne);
+        promotePieces.put("bishopPlayerOne", bishopPlayerOne);
+        promotePieces.put("queenPlayerOne", queenPlayerOne);
+        promotePieces.put("knightPlayerOne", knightPlayerOne);
+        promotePieces.put("rookPlayerTwo", rookPlayerTwo);
+        promotePieces.put("bishopPlayerTwo", bishopPlayerTwo);
+        promotePieces.put("queenPlayerTwo", queenPlayerTwo);
+        promotePieces.put("knightPlayerTwo", knightPlayerTwo);
+
+        promotePawnWindow = new float[] {
+                // Top 6, Bottom 3, Left A, Right H
+                coordinateList.get("A6")[0], coordinateList.get("A5")[1], // Top Left
+                coordinateList.get("A6")[2], coordinateList.get("A4")[3], // Bot Left
+                coordinateList.get("H6")[4], coordinateList.get("A4")[5], // Bot right
+                coordinateList.get("H6")[6], coordinateList.get("A5")[7]  // Top right
+        };
+        promotePawnOne = new float[] {
+                coordinateList.get("A5")[0], coordinateList.get("A5")[1], // Top Left
+                coordinateList.get("A5")[2], coordinateList.get("B4")[3], // Bot Left
+                coordinateList.get("B5")[4], coordinateList.get("B4")[5], // Bot right
+                coordinateList.get("B5")[6], coordinateList.get("A5")[7]  // Top right
+        };
+
+        promotePawnTwo = new float[] {
+                coordinateList.get("C5")[0], coordinateList.get("A5")[1], // Top Left
+                coordinateList.get("C5")[2], coordinateList.get("B4")[3], // Bot Left
+                coordinateList.get("D5")[4], coordinateList.get("B4")[5], // Bot right
+                coordinateList.get("D5")[6], coordinateList.get("A5")[7]  // Top right
+        };
+
+        promotePawnThree = new float[] {
+                coordinateList.get("E5")[0], coordinateList.get("A5")[1], // Top Left
+                coordinateList.get("E5")[2], coordinateList.get("B4")[3], // Bot Left
+                coordinateList.get("F5")[4], coordinateList.get("B4")[5], // Bot right
+                coordinateList.get("F5")[6], coordinateList.get("A5")[7]  // Top right
+        };
+
+        promotePawnFour = new float[] {
+                coordinateList.get("G5")[0], coordinateList.get("A5")[1], // Top Left
+                coordinateList.get("G5")[2], coordinateList.get("B4")[3], // Bot Left
+                coordinateList.get("H5")[4], coordinateList.get("B4")[5], // Bot right
+                coordinateList.get("H5")[6], coordinateList.get("A5")[7]  // Top right
+        };
+
     }
 
     // Board on matrix
@@ -255,5 +308,6 @@ public class Coordinates {
             0.8f, 1.0f - 0.6f, //bot right
             0.8f, 1.0f - 0.7f  //top right
     };
+
 }
 
