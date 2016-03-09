@@ -36,10 +36,6 @@ public class Piece {
         this.player = _player;
     }
 
-    public void enablePiece(){
-        // TODO: Is this every used
-    }
-
     // Used when piece is eliminated
     public void remove(){
         this.player = null;
