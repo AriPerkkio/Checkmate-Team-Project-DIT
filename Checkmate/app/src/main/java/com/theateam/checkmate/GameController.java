@@ -19,6 +19,9 @@ public class GameController {
     // Attributes
     String clickedSquare;
     List<String[]> highlights = new Vector<>();
+    private boolean turn = true; // True indicates that it's playerOne's turn
+    private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
+    private boolean testsDone = false; // Tester
 
     //References for other classes
     private Board board;
@@ -32,8 +35,7 @@ public class GameController {
     private List<Square> squareList = new Vector<>(); // Holds info about possible moves
     private List<Square> squareListTwo = new Vector<>(); // Holds info about possible capture moves
     private Piece selectedPiece;
-    private boolean turn = true; // True indicates that it's playerOne's turn
-    private boolean testsDone = false;
+
 
     private GameController() {
         OpenGLRenderer.gameController = this;
@@ -60,8 +62,13 @@ public class GameController {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
-        // Allow piece movement to highlighted squares
-        checkClickMovement();
+        if(pawnPromoting) { // Check if pawn promote is on
+            Log.i("pawnPromoting", pawnPromoting+"");
+            processPromoting(clickedSquare); // Process users piece choosing
+            return false; // Break function here
+        }
+        else
+            checkClickMovement();  // Allow piece movement to highlighted squares
 
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if (!checkSquare(clickedSquare)) // True means new piece was clicked
@@ -73,6 +80,7 @@ public class GameController {
         // Check if clicked piece belongs to other player and break here
         if (turn && selectedPiece.getPlayer().equals(playerTwo) ||
            !turn && selectedPiece.getPlayer().equals(playerOne)) {
+            Log.e("selectedPiece nulling", "#1");
             selectedPiece = null; // Reset selectedPiece back to null
             return false; // Break this function
         }
@@ -98,23 +106,30 @@ public class GameController {
     }
 
     // Check if new click was made to make selected piece to move or to eliminate a piece
-    public void checkClickMovement() {
+    public boolean checkClickMovement() {
         if (selectedPiece != null && board.getSquare(clickedSquare) != null) { // Check that there was a piece selected and click is on the board
             if (squareList.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid move to empty square
                 movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare()); // Move piece in game logic and graphics
                 highlightsOff(); // Turn off all the highlights
+                if(callForPromote()) // Check if made move allows pawn promoting
+                    return false;
                 turn = !turn;
                 checkRotating(); // Check if playerTwo is AI and rotate
+                return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
                 int tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
                 board.getSquare(clickedSquare).getPiece().remove(); // Eliminate old piece from game logic
                 movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
                 graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId()); // Eliminate old piece from graphics
                 highlightsOff(); // Turn off all the highlights
+                if(callForPromote()) // Check if made move allows pawn promoting
+                    return false;
                 turn = !turn;
                 checkRotating(); // Check if playerTwo is AI and rotate
+                return true;
             }
         }
+        return false; // No move was made
     }
 
     // Get valid moves and capture moves and highlight them
@@ -142,6 +157,7 @@ public class GameController {
     public boolean checkSquare(String _square) {
         if (_square.equals("OutOfBoard")) {
             selectedPiece = null; // Set as null, so that third press re-enables it again.
+            Log.e("selectedPiece nulling", "#2");
             highlightsOff();
             GameActivity.coordinates.setText(_square);
             return false;
@@ -150,15 +166,17 @@ public class GameController {
         // Check if there is a piece on the clicked square and enable it
         if (board.getSquare(_square).getPiece() == null) {
             selectedPiece = null; // Set as null, so that third press re-enables it again.
+            Log.e("selectedPiece nulling", "#3");
             highlightsOff();
             GameActivity.coordinates.setText("Square: " + _square + "\nNo Piece.");
             return false;
         }
 
         // Check if previously clicked piece is the same one and disable it
-        if (selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece())) {
+        if (selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece()) && !pawnPromoting) {
             highlights.clear();
             selectedPiece = null;
+            Log.e("selectedPiece nulling", "#4");
             highlightsOff();
             GameActivity.coordinates.setText("Square: " + _square + "\nNo Piece.");
             return false;
@@ -167,6 +185,7 @@ public class GameController {
         // Check if previous click was on own piece, and new click on enemy piece that can't be captured
         if (selectedPiece != null && !selectedPiece.getPlayer().equals(board.getSquare(clickedSquare).getPiece().getPlayer())) {
             highlights.clear();
+            Log.e("selectedPiece nulling", "#5");
             selectedPiece = null;
             highlightsOff();
             GameActivity.coordinates.setText("Clicked piece is not in capturing rate");
@@ -194,14 +213,117 @@ public class GameController {
         }
     }
 
-    // Save the queen, aka kill the rest
+    public boolean callForPromote(){
+        if(selectedPiece != null && selectedPiece.getPieceType().equals("Pawn")){
+            Log.d("Pawn", "#1");
+            if(selectedPiece.getSquare().getId().charAt(1)=='1' ||
+               selectedPiece.getSquare().getId().charAt(1)=='8'){
+                Log.d("PawnPromote set on", "#2");
+                pawnPromoting = true;
+                // TODO: graphics.promotePawnWindow();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // This is only called when user has to pick specific piece for pawn promoting
+    public boolean processPromoting(String _square){
+
+        Player playerChooser = playerOne; // Initialize as playerOne
+        String textureName = ""; // See Coordinates.java for constructing this
+
+        if(!selectedPiece.getPlayer().isFirst()) // Check player and reinitialize if needed
+            playerChooser = playerTwo;
+
+        Square tempSquare = selectedPiece.getSquare(); // Hold current square
+        int tempTextureId = selectedPiece.getTextureId(); // Hold textureId of the piece
+
+
+        // Determine which piece was clicked
+        // Cases' squares are determined in pawn promote window
+        // They are inverted in rotated view
+        switch (_square){
+            case "A4": case "A5":case "B4":case "B5":
+                if(!OpenGLRenderer.rotated)
+                    textureName += "queen";
+                else
+                    textureName += "knight";
+            break;
+
+            case "C4": case "C5":case "D4":case "D5":
+                if(!OpenGLRenderer.rotated)
+                    textureName += "rook";
+                else
+                    textureName += "bishop";
+            break;
+
+            case "E4": case "E5":case "F4":case "F5":
+                if(!OpenGLRenderer.rotated)
+                    textureName += "bishop";
+                else
+                    textureName += "rook";
+            break;
+
+            case "G4": case "G5":case "H4":case "H5":
+                if(!OpenGLRenderer.rotated)
+                    textureName += "knight";
+                else
+                    textureName += "queen";
+            break;
+
+            // Click out of the window
+            default:
+                Log.e("processPawnPromote", "Invalid click");
+                return false; // Break here and check next click as before
+        }
+
+        // Set new piece to square
+        switch (textureName){
+            case "queen":
+                tempSquare.setPiece(new Queen(tempSquare, playerChooser, tempTextureId));
+            break;
+            case "rook":
+                tempSquare.setPiece(new Rook(tempSquare, playerChooser, tempTextureId));
+            break;
+            case "bishop":
+                tempSquare.setPiece(new Bishop(tempSquare, playerChooser, tempTextureId));
+            break;
+            case "knight":
+                tempSquare.setPiece(new Knight(tempSquare, playerChooser, tempTextureId));
+            break;
+
+        }
+        // Construct textureId to choose correct player's piece texture
+        if(tempSquare.getPiece().getPlayer().isFirst())
+            textureName+="PlayerOne";
+        else
+            textureName+="PlayerTwo";
+        // TODO: graphics.pawnPromoteWindowOff();
+        graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
+        selectedPiece.remove(); // Get rid of current pawn
+        graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
+        graphics.promotePawn(tempTextureId, textureName); // Change texture to match chosen piece
+        turn = !turn;
+        checkRotating();
+        highlightsOff();
+        selectedPiece = null;
+        Log.e("selectedPiece nulling", "#6");
+        pawnPromoting = false; // Turn off promoting for pawn
+        return true;
+    }
+
+    // Pawn Promoting tester
     public void tests(){
+        if(selectedPiece==null)
+            Log.e("tester", "selectedPiece null");
+
         if(!testsDone){
-            for(int x=0;x<8;x++) {
+            for(int x=0;x<3;x++) {
                 char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
                 for (int y = 1; y <= 8; y++) {
                     Log.d("tests()", startChar + "" + y);
-                    if (board.getSquare(startChar + "" + y).getPiece()!=null && !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen")) {
+                    if (board.getSquare(startChar + "" + y).getPiece()!=null && !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Pawn")) {
                         Log.d("tests() eliminate", board.getSquare(startChar + "" + y).getPiece().getPieceType());
                         board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
                         graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
@@ -209,6 +331,16 @@ public class GameController {
                     }
                 }
             }
+            movePiece(board.getSquare("A7").getPiece(), board.getSquare("A3"), board.getSquare("A7"));
+            movePiece(board.getSquare("A2").getPiece(), board.getSquare("A7"), board.getSquare("A2"));
+            movePiece(board.getSquare("A3").getPiece(), board.getSquare("A2"), board.getSquare("A3"));
+            movePiece(board.getSquare("B7").getPiece(), board.getSquare("B3"), board.getSquare("B7"));
+            movePiece(board.getSquare("B2").getPiece(), board.getSquare("B7"), board.getSquare("B2"));
+            movePiece(board.getSquare("B3").getPiece(), board.getSquare("B2"), board.getSquare("B3"));
+            movePiece(board.getSquare("C7").getPiece(), board.getSquare("C3"), board.getSquare("C7"));
+            movePiece(board.getSquare("C2").getPiece(), board.getSquare("C7"), board.getSquare("C2"));
+            movePiece(board.getSquare("C3").getPiece(), board.getSquare("C2"), board.getSquare("C3"));
+
             selectedPiece = board.getSquare("D1").getPiece(); //Avoids null pointter for selected piece
             testsDone = true;
         }
