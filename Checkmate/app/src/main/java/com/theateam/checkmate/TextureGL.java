@@ -23,6 +23,8 @@ import java.util.Vector;
  *
  */
 public class TextureGL {
+    public static final int count = 28; // Used in multiple classes. Number of highlight textures
+
     private final Context mActivityContext;
     private FloatBuffer mCubeTextureCoordinates;
     private int mTextureUniformHandle;
@@ -92,7 +94,7 @@ public class TextureGL {
         //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardTexture); // Board
         // Learning tool
-        for(int i=0;i<28;i++)
+        for(int i=0;i<count;i++)
             coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool #1-27
         // Player One
         coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #1
@@ -128,6 +130,12 @@ public class TextureGL {
         coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #2 Player two
         coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #2 Player two
         coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #2 Player two
+        // Extra graphics
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Window
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #1
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #2
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #3
+        coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #4
 
         Log.d("Textr. CoLst size:", ""+coordinateList.size());
         // Here add texture coordinates for each piece, board, square etc.
@@ -272,7 +280,7 @@ public class TextureGL {
     public void rotatePieces(){
 
         // Loop starts from player one pieces coordinate ids
-        for(int i=29;i<61;i++) {
+        for(int i=count+1;i<66;i++) {
             // Get initial values
             float left  = coordinates[    8 * i];
             float right = coordinates[4 + 8 * i];
