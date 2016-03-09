@@ -324,7 +324,126 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 texture[3],
                 texture[1]
         );
+    }
 
+    public void pawnPromoteOn(String _player){
+                                            // Board+Highlights+all the pieces
+        int windowId = TextureGL.count+1+32;
+        int pieceId = windowId+1;
+
+        picture.changeTextureCoordinates(windowId,
+                allCoordinates.learningTool_square_grey[0],
+                allCoordinates.learningTool_square_grey[4],
+                allCoordinates.learningTool_square_grey[1],
+                allCoordinates.learningTool_square_grey[3]
+        );
+        picture.changePieceCoordinates(windowId,
+                allCoordinates.promotePawnWindow[4],
+                allCoordinates.promotePawnWindow[0],
+                allCoordinates.promotePawnWindow[3],
+                allCoordinates.promotePawnWindow[1]
+        );
+        if(_player.equals("PlayerOne")){
+            picture.changeTextureCoordinates(pieceId,
+                    allCoordinates.promotePieces.get("queen"+_player)[0],
+                    allCoordinates.promotePieces.get("queen"+_player)[4],
+                    allCoordinates.promotePieces.get("queen"+_player)[1],
+                    allCoordinates.promotePieces.get("queen"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+1,
+                    allCoordinates.promotePieces.get("rook"+_player)[0],
+                    allCoordinates.promotePieces.get("rook"+_player)[4],
+                    allCoordinates.promotePieces.get("rook"+_player)[1],
+                    allCoordinates.promotePieces.get("rook"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+2,
+                    allCoordinates.promotePieces.get("bishop"+_player)[0],
+                    allCoordinates.promotePieces.get("bishop"+_player)[4],
+                    allCoordinates.promotePieces.get("bishop"+_player)[1],
+                    allCoordinates.promotePieces.get("bishop"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+3,
+                    allCoordinates.promotePieces.get("knight"+_player)[0],
+                    allCoordinates.promotePieces.get("knight"+_player)[4],
+                    allCoordinates.promotePieces.get("knight"+_player)[1],
+                    allCoordinates.promotePieces.get("knight"+_player)[3]
+            );
+        }
+        else
+        {
+            picture.changeTextureCoordinates(pieceId,
+                    allCoordinates.promotePieces.get("knight"+_player)[0],
+                    allCoordinates.promotePieces.get("knight"+_player)[4],
+                    allCoordinates.promotePieces.get("knight"+_player)[1],
+                    allCoordinates.promotePieces.get("knight"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+1,
+                    allCoordinates.promotePieces.get("bishop"+_player)[0],
+                    allCoordinates.promotePieces.get("bishop"+_player)[4],
+                    allCoordinates.promotePieces.get("bishop"+_player)[1],
+                    allCoordinates.promotePieces.get("bishop"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+2,
+                    allCoordinates.promotePieces.get("rook"+_player)[0],
+                    allCoordinates.promotePieces.get("rook"+_player)[4],
+                    allCoordinates.promotePieces.get("rook"+_player)[1],
+                    allCoordinates.promotePieces.get("rook"+_player)[3]
+            );
+            picture.changeTextureCoordinates(pieceId+3,
+                    allCoordinates.promotePieces.get("queen"+_player)[0],
+                    allCoordinates.promotePieces.get("queen"+_player)[4],
+                    allCoordinates.promotePieces.get("queen"+_player)[1],
+                    allCoordinates.promotePieces.get("queen"+_player)[3]
+            );
+        }
+
+        picture.changePieceCoordinates(pieceId,
+                allCoordinates.promotePawnOne[4],
+                allCoordinates.promotePawnOne[0],
+                allCoordinates.promotePawnOne[3],
+                allCoordinates.promotePawnOne[1]
+        );
+        picture.changePieceCoordinates(pieceId+1,
+                allCoordinates.promotePawnTwo[4],
+                allCoordinates.promotePawnTwo[0],
+                allCoordinates.promotePawnTwo[3],
+                allCoordinates.promotePawnTwo[1]
+        );
+        picture.changePieceCoordinates(pieceId+2,
+                allCoordinates.promotePawnThree[4],
+                allCoordinates.promotePawnThree[0],
+                allCoordinates.promotePawnThree[3],
+                allCoordinates.promotePawnThree[1]
+        );
+        picture.changePieceCoordinates(pieceId+3,
+                allCoordinates.promotePawnFour[4],
+                allCoordinates.promotePawnFour[0],
+                allCoordinates.promotePawnFour[3],
+                allCoordinates.promotePawnFour[1]
+        );
+
+    }
+
+    public void pawnPromoteOff(){
+
+        int windowId = coordinateList.size()-5;
+
+        for(int i=0;i<5;i++) {
+
+            picture.changeTextureCoordinates(windowId+i,
+                    allCoordinates.hideCoordinates[0],
+                    allCoordinates.hideCoordinates[4],
+                    allCoordinates.hideCoordinates[1],
+                    allCoordinates.hideCoordinates[3]
+            );
+
+            picture.changePieceCoordinates(windowId+i,
+                    allCoordinates.hideCoordinates[0],
+                    allCoordinates.hideCoordinates[4],
+                    allCoordinates.hideCoordinates[1],
+                    allCoordinates.hideCoordinates[3]
+            );
+        }
     }
 
     // Convert coordinates to String square
