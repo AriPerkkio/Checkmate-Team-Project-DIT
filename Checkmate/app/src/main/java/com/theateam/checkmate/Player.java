@@ -31,7 +31,7 @@ public class Player {
         first = isFirst;
 
         // Setup IDs for graphic drawing (TextureID)
-        int startingId = 29; // This is dependent of the graphics coordinate order
+        int startingId = (TextureGL.count+1); // This is dependent of the graphics coordinate order
         // Player One
         pieceIds.put("playerOne_pawn_1", startingId);
         pieceIds.put("playerOne_pawn_2", startingId + 1);
