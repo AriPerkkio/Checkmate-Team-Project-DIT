@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by AriPerkkio on 21/02/16.
@@ -17,7 +18,7 @@ public class Player {
 
     // Attributes
     // References to other classes
-    private List<Piece> pieceList; // TODO Check initializing
+    private List<Piece> pieceList = new Vector<>();
 
     private boolean turn;
     private double timer;
@@ -69,7 +70,15 @@ public class Player {
     }
 
     public List<Piece> getPieceList(){
-        return null; // TODO
+        return pieceList;
+    }
+
+    public Piece getPieceByType(String _type){
+        for(int i=0;i<pieceList.size();i++)
+            if(pieceList.get(i).getPieceType().equals(_type))
+                return pieceList.get(i);
+        Log.e("getPieceByType", "Not found: "+_type);
+        return null;
     }
 
     public boolean isHuman(){
@@ -84,6 +93,11 @@ public class Player {
         pieceList.add(_piece);
         _piece.setPlayer(this);
         Log.d("Player", _piece.getPieceType()+" added");
+    }
+
+    public void removePiece(Piece _piece){
+        Log.d("Player", _piece.getPieceType()+" removed");
+        pieceList.remove(_piece);
     }
 
     // Used to print debug info about current player

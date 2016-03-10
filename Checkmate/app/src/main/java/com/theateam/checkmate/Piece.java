@@ -24,7 +24,9 @@ public class Piece {
 
     public Piece(Square initialSquare, Player owner, int _textureId){
         square = initialSquare;
+        square.setPiece(this); // Add piece to square
         player = owner;
+        player.addPiece(this); // Add piece to players pieceList
         textureId = _textureId;
     }
 
@@ -38,6 +40,7 @@ public class Piece {
 
     // Used when piece is eliminated
     public void remove(){
+        player.removePiece(this);
         this.player = null;
         this.square = null;
     }
