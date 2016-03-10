@@ -50,20 +50,15 @@ public class GameController {
         return instance;
     }
 
-    public void movePiece(Piece _piece, Square target, Square from) {
-        graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
-        from.setPiece(null); // Set old square empty
-        _piece.setSquare(target); // Place piece to the new square
-    }
-
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
+        kingInCheck(); // Check if king is already in check
+
         if(pawnPromoting) { // Check if pawn promote is on
-            Log.i("pawnPromoting", pawnPromoting+"");
             processPromoting(clickedSquare); // Process users piece choosing
             return false; // Break function here
         }
@@ -105,6 +100,12 @@ public class GameController {
         return true;
     }
 
+    public void movePiece(Piece _piece, Square target, Square from) {
+        graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
+        from.setPiece(null); // Set old square empty
+        _piece.setSquare(target); // Place piece to the new square
+    }
+
     // Check if new click was made to make selected piece to move or to eliminate a piece
     public boolean checkClickMovement() {
         if (selectedPiece != null && board.getSquare(clickedSquare) != null) { // Check that there was a piece selected and click is on the board
@@ -114,6 +115,7 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
+                kingInCheck(); // Check if the move caused check
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
@@ -125,6 +127,7 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
+                kingInCheck(); // Check if the move caused check
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             }
@@ -139,6 +142,11 @@ public class GameController {
         bothSquareLists = board.getValidMoves(selectedPiece);
         squareList = bothSquareLists[0]; // Valid moves
         squareListTwo = bothSquareLists[1]; // Valid capture moves
+
+        // Revalidate king's movements - remove the ones that expose it
+        if(selectedPiece.getPieceType().equals("King")){
+            preventExposeMove(selectedPiece, squareList);
+        }
 
         highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square
 
@@ -174,7 +182,6 @@ public class GameController {
 
         // Check if previously clicked piece is the same one and disable it
         if (selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece()) && !pawnPromoting) {
-            highlights.clear();
             selectedPiece = null;
             Log.e("selectedPiece nulling", "#4");
             highlightsOff();
@@ -184,7 +191,7 @@ public class GameController {
 
         // Check if previous click was on own piece, and new click on enemy piece that can't be captured
         if (selectedPiece != null && !selectedPiece.getPlayer().equals(board.getSquare(clickedSquare).getPiece().getPlayer())) {
-            highlights.clear();
+            //highlights.clear();
             Log.e("selectedPiece nulling", "#5");
             selectedPiece = null;
             highlightsOff();
@@ -197,7 +204,7 @@ public class GameController {
     // Sets all the remaining highlighting textures as empty and calls graphics to show them
     public void highlightsOff() {
         String[] empty = new String[]{"hide", "empty", "empty"}; // Sets empty texture and empty coordinates
-        int count = 28 - highlights.size(); // Get count for loop
+        int count = TextureGL.count - highlights.size(); // Get count for loop
         for (int i = 0; i < count; i++)
             highlights.add(empty);
         graphics.highlight(highlights);
@@ -316,8 +323,85 @@ public class GameController {
         return true;
     }
 
+    // Check if king is in check
+    // Compare enemy piece's capture range to kings location
+    public boolean kingInCheck(){
+
+        if(playerOne.getPieceByType("King")==null || playerTwo.getPieceByType("King")==null)
+            return false;
+
+        List<Square> checkMoves;
+        boolean state = false; // Indicates if either of the kings are in check
+
+        // Player One
+        for(int i=0;i<playerTwo.getPieceList().size();i++){
+            checkMoves = board.getValidMoves(playerTwo.getPieceList().get(i))[1]; // Get valid capture moves for piece
+            for(int ii=0;ii<checkMoves.size();ii++){
+                if(checkMoves.get(ii).equals(playerOne.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
+                    highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
+                    graphics.highlight(highlights);
+                    state = true;
+                    Log.d("PlayerOneKing", "Check");
+                }
+            }
+        }
+        // Player Two
+        for(int i=0;i<playerOne.getPieceList().size();i++){
+            checkMoves = board.getValidMoves(playerOne.getPieceList().get(i))[1]; // Get valid capture moves for piece
+            for(int ii=0;ii<checkMoves.size();ii++){
+                if(checkMoves.get(ii).equals(playerTwo.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
+                    highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
+                    graphics.highlight(highlights);
+                    state = true;
+                    Log.d("PlayerTwoKing", "Check");
+                }
+            }
+        }
+        return state;
+    }
+
+    // TODO: Prevent capturing if that square is exposed
+    // TODO: May be moved to Board.java, returning third square list for exposing moves
+    // Check if king's valid moves are exposed
+    public void preventExposeMove(Piece _piece, List<Square> _moveList) {
+        List<Square> preventMoves = new Vector<>();
+        Player player = playerOne;
+        int direction = 1; // Used for pawn
+        if(_piece.getPlayer().isFirst()) {
+            player = playerTwo;
+            direction = -1;
+        }
+
+        for (int i = 0; i < player.getPieceList().size(); i++) { // Check all the enemy pieces
+
+            // Pawns capture movements have to be constructed manually
+            if(player.getPieceList().get(i).getPieceType().equals("Pawn")) {
+                // Construct possible capture movements from pawns square
+                String initialSquare = player.getPieceList().get(i).getSquare().getId();
+                String captureOne = (char) ((int) initialSquare.charAt(0)+1)+""+(Integer.parseInt(initialSquare.charAt(1)+"")+direction);
+                String captureTwo = (char) ((int) initialSquare.charAt(0)-1)+""+(Integer.parseInt(initialSquare.charAt(1)+"")+direction);
+                Square captureSqrOne = board.getSquare(captureOne);
+                Square captureSqrTwo = board.getSquare(captureTwo);
+                if(captureSqrOne!=null) // Squares are null when they are out of board, i.e. A9
+                    preventMoves.add(captureSqrOne);
+                if(captureSqrTwo!=null)
+                    preventMoves.add(captureSqrTwo);
+            }
+            else
+                preventMoves = board.getValidMoves(player.getPieceList().get(i))[0]; // Other pieces can use their valid movements
+
+            for (int ii = 0; ii < preventMoves.size(); ii++) {
+                if (_moveList.contains(preventMoves.get(ii))) { // Check if enemy's valid moves match with king's valid moves
+                    _moveList.remove(preventMoves.get(ii)); // Remove move when match
+                    highlights.add(new String[]{preventMoves.get(ii).getId(), "cross", "grey"});
+                }
+            }
+        }
+    }
+
     // Pawn Promoting tester
     public void tests(){
+
         if(selectedPiece==null)
             Log.e("tester", "selectedPiece null");
 
