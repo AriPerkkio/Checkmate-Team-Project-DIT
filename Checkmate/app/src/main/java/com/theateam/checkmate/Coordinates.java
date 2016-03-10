@@ -140,14 +140,14 @@ public class Coordinates {
     };
 
     // Player One
-    float[] queenPlayerOne = new float[]{
+    float[] kingPlayerOne = new float[]{
             0.0f, 1.0f - 0.2f, // top left
             0.0f, 1.0f - 0.1f, // left bot
             0.1f, 1.0f - 0.1f, // bot right
             0.1f, 1.0f - 0.2f, // top right
     };
 
-    float[] kingPlayerOne = new float[]{
+    float[] queenPlayerOne = new float[]{
             0.1f, 1.0f - 0.2f, // top left
             0.1f, 1.0f - 0.1f, // left bot
             0.2f, 1.0f - 0.1f, // bot right
@@ -183,14 +183,14 @@ public class Coordinates {
     };
 
     // Player Two
-    float[] queenPlayerTwo = new float[]{
+    float[] kingPlayerTwo = new float[]{
             0.0f, 1.0f - 0.1f, // top left
             0.0f, 1.0f - 0.0f, // left bot
             0.1f, 1.0f - 0.0f, // bot right
             0.1f, 1.0f - 0.1f, // top right
     };
 
-    float[] kingPlayerTwo = new float[]{
+    float[] queenPlayerTwo = new float[]{
             0.1f, 1.0f - 0.1f, // top left
             0.1f, 1.0f - 0.0f, // left bot
             0.2f, 1.0f - 0.0f, // bot right

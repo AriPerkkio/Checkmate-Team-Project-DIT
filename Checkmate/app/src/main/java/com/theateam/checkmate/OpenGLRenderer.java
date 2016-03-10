@@ -208,8 +208,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     // Moves specific piece from source to target
     public void movePiece(int pieceSelect, String targetSquare, String sourceSquare){
 
-        // TODO: Knights movement may require different direction
-
         // Get float[] coordinates for the given String square
         float[] target = allCoordinates.coordinateList.get(targetSquare);
         float[] source = allCoordinates.coordinateList.get(sourceSquare);

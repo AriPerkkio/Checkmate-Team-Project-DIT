@@ -44,8 +44,8 @@ public class Player {
         pieceIds.put("playerOne_rook_1", startingId + 8);
         pieceIds.put("playerOne_knight_1", startingId + 9);
         pieceIds.put("playerOne_bishop_1", startingId + 10);
-        pieceIds.put("playerOne_queen", startingId + 11);
-        pieceIds.put("playerOne_king", startingId + 12);
+        pieceIds.put("playerOne_king", startingId + 11);
+        pieceIds.put("playerOne_queen", startingId + 12);
         pieceIds.put("playerOne_bishop_2", startingId + 13);
         pieceIds.put("playerOne_knight_2", startingId + 14);
         pieceIds.put("playerOne_rook_2", startingId + 15);
@@ -61,8 +61,8 @@ public class Player {
         pieceIds.put("playerTwo_rook_1", startingId + 24);
         pieceIds.put("playerTwo_knight_1", startingId + 25);
         pieceIds.put("playerTwo_bishop_1", startingId + 26);
-        pieceIds.put("playerTwo_queen", startingId + 27);
-        pieceIds.put("playerTwo_king", startingId + 28);
+        pieceIds.put("playerTwo_king", startingId + 27);
+        pieceIds.put("playerTwo_queen", startingId + 28);
         pieceIds.put("playerTwo_bishop_2", startingId + 29);
         pieceIds.put("playerTwo_knight_2", startingId + 30);
         pieceIds.put("playerTwo_rook_2", startingId + 31);
