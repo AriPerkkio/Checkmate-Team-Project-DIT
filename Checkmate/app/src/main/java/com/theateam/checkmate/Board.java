@@ -44,8 +44,8 @@ public class Board {
         squareList[0][0].setPiece(new Rook(squareList[0][0], playerOne, playerOne.pieceIds.get("playerOne_rook_1")));
         squareList[1][0].setPiece(new Knight(squareList[1][0], playerOne, playerOne.pieceIds.get("playerOne_knight_1")));
         squareList[2][0].setPiece(new Bishop(squareList[2][0], playerOne, playerOne.pieceIds.get("playerOne_bishop_1")));
-        squareList[3][0].setPiece(new King(squareList[3][0], playerOne, playerOne.pieceIds.get("playerOne_king")));
-        squareList[4][0].setPiece(new Queen(squareList[4][0], playerOne, playerOne.pieceIds.get("playerOne_queen")));
+        squareList[3][0].setPiece(new Queen(squareList[3][0], playerOne, playerOne.pieceIds.get("playerOne_queen")));
+        squareList[4][0].setPiece(new King(squareList[4][0], playerOne, playerOne.pieceIds.get("playerOne_king")));
         squareList[5][0].setPiece(new Bishop(squareList[5][0], playerOne, playerOne.pieceIds.get("playerOne_bishop_2")));
         squareList[6][0].setPiece(new Knight(squareList[6][0], playerOne, playerOne.pieceIds.get("playerOne_knight_2")));
         squareList[7][0].setPiece(new Rook(squareList[7][0], playerOne, playerOne.pieceIds.get("playerOne_rook_2")));
@@ -61,8 +61,8 @@ public class Board {
         squareList[0][7].setPiece(new Rook(squareList[0][7], playerTwo, playerTwo.pieceIds.get("playerTwo_rook_1")));
         squareList[1][7].setPiece(new Knight(squareList[1][7], playerTwo, playerTwo.pieceIds.get("playerTwo_knight_1")));
         squareList[2][7].setPiece(new Bishop(squareList[2][7], playerTwo, playerTwo.pieceIds.get("playerTwo_bishop_1")));
-        squareList[3][7].setPiece(new King(squareList[3][7], playerTwo, playerTwo.pieceIds.get("playerTwo_king")));
-        squareList[4][7].setPiece(new Queen(squareList[4][7], playerTwo, playerTwo.pieceIds.get("playerTwo_queen")));
+        squareList[3][7].setPiece(new Queen(squareList[3][7], playerTwo, playerTwo.pieceIds.get("playerTwo_queen")));
+        squareList[4][7].setPiece(new King(squareList[4][7], playerTwo, playerTwo.pieceIds.get("playerTwo_king")));
         squareList[5][7].setPiece(new Bishop(squareList[5][7], playerTwo, playerTwo.pieceIds.get("playerTwo_bishop_2")));
         squareList[6][7].setPiece(new Knight(squareList[6][7], playerTwo, playerTwo.pieceIds.get("playerTwo_knight_2")));
         squareList[7][7].setPiece(new Rook(squareList[7][7], playerTwo, playerTwo.pieceIds.get("playerTwo_rook_2")));
@@ -101,6 +101,7 @@ public class Board {
     public List<Square>[] getValidMoves(Piece _piece) {
         List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
         List<Square> returnListTwo = new Vector<>(); // Holds capture movements
+        List<Square> returnListThree = new Vector<>();
         List<int[]> pieceMovements = new Vector<>(); // Holds pieces movement capabilities
 
         // Since pieceMovements list may be edited later we cannot use its reference
@@ -128,9 +129,12 @@ public class Board {
                 row = row + direction;
             if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that new square is between A1-H8
                 if (getSquare(column + "" + row).getPiece() == null) // Check if square is empty
-                    returnListOne.add(getSquare(column + "" + row)); // Add empty square to list
+                    returnListOne.add(getSquare(column + "" + row)); // Add empty square to lis
                 else if (!getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer())) // Check if square has enemy piece in it
                     returnListTwo.add(getSquare(column + "" + row)); // Add enemy piece's square to other list
+                else if (getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer()))
+                    returnListThree.add(getSquare(column + "" + row));
+
             }
         }
         // For all the pawns capture movements are unique - so clear capture movements calculated above and get new ones
@@ -148,10 +152,12 @@ public class Board {
                 }
             }
         }
+
         returnListOne = checkMovementList(returnListOne, _piece); // Check if given squares are valid for movements
         returnListTwo = checkMovementList(returnListTwo, _piece); // Check if given capture movements are valid
+        returnListThree = checkMovementList(returnListThree, _piece);
 
-        return new List[]{returnListOne, returnListTwo}; // return value [0] valid moves, [1] capture moves
+        return new List[]{returnListOne, returnListTwo, returnListThree}; // return value [0] valid moves, [1] capture moves
     }
 
 

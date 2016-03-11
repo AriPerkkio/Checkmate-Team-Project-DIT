@@ -98,8 +98,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("A1")); // Rook #1 Player One
         coordinateList.add(allCoordinates.coordinateList.get("B1")); // Knight #1 Player One
         coordinateList.add(allCoordinates.coordinateList.get("C1")); // Bishop #1 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("D1")); // King Player One
-        coordinateList.add(allCoordinates.coordinateList.get("E1")); // Queen Player One
+        coordinateList.add(allCoordinates.coordinateList.get("E1")); // King Player One
+        coordinateList.add(allCoordinates.coordinateList.get("D1")); // Queen Player One
         coordinateList.add(allCoordinates.coordinateList.get("F1")); // Bishop #2 Player One
         coordinateList.add(allCoordinates.coordinateList.get("G1")); // Knight #2 Player One
         coordinateList.add(allCoordinates.coordinateList.get("H1")); // Rook #2 Player One
@@ -115,8 +115,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.coordinateList.get("A8")); // Rook #1 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("B8")); // Knight #1 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("C8")); // Bishop #1 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("D8")); // King Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("E8")); // Queen Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("E8")); // King Player Two
+        coordinateList.add(allCoordinates.coordinateList.get("D8")); // Queen Player Two
         coordinateList.add(allCoordinates.coordinateList.get("F8")); // Bishop #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
         coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
