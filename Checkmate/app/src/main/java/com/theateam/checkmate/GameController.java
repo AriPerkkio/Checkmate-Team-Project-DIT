@@ -40,7 +40,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as AI or human
+        playerTwo = new Player("AI", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -86,17 +86,13 @@ public class GameController {
         /** DEBUG **/
         // TODO: GameActivity.coordinates.setText -passing is here just in testing phase
         Log.d("SelectedPiece", selectedPiece.getPlayer().toString() + "" + selectedPiece.getPieceType() + " ID: " + selectedPiece.getTextureId());
-        String printText =
-                "Square: " + clickedSquare +
-                        "\nPiece: " + selectedPiece.getPlayer().toString() + "-" +
-                        selectedPiece.getPieceType() + " \nPieceTextureID: " + selectedPiece.getTextureId();
+        String printText = "Square: " + clickedSquare + "\nPiece: " + selectedPiece.getPlayer().toString() + "-" + selectedPiece.getPieceType() + " \nPieceTextureID: " + selectedPiece.getTextureId();
         GameActivity.coordinates.setText(printText);
-
-        board.logBoardPrint();
+        //board.logBoardPrint();
         /** DEBUG **/
 
         highlightsOff(); // Reset all the highlights
-        tests(); // See function
+        //tests(); // See function
         return true;
     }
 
@@ -147,6 +143,8 @@ public class GameController {
         if(selectedPiece.getPieceType().equals("King")){
             preventExposeMove(selectedPiece, squareList, false); // Check if valid moves expose king
             preventExposeMove(selectedPiece, squareListTwo, true); // Check if valid capture moves expose king
+            if(squareList.size()==0 && squareListTwo.size() ==0)
+                Log.i("processMovements", "CHECKMATE ###");
         }
 
         highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square
@@ -223,10 +221,8 @@ public class GameController {
 
     public boolean callForPromote(){
         if(selectedPiece != null && selectedPiece.getPieceType().equals("Pawn")){
-            Log.d("Pawn", "#1");
             if(selectedPiece.getSquare().getId().charAt(1)=='1' ||
                selectedPiece.getSquare().getId().charAt(1)=='8'){
-                Log.d("PawnPromote set on", "#2");
                 pawnPromoting = true;
                 if(selectedPiece.getPlayer().isFirst())
                     graphics.pawnPromoteOn("PlayerOne");
@@ -361,9 +357,10 @@ public class GameController {
         return state;
     }
 
-    // TODO: Prevent capturing if that square is exposed
     // TODO: May be moved to Board.java, returning third square list for exposing moves
     // Check if king's valid moves are exposed
+    // I.e. Check if moving king to A4 makes it exposed to enemy pieces' captures.
+    // Also works for capture movements. Checks if king becomes exposed after eliminating enemy piece
     public void preventExposeMove(Piece _piece, List<Square> _moveList, boolean captures) {
         List<Square> preventMoves = new Vector<>();
         Player player = playerOne;
@@ -391,42 +388,39 @@ public class GameController {
             else
                 preventMoves = board.getValidMoves(player.getPieceList().get(i))[0]; // Other pieces can use their valid movements
 
-            if(captures) // TODO: Different for pawns
-                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2];
-
-            Log.d("preventMoves", "size "+preventMoves.size());
-            for(int y=0;y<preventMoves.size();y++)
-                Log.d(player.getPieceList().get(i).getPieceType()+" in "+player.getPieceList().get(i).getSquare().getId()+", "+y, ""+preventMoves.get(y).getId());
+            if(captures && !player.getPieceList().get(i).getPieceType().equals("Pawn")) // Capture movements for pieces other than pawns
+                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2]; // Get exposing moves
 
             for (int ii = 0; ii < preventMoves.size(); ii++) {
                 if (_moveList.contains(preventMoves.get(ii))) { // Check if enemy's valid moves match with king's valid moves
                     _moveList.remove(preventMoves.get(ii)); // Remove move when match
-                    highlights.add(new String[]{preventMoves.get(ii).getId(), "cross", "grey"});
+                    highlights.add(new String[]{preventMoves.get(ii).getId(), "cross", "grey"}); // Highlight expose squares
                 }
             }
         }
     }
 
-    // Pawn Promoting tester
+
     public void tests(){
 
         if(selectedPiece==null)
             Log.e("tester", "selectedPiece null");
 
         if(!testsDone){
-            for(int x=0;x<3;x++) {
+            for(int x=0;x<8;x++) {
                 char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
                 for (int y = 1; y <= 8; y++) {
-                    Log.d("tests()", startChar + "" + y);
-                    if (board.getSquare(startChar + "" + y).getPiece()!=null && !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Pawn")) {
-                        Log.d("tests() eliminate", board.getSquare(startChar + "" + y).getPiece().getPieceType());
+                    if (board.getSquare(startChar + "" + y).getPiece()!=null &&
+                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("King") &&
+                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen") &&
+                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Rook")){
                         board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
                         graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
                         board.getSquare(startChar + "" + y).setPiece(null);
                     }
                 }
             }
-            movePiece(board.getSquare("A7").getPiece(), board.getSquare("A3"), board.getSquare("A7"));
+         /*   movePiece(board.getSquare("A7").getPiece(), board.getSquare("A3"), board.getSquare("A7"));
             movePiece(board.getSquare("A2").getPiece(), board.getSquare("A7"), board.getSquare("A2"));
             movePiece(board.getSquare("A3").getPiece(), board.getSquare("A2"), board.getSquare("A3"));
             movePiece(board.getSquare("B7").getPiece(), board.getSquare("B3"), board.getSquare("B7"));
@@ -435,10 +429,9 @@ public class GameController {
             movePiece(board.getSquare("C7").getPiece(), board.getSquare("C3"), board.getSquare("C7"));
             movePiece(board.getSquare("C2").getPiece(), board.getSquare("C7"), board.getSquare("C2"));
             movePiece(board.getSquare("C3").getPiece(), board.getSquare("C2"), board.getSquare("C3"));
-
-            selectedPiece = board.getSquare("D1").getPiece(); //Avoids null pointter for selected piece
+*/
+            selectedPiece = board.getSquare("E1").getPiece(); //Avoids null pointter for selected piece
             testsDone = true;
         }
-
     }
 }

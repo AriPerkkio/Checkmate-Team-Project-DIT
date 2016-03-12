@@ -88,7 +88,7 @@ public class Board {
     }
 
 
-    // Returns [0] moves for empty squares, [1] movements for captures
+    // Returns [0] moves for empty squares, [1] movements for captures, [2] captures to expose king
     // Steps:
     // 1. Calculate squares within movement range to returnListOne and ones within capture range to returnlistTwo
     // 2. For pawns, recalculate captureMovements
@@ -96,12 +96,13 @@ public class Board {
     //    * First check vertical movement, up and down
     //    * Second check is for horizontal movements, left and right
     //    * Third check is for diagonal movements. Each of the four directions are checked individually
+    // Exposed moves: 3. Same as 3. above, but ignore if the piece is king
     // TODO: Plenty of testing required here.
 
     public List<Square>[] getValidMoves(Piece _piece) {
         List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
         List<Square> returnListTwo = new Vector<>(); // Holds capture movements
-        List<Square> returnListThree = new Vector<>();
+        List<Square> returnListThree = new Vector<>(); // Holds squares that have player's own pieces - used for king expose movement calculation
         List<int[]> pieceMovements = new Vector<>(); // Holds pieces movement capabilities
 
         // Since pieceMovements list may be edited later we cannot use its reference
@@ -153,18 +154,20 @@ public class Board {
             }
         }
 
-        returnListOne = checkMovementList(returnListOne, _piece); // Check if given squares are valid for movements
-        returnListTwo = checkMovementList(returnListTwo, _piece); // Check if given capture movements are valid
-        returnListThree = checkMovementList(returnListThree, _piece);
+        returnListOne = checkMovementList(returnListOne, _piece, false); // Check if given squares are valid for movements
+        returnListTwo = checkMovementList(returnListTwo, _piece, false); // Check if given capture movements are valid
+        returnListThree = checkMovementList(returnListThree, _piece, true); // Check if given expose movements are valid
 
-        return new List[]{returnListOne, returnListTwo, returnListThree}; // return value [0] valid moves, [1] capture moves
+        return new List[]{returnListOne, returnListTwo, returnListThree}; // return value [0] valid moves, [1] capture moves, [2] king's expose movements
     }
 
 
     // Isolated into its own function in order to use it for movements and capture moves
     // Function to check if given squareList has invalid movements - It checks if there are pieces between two squares
     // I.e. Checks if between A1 and A5 there is a piece in A3. If there is a piece, A5 is removed
-    public List<Square> checkMovementList(List<Square> _squareList, Piece _piece){
+    // boolean exposeMoves is true, when function is used to calculate kings exposing movements. Otherwise false
+    // I.e. Expose movements check if kings capture movements cause it exposed
+    public List<Square> checkMovementList(List<Square> _squareList, Piece _piece, boolean exposeMoves){
         char column; // As in 'A' - 'H'
         int row; // 1-8
         String fromSquare = _piece.getSquare().getId(); // Get piece's square
@@ -183,19 +186,23 @@ public class Board {
                 // Moving from lower row number to higher one, i.e. 1-8
                 if (row>(currentRow + y) && (currentRow + y)>currentRow ) { // Don't check squares that are not between the two
                     if (column == currentColumn && // In vertical movements columns match
-                            getSquare(column + "" + (currentRow + y)) != null && // Check that given square is within range - board return null if square is not found
-                            getSquare(column + "" + (currentRow + y)).getPiece() != null) {  // Check that there is a piece in the square
-                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
-                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        getSquare(column + "" + (currentRow + y)) != null && // Check that given square is within range - board return null if square is not found
+                        getSquare(column + "" + (currentRow + y)).getPiece() != null) {  // Check that there is a piece in the square
+                        if(!exposeMoves || !getSquare(column + "" + (currentRow + y)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                            _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        }
                     }
                 }
                 // Moving from higher row number to lower one, i.e. 8-1
                 if (row<(currentRow - y) && (currentRow - y)<currentRow ) { // Don't check squares that are not between the two
                     if (column == currentColumn && // In vertical movements columns match
-                            getSquare(column + "" + (currentRow -y)) != null && // Check that given square is within range - board return null if square is not found
-                            getSquare(column + "" + (currentRow -y)).getPiece() != null) {  // Check that there is a piece in the square
-                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
-                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        getSquare(column + "" + (currentRow -y)) != null && // Check that given square is within range - board return null if square is not found
+                        getSquare(column + "" + (currentRow -y)).getPiece() != null) {  // Check that there is a piece in the square
+                        if(!exposeMoves || !getSquare(column + "" + (currentRow - y)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                            _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        }
                     }
                 }
             }
@@ -206,21 +213,23 @@ public class Board {
                 // Moving from H-A
                 if ((int) currentColumn < ((int) currentColumn + x) && ((int) currentColumn + x)< (int) column ){ // Don't check squares that are not between the two
                     if (row == currentRow && // In horizontal movement rows are the same
-                            getSquare((char) ((int) currentColumn + x) + "" + row) != null && // Moving right: check that square exists
-                            getSquare((char) ((int) currentColumn + x) + "" + row).getPiece() != null// Moving right: Check square for a piece
-                            ) {
-                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
-                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        getSquare((char) ((int) currentColumn + x) + "" + row) != null && // Moving right: check that square exists
+                        getSquare((char) ((int) currentColumn + x) + "" + row).getPiece() != null) {// Moving right: Check square for a piece
+                        if(!exposeMoves || !getSquare((char) ((int) currentColumn + x) + "" + row).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                            _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        }
                     }
                 }
                 // Moving from A-H
                 if ((int) currentColumn > ((int) currentColumn - x) && ((int) currentColumn - x)> (int) column ){ // Don't check squares that are not between the two
                     if (row == currentRow && // In horizontal movement rows are the same
-                            getSquare((char) ((int) currentColumn - x) + "" + row) != null && // Moving right: check that square exists
-                            getSquare((char) ((int) currentColumn - x) + "" + row).getPiece() != null// Moving right: Check square for a piece
-                            ) {
-                        _squareList.remove(getSquare(column + "" + row)); // Remove square from list
-                        i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        getSquare((char) ((int) currentColumn - x) + "" + row) != null && // Moving right: check that square exists
+                        getSquare((char) ((int) currentColumn - x) + "" + row).getPiece() != null) {// Moving right: Check square for a piece
+                        if(!exposeMoves || !getSquare((char) ((int) currentColumn - x) + "" + row).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                            _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                            i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                        }
                     }
                 }
             }
@@ -229,38 +238,46 @@ public class Board {
                 for(int xy=1;xy<Math.abs(difColumn);xy++){
                     // Moving up-right, i.e. A1 - D4
                     if((int) currentColumn < (int) currentColumn+xy && (int) currentColumn+xy < (int) column // Column between current col and checking col
-                            && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
+                       && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
                         if(getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy))!= null && // Check if square is between A-H, 1-8
-                                getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
-                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
-                            i = -1; // Reset counter
+                           getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
+                            if(!exposeMoves || !getSquare((char) (int) (currentColumn+xy)+""+(currentRow+xy)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                                _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                                i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                            }
                         }
                     }
                     // Moving down-right, i.e. A8 - C6
                     if((int) currentColumn < (int) currentColumn+xy && (int) currentColumn+xy < (int) column // Column between current col and checking col
-                            && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
+                       && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
                         if(getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy))!= null && // Check if square is between A-H, 1-8
-                                getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
-                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
-                            i = -1; // Reset counter
+                           getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
+                            if(!exposeMoves || !getSquare((char) (int) (currentColumn+xy)+""+(currentRow-xy)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                                _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                                i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                            }
                         }
                     }
                     // Moving up-left, i.e. C6-A8
                     if((int) currentColumn > (int) currentColumn-xy && (int) currentColumn-xy > (int) column // Column between current col and checking col
-                            && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
+                       && currentRow < currentRow+xy && currentRow+xy < row){ // Row between current row and checking row
                         if(getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy))!= null && // Check if square is between A-H, 1-8
-                                getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
-                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
-                            i = -1; // Reset counter
+                           getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy)).getPiece()!=null){ // Check if there's a piece
+                            if(!exposeMoves || !getSquare((char) (int) (currentColumn-xy)+""+(currentRow+xy)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                                _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                                i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                            }
                         }
                     }
                     // Moving down-left, i.e. C6-A8
                     if((int) currentColumn > (int) currentColumn-xy && (int) currentColumn-xy > (int) column // Column between current col and checking col
-                            && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
+                       && currentRow > currentRow-xy && currentRow-xy > row){ // Row between current row and checking row
                         if(getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy))!= null && // Check if square is between A-H, 1-8
-                                getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
-                            _squareList.remove(getSquare(column + "" + row)); // Remove from list
-                            i = -1; // Reset counter
+                           getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy)).getPiece()!=null){ // Check if there's a piece
+                            if(!exposeMoves || !getSquare((char) (int) (currentColumn-xy)+""+(currentRow-xy)).getPiece().getPieceType().equals("King")){ // For expose moves the squares with king are skipped
+                                _squareList.remove(getSquare(column + "" + row)); // Remove square from list
+                                i = -1; // Start looping from beginning again since size of list and order of items has changed. -1 since iteration increases it automatically to 0
+                            }
                         }
                     }
                 }
