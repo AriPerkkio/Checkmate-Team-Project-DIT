@@ -141,8 +141,8 @@ public class GameController {
 
         // Revalidate king's movements - remove the ones that expose it
         if(selectedPiece.getPieceType().equals("King")){
-            preventExposeMove(selectedPiece, squareList, false); // Check if valid moves expose king
-            preventExposeMove(selectedPiece, squareListTwo, true); // Check if valid capture moves expose king
+            preventExposeMove(selectedPiece, squareList); // Check if valid moves expose king
+            preventExposeMove(selectedPiece, squareListTwo); // Check if valid capture moves expose king
             if(squareList.size()==0 && squareListTwo.size() ==0)
                 Log.i("processMovements", "CHECKMATE ###");
         }
@@ -361,7 +361,7 @@ public class GameController {
     // Check if king's valid moves are exposed
     // I.e. Check if moving king to A4 makes it exposed to enemy pieces' captures.
     // Also works for capture movements. Checks if king becomes exposed after eliminating enemy piece
-    public void preventExposeMove(Piece _piece, List<Square> _moveList, boolean captures) {
+    public void preventExposeMove(Piece _piece, List<Square> _moveList) {
         List<Square> preventMoves = new Vector<>();
         Player player = playerOne;
         int direction = 1; // Used for pawn
@@ -386,10 +386,7 @@ public class GameController {
                     preventMoves.add(captureSqrTwo);
             }
             else
-                preventMoves = board.getValidMoves(player.getPieceList().get(i))[0]; // Other pieces can use their valid movements
-
-            if(captures && !player.getPieceList().get(i).getPieceType().equals("Pawn")) // Capture movements for pieces other than pawns
-                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2]; // Get exposing moves
+                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2]; // Other pieces can getValidMoves()
 
             for (int ii = 0; ii < preventMoves.size(); ii++) {
                 if (_moveList.contains(preventMoves.get(ii))) { // Check if enemy's valid moves match with king's valid moves

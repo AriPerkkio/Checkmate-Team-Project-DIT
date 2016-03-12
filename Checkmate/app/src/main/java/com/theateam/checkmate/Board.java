@@ -129,12 +129,14 @@ public class Board {
             if (_piece.getPieceType().equals("Pawn")) // If it's pawn increase the row count by direction check number
                 row = row + direction;
             if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that new square is between A1-H8
-                if (getSquare(column + "" + row).getPiece() == null) // Check if square is empty
-                    returnListOne.add(getSquare(column + "" + row)); // Add empty square to lis
+                if (getSquare(column + "" + row).getPiece() == null) { // Check if square is empty
+                    returnListOne.add(getSquare(column + "" + row)); // Add empty square to list
+                    returnListThree.add(getSquare(column + "" + row)); // Add empty square to third list
+                }
                 else if (!getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer())) // Check if square has enemy piece in it
                     returnListTwo.add(getSquare(column + "" + row)); // Add enemy piece's square to other list
                 else if (getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer()))
-                    returnListThree.add(getSquare(column + "" + row));
+                    returnListThree.add(getSquare(column + "" + row)); // Add square with own piece to third list
 
             }
         }
@@ -154,9 +156,25 @@ public class Board {
             }
         }
 
+        Log.d("ListOne "+_piece.getPieceType()+" in "+_piece.getSquare().getId(), "size "+returnListOne.size());
+        for(int i=0;i<returnListOne.size();i++)
+            Log.d("I "+i, returnListOne.get(i).getId());
+
+        Log.d("ListTwo "+_piece.getPieceType()+" in "+_piece.getSquare().getId(), "size "+returnListTwo.size());
+        for(int i=0;i<returnListTwo.size();i++)
+            Log.d("I "+i, returnListTwo.get(i).getId());
+
+        Log.d("ListThree "+_piece.getPieceType()+" in "+_piece.getSquare().getId(), "size "+returnListThree.size());
+        for(int i=0;i<returnListThree.size();i++)
+            Log.d("I "+i, returnListThree.get(i).getId());
+
         returnListOne = checkMovementList(returnListOne, _piece, false); // Check if given squares are valid for movements
         returnListTwo = checkMovementList(returnListTwo, _piece, false); // Check if given capture movements are valid
         returnListThree = checkMovementList(returnListThree, _piece, true); // Check if given expose movements are valid
+
+        Log.d("ListThree checked"+_piece.getPieceType()+" in "+_piece.getSquare().getId(), "size "+returnListThree.size());
+        for(int i=0;i<returnListThree.size();i++)
+            Log.d("I "+i, returnListThree.get(i).getId());
 
         return new List[]{returnListOne, returnListTwo, returnListThree}; // return value [0] valid moves, [1] capture moves, [2] king's expose movements
     }
