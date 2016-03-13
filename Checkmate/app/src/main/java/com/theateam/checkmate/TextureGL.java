@@ -23,7 +23,7 @@ import java.util.Vector;
  *
  */
 public class TextureGL {
-    public static final int count = 28; // Used in multiple classes. Number of highlight textures
+    public static final int count = 50; // Used in multiple classes. Number of highlight textures
 
     private final Context mActivityContext;
     private FloatBuffer mCubeTextureCoordinates;
