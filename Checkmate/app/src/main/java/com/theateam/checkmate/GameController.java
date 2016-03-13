@@ -62,8 +62,8 @@ public class GameController {
             processPromoting(clickedSquare); // Process users piece choosing
             return false; // Break function here
         }
-        else
-            checkClickMovement();  // Allow piece movement to highlighted squares
+
+        checkClickMovement();  // Allow piece movement to highlighted squares
 
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if (!checkSquare(clickedSquare)) // True means new piece was clicked
@@ -136,8 +136,10 @@ public class GameController {
         squareList.clear(); // Empty all moves
         squareListTwo.clear();
         bothSquareLists = board.getValidMoves(selectedPiece);
+        board.checkPinningMoves(bothSquareLists, selectedPiece); // Check piece and moves for pinning moves
         squareList = bothSquareLists[0]; // Valid moves
         squareListTwo = bothSquareLists[1]; // Valid capture moves
+
 
         // Revalidate king's movements - remove the ones that expose it
         if(selectedPiece.getPieceType().equals("King")){
@@ -397,7 +399,6 @@ public class GameController {
         }
     }
 
-
     public void tests(){
 
         if(selectedPiece==null)
@@ -408,9 +409,11 @@ public class GameController {
                 char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
                 for (int y = 1; y <= 8; y++) {
                     if (board.getSquare(startChar + "" + y).getPiece()!=null &&
-                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("King") &&
-                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen") &&
-                            !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Rook")){
+                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("King") &&
+                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen") &&
+                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Rook")&&
+                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Bishop")){
+
                         board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
                         graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
                         board.getSquare(startChar + "" + y).setPiece(null);
