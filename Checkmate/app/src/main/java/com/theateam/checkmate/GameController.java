@@ -136,7 +136,8 @@ public class GameController {
         squareList.clear(); // Empty all moves
         squareListTwo.clear();
         bothSquareLists = board.getValidMoves(selectedPiece);
-        board.checkPinningMoves(bothSquareLists, selectedPiece); // Check piece and moves for pinning moves
+        if(!selectedPiece.getPieceType().equals("King"))
+            board.checkPinningMoves(bothSquareLists, selectedPiece); // Check piece and moves for pinning moves
         squareList = bothSquareLists[0]; // Valid moves
         squareListTwo = bothSquareLists[1]; // Valid capture moves
 
@@ -409,11 +410,7 @@ public class GameController {
                 char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
                 for (int y = 1; y <= 8; y++) {
                     if (board.getSquare(startChar + "" + y).getPiece()!=null &&
-                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("King") &&
-                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Queen") &&
-                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Rook")&&
-                       !board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Bishop")){
-
+                        board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Pawn")){
                         board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
                         graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
                         board.getSquare(startChar + "" + y).setPiece(null);
