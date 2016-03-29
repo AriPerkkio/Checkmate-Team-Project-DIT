@@ -98,7 +98,6 @@ public class Board {
     //    * Second check is for horizontal movements, left and right
     //    * Third check is for diagonal movements. Each of the four directions are checked individually
     // Exposed moves: 3. Same as 3. above, but ignore if the piece is king
-    // TODO: Plenty of testing required here.
 
     public List<Square>[] getValidMoves(Piece _piece) {
         List<Square> returnListOne = new Vector<>(); // Holds movements for empty squares
@@ -314,15 +313,13 @@ public class Board {
 
         List<Square> _squareListOne = _squareLists[0]; // Valid moves
         List<Square> _squareListTwo = _squareLists[1]; // Capture moves
-
         Square kingSquare = _selectedPiece.getPlayer().getPieceByType("King").getSquare(); // Player's own king is here
-        Log.d("KingSquare", kingSquare.getId());
         Square pieceSquare = _selectedPiece.getSquare(); // Clicked piece is here
-        Log.d("PieceSquare", pieceSquare.getId());
         char kingCol = kingSquare.getId().charAt(0); // Column where king is
         int kingRow = Integer.parseInt(kingSquare.getId().charAt(1)+""); // Row where king is
         int colDif = (int) pieceSquare.getId().charAt(0) - (int) kingSquare.getId().charAt(0); // Different between squares vertically
         int rowDif = Integer.parseInt(pieceSquare.getId().charAt(1)+"") - Integer.parseInt(kingSquare.getId().charAt(1)+""); // Difference horizontally
+
         // Vertical testing
         if(colDif==0){ // Same column = Vertical movement
             for(int i=1;i<=8;i++){ // Check all squares vertically
@@ -331,7 +328,6 @@ public class Board {
                   !getSquare(pieceSquare.getId().charAt(0)+""+i).getPiece().getPlayer().equals(_selectedPiece.getPlayer())){ // Only enemy pieces
 
                     Square enemySquare = getSquare(pieceSquare.getId().charAt(0)+""+i); // Enemy piece is here
-                    Log.d("EnemySquareV", enemySquare.getId()+" with "+enemySquare.getPiece().getPieceType());
 
                     // At this point enemy square is the closest enemy piece
                     // Check that selected piece is vertically between enemy and king
@@ -344,59 +340,44 @@ public class Board {
                         int difPieceEnemy = Integer.parseInt(pieceSquare.getId().charAt(1)+"") - Integer.parseInt(enemySquare.getId().charAt(1)+"");
                         int difPieceKing = Integer.parseInt(pieceSquare.getId().charAt(1)+"") - Integer.parseInt(kingSquare.getId().charAt(1)+"");
 
-                        Log.e("difPieceEnemy "+ difPieceEnemy, "difPieceKing "+ difPieceKing);
-
                         // EnemySquare < ClickedPiece < KingSquare
                         if((int) pieceSquare.getId().charAt(1) < (int) kingSquare.getId().charAt(1)) {
-                            Log.d("1st","EnemySquare "+enemySquare.getId()+" PieceSquare "+pieceSquare.getId()+" KingSquare "+kingSquare.getId());
                             // Check that there are no pieces between enemy and selected piece
-                            for (int ii = 1; ii < difPieceEnemy; ii++) {
-                                Log.d("1.1", "Check "+kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") - ii));
+                            for (int ii = 1; ii < difPieceEnemy; ii++)
                                 if (getSquare(kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") - ii)).getPiece() != null)
                                     break squareVerticalCheckLoop;
-                            }
                             // Check that there are no pieces between selected piece and king
-                            for(int ii=1;ii < Math.abs(difPieceKing); ii++) {
-                                Log.d("1.2", "Check " + kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") + ii));
+                            for(int ii=1;ii < Math.abs(difPieceKing); ii++)
                                 if (getSquare(kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") + ii)).getPiece() != null)
                                     break squareVerticalCheckLoop;
-                            }
                         }
 
                         // EnemySquare > ClickedPiece > KingSquare
                         if((int) pieceSquare.getId().charAt(1) > (int) kingSquare.getId().charAt(1)) {
-                            Log.d("2nd","EnemySquare "+enemySquare.getId()+" PieceSquare "+pieceSquare.getId()+" KingSquare "+kingSquare.getId());
                             // Check that there are no pieces between enemy and clicked piece
-                            for (int ii = 1; ii < Math.abs(difPieceEnemy); ii++) {
-                                Log.d("2.1", "Check "+kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") + ii));
+                            for (int ii = 1; ii < Math.abs(difPieceEnemy); ii++)
                                 if (getSquare(kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") + ii)).getPiece() != null)
                                     break squareVerticalCheckLoop;
-                            }
                             // Check that there are no pieces between selected piece and king
-                            for (int ii = 1; ii < difPieceKing; ii++) {
-                                Log.d("2.2", "Check "+kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") - ii));
+                            for (int ii = 1; ii < difPieceKing; ii++)
                                 if (getSquare(kingCol + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") - ii)).getPiece() != null)
                                     break squareVerticalCheckLoop;
-                            }
                         }
 
                         List<Square> pinCaptures = getValidMoves(enemySquare.getPiece())[3]; // Get all the moves + captures for that piece
                         if(pinCaptures.contains(kingSquare)) { // Check if enemy piece's moves or captures have the square where king is
-                            Log.d("PINNING","Enemy "+enemySquare.getPiece().getPieceType() + " at " + enemySquare.getId() +" and own " + _selectedPiece.getPieceType() + " at " + _selectedPiece.getSquare().getId() + " and king at " + kingSquare.getId());
-                            // Recalculate valid moves based on pinning line
-                            for(int y=0;y<_squareListOne.size();y++) {
+                           // Recalculate valid moves based on pinning line
+                            for(int y=0;y<_squareListOne.size();y++)
                                 if (_squareListOne.get(y).getId().charAt(0) != pieceSquare.getId().charAt(0)) {
                                     _squareListOne.remove(_squareListOne.get(y));
                                     y = -1; // Reset
                                 }
-                            }
                             // Recalculate valid moves based on pinning line
-                            for(int y=0;y<_squareListTwo.size();y++) {
+                            for(int y=0;y<_squareListTwo.size();y++)
                                 if (_squareListTwo.get(y).getId().charAt(0) != pieceSquare.getId().charAt(0)) {
                                     _squareListTwo.remove(_squareListTwo.get(y));
                                     y = -1; // Reset
                                 }
-                            }
                         }
                     }
                 } // close squareCheckLoop
@@ -410,78 +391,124 @@ public class Board {
                   !getSquare((char)((int) 'A' +i)+""+kingRow).getPiece().getPlayer().equals(_selectedPiece.getPlayer())){ // Only enemy pieces
 
                     Square enemySquare = getSquare((char)((int) 'A' +i)+""+kingRow); // Enemy piece is here
-                    Log.d("EnemySquareH", enemySquare.getId()+" with "+enemySquare.getPiece().getPieceType());
 
                     // At this point enemy square is the closest enemy piece
-                    // Check that selected piece is vertically between enemy and king
+                    // Check that selected piece is horizontally between enemy and king
                     if((int) enemySquare.getId().charAt(0) > (int) pieceSquare.getId().charAt(0) && // [E] [0] [P] [0] [K] = E<P<K
                        (int) pieceSquare.getId().charAt(0) > (int) kingSquare.getId().charAt(0) ||
                        (int) enemySquare.getId().charAt(0) < (int) pieceSquare.getId().charAt(0) && // [K] [0] [P] [0] [E] = E>P>K
                        (int) pieceSquare.getId().charAt(0) < (int) kingSquare.getId().charAt(0)){
-                        Log.d("#2", "EnemySquare "+enemySquare.getId());
 
                         // Check that between piece and enemy piece there are no other pieces
                         int difPieceEnemy = (int) pieceSquare.getId().charAt(0) - (int) enemySquare.getId().charAt(0);
                         int difPieceKing = (int) pieceSquare.getId().charAt(0) - (int) kingSquare.getId().charAt(0);
 
-                        Log.e("difPieceEnemy "+ difPieceEnemy, "difPieceKing "+ difPieceKing);
-
                         // EnemySquare < ClickedPiece < KingSquare
                         if((int) pieceSquare.getId().charAt(0) < (int) kingSquare.getId().charAt(0)) {
-                            Log.d("1st","EnemySquare "+enemySquare.getId()+" PieceSquare "+pieceSquare.getId()+" KingSquare "+kingSquare.getId());
                             // Check that there are no pieces between enemy and selected piece
-                            for (int ii = 1; ii < difPieceEnemy; ii++) {
-                                Log.d("1.1", "Check "+(char) ((int) pieceSquare.getId().charAt(0) - ii)+ "" + kingRow);
+                            for (int ii = 1; ii < difPieceEnemy; ii++)
                                 if (getSquare((char) ((int) pieceSquare.getId().charAt(0) - ii)+ "" + kingRow).getPiece() != null)
                                     break squareRowCheckLoop;
-                            }
                             // Check that there are no pieces between selected piece and king
-                            for(int ii=1;ii < Math.abs(difPieceKing); ii++) {
-                                Log.d("1.2", "Check "+(char) ((int) pieceSquare.getId().charAt(0) + ii)+ "" + kingRow);
+                            for(int ii=1;ii < Math.abs(difPieceKing); ii++)
                                 if (getSquare((char) ((int) pieceSquare.getId().charAt(0) + ii)+ "" + kingRow).getPiece() != null)
                                     break squareRowCheckLoop;
-                            }
                         }
 
                         // EnemySquare > ClickedPiece > KingSquare
                         if((int) pieceSquare.getId().charAt(0) > (int) kingSquare.getId().charAt(0)) {
-                            Log.d("2nd","EnemySquare "+enemySquare.getId()+" PieceSquare "+pieceSquare.getId()+" KingSquare "+kingSquare.getId());
                             // Check that there are no pieces between enemy and clicked piece
-                            for (int ii = 1; ii < Math.abs(difPieceEnemy); ii++) {
-                                Log.d("2.1", "Check "+(char) ((int) pieceSquare.getId().charAt(0) + ii)+ "" + kingRow);
+                            for (int ii = 1; ii < Math.abs(difPieceEnemy); ii++)
                                 if (getSquare((char) ((int) pieceSquare.getId().charAt(0) + ii)+ "" + kingRow).getPiece() != null)
                                     break squareRowCheckLoop;
-                            }
                             // Check that there are no pieces between selected piece and king
-                            for (int ii = 1; ii < difPieceKing; ii++) {
-                                Log.d("2.2", "Check "+(char) ((int) pieceSquare.getId().charAt(0) - ii)+ "" + kingRow);
+                            for (int ii = 1; ii < difPieceKing; ii++)
                                 if (getSquare((char) ((int) pieceSquare.getId().charAt(0) - ii)+ "" + kingRow).getPiece() != null)
                                     break squareRowCheckLoop;
-                            }
                         }
 
                         List<Square> pinCaptures = getValidMoves(enemySquare.getPiece())[3]; // Get all the moves + captures for that piece
                         if(pinCaptures.contains(kingSquare)) { // Check if enemy piece's moves or captures have the square where king is
-                            Log.d("PINNING","Enemy "+enemySquare.getPiece().getPieceType() + " at " + enemySquare.getId() +" and own " + _selectedPiece.getPieceType() + " at " + _selectedPiece.getSquare().getId() + " and king at " + kingSquare.getId());
                             // Recalculate valid moves based on pinning line
-                            for(int y=0;y<_squareListOne.size();y++) {
+                            for(int y=0;y<_squareListOne.size();y++)
                                 if (_squareListOne.get(y).getId().charAt(1) != pieceSquare.getId().charAt(1)) {
                                     _squareListOne.remove(_squareListOne.get(y));
                                     y = -1; // Reset
                                 }
-                            }
                             // Recalculate valid moves based on pinning line
-                            for(int y=0;y<_squareListTwo.size();y++) {
+                            for(int y=0;y<_squareListTwo.size();y++)
                                 if (_squareListTwo.get(y).getId().charAt(1) != pieceSquare.getId().charAt(1)) {
                                     _squareListTwo.remove(_squareListTwo.get(y));
                                     y = -1; // Reset
                                 }
-                            }
                         }
                     }
                 } // close squareCheckLoop
             }
         } // Close horizontal testing
+        // Diagonal testing
+        if(Math.abs(colDif)==Math.abs(rowDif)){ // Abs value of column and row differences match - it's diagonal movement
+            // Get direction of diagonal line (in perspective of clicked piece)
+            boolean kingRight = (int) kingSquare.getId().charAt(0) > (int) pieceSquare.getId().charAt(0);
+            boolean kingUp = (int) kingSquare.getId().charAt(1) > (int) pieceSquare.getId().charAt(1);
+            List<Square> diagonalMoves = new Vector<>();
+
+            for(int i=0;i<8;i++){ // Check all squares diagonally
+                int x = 1; // Increase direction horizontally, initialize direction to right
+                int y = 1; // Increase direction vertically, initialize direction to up
+                if(kingUp)  // King is up, set direction increasing to down
+                    y = -1;
+                if(kingRight)  // King is right, set direction increasing to left
+                    x = -1;
+
+                squareDiagonalCheckLoop:
+                if(getSquare((char)((int) kingCol +(i*x))+""+(kingRow+(i*y))) != null &&
+                   getSquare((char)((int) kingCol +(i*x))+""+(kingRow+(i*y))).getPiece()!=null && // Check for a piece
+                  !getSquare((char)((int) kingCol +(i*x))+""+(kingRow+(i*y))).getPiece().getPlayer().equals(_selectedPiece.getPlayer())){ // Only enemy pieces
+
+                    Square enemySquare = getSquare((char)((int) kingCol +(i*x))+""+(kingRow+(i*y))); // Enemy piece is here
+                    // Check that selected piece is diagonally between enemy and king (Horizontal test works)
+                    if((int) enemySquare.getId().charAt(0) > (int) pieceSquare.getId().charAt(0) && // [E] [0] [P] [0] [K] = E<P<K
+                       (int) pieceSquare.getId().charAt(0) > (int) kingSquare.getId().charAt(0) ||
+                       (int) enemySquare.getId().charAt(0) < (int) pieceSquare.getId().charAt(0) && // [K] [0] [P] [0] [E] = E>P>K
+                       (int) pieceSquare.getId().charAt(0) < (int) kingSquare.getId().charAt(0)){
+
+                        // Check that between piece and enemy piece there are no other pieces
+                        int difPieceEnemy = (int) pieceSquare.getId().charAt(0) - (int) enemySquare.getId().charAt(0);
+                        int difPieceKing = (int) pieceSquare.getId().charAt(0) - (int) kingSquare.getId().charAt(0);
+
+                        // Check that there are no pieces between enemy and selected piece
+                        for (int ii = 1; ii < Math.abs(difPieceEnemy); ii++)
+                            if (getSquare((char) ((int) pieceSquare.getId().charAt(0) + ii*x)+ "" + (Integer.parseInt(pieceSquare.getId().charAt(1)+"")+ii*y)).getPiece() != null)
+                                break squareDiagonalCheckLoop;
+                            else
+                                diagonalMoves.add(getSquare((char) ((int) pieceSquare.getId().charAt(0) + ii * x) + "" + (Integer.parseInt(pieceSquare.getId().charAt(1) + "") + ii * y)));
+                        // Check that there are no pieces between selected piece and king
+                        for(int ii=1;ii < Math.abs(difPieceKing); ii++)
+                            if (getSquare((char) ((int) pieceSquare.getId().charAt(0) - (ii*x))+ "" + (Integer.parseInt(pieceSquare.getId().charAt(1)+"")-ii*y)).getPiece() != null)
+                                break squareDiagonalCheckLoop;
+                            else
+                                diagonalMoves.add(getSquare((char) ((int) pieceSquare.getId().charAt(0) - (ii*x))+ "" + (Integer.parseInt(pieceSquare.getId().charAt(1)+"")-ii*y)));
+
+                        List<Square> pinCaptures = getValidMoves(enemySquare.getPiece())[3]; // Get all the moves + captures for that piece
+                        if(pinCaptures.contains(kingSquare)) { // Check if enemy piece's moves or captures have the square where king is
+                            // Recalculate valid moves based on pinning line
+                            for(int iii=0;iii<_squareListOne.size();iii++)
+                                if (!diagonalMoves.contains(_squareListOne.get(iii))){ // Remove moves that are not included in diagonal line between enemy and king
+                                    _squareListOne.remove(_squareListOne.get(iii));
+                                    iii = -1; // Reset
+                                }
+                            // Recalculate valid moves based on pinning line
+                            for(int iii=0;iii<_squareListTwo.size();iii++)
+                                if (!_squareListTwo.get(iii).equals(enemySquare)){ // Only one capture movement is allowed - enemySquare
+                                    _squareListTwo.remove(_squareListTwo.get(iii));
+                                    iii = -1; // Reset
+                                }
+                        }
+                    }
+                } // close squareDiagonalCheckLoop
+            }
+        } // Close diagonal testing
     }
 
     // Tester
