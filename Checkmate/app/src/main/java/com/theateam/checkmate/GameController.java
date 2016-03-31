@@ -43,7 +43,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as AI or human
+        playerTwo = new Player("Human", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -59,12 +59,13 @@ public class GameController {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
-        if(kingInCheck()) { // Check if king is already in check
+        if(kingInCheck(playerOne))  // Check if king is already in check
             if (turn && kingInCheckmate(playerOne))
                 Log.d("selectSquare", "Player One CHECKMATE");
+        if(kingInCheck(playerTwo))
             if (!turn && kingInCheckmate(playerTwo))
                 Log.d("selectSquare", "Player Two CHECKMATE");
-        }
+
         if(pawnPromoting) { // Check if pawn promote is on
             processPromoting(clickedSquare); // Process users piece choosing
             return false; // Break function here
@@ -77,7 +78,7 @@ public class GameController {
             return false; // Break function here
 
         // When in check, only allowed pieces are allowed to be selected
-        if(kingInCheck() && !allowedPieces.contains(board.getSquare(clickedSquare).getPiece()))
+        if( (kingInCheck(playerOne) || kingInCheck(playerTwo)) && !allowedPieces.contains(board.getSquare(clickedSquare).getPiece()))
             return false;
 
         // Get new piece
@@ -114,7 +115,17 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
-                kingInCheck(); // Check if the move caused check
+                 // Check if the move caused check
+                if(kingInCheck(playerOne))
+                    if (turn && kingInCheckmate(playerOne)){
+                        Log.d("checkClickMovement1", "Player One CHECKMATE");
+                        return false;
+                    }
+                if(kingInCheck(playerTwo))
+                    if (!turn && kingInCheckmate(playerTwo)){
+                        Log.d("checkClickMovement2", "Player Two CHECKMATE");
+                        return false;
+                    }
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
@@ -126,7 +137,17 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
-                kingInCheck(); // Check if the move caused check
+                // Check if the move caused check
+                if(kingInCheck(playerOne))
+                    if (turn && kingInCheckmate(playerOne)){
+                        Log.d("checkClickMovement3", "Player One CHECKMATE");
+                        return false;
+                    }
+                if(kingInCheck(playerTwo))
+                    if (!turn && kingInCheckmate(playerTwo)){
+                        Log.d("checkClickMovement4", "Player Two CHECKMATE");
+                        return false;
+                    }
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             }
@@ -151,7 +172,7 @@ public class GameController {
         }
 
         // When king is in check use list of allowed squares when picking valid moves and capture moves
-        if(kingInCheck() && !selectedPiece.getPieceType().equals("King")){ // Don't apply it to king
+        if(( kingInCheck(playerOne) || kingInCheck(playerTwo) )&& !selectedPiece.getPieceType().equals("King")){ // Don't apply it to king
             for(int i=0;i<squareList.size();i++)
                 if(!allowedSquares.contains(squareList.get(i))) {
                     squareList.remove(i);
@@ -334,42 +355,28 @@ public class GameController {
 
     // Check if king is in check
     // Compare enemy piece's capture range to kings location
-    public boolean kingInCheck(){
-
-        if(playerOne.getPieceByType("King")==null || playerTwo.getPieceByType("King")==null)
-            return false;
+    public boolean kingInCheck(Player _player){
 
         List<Square> checkMoves;
-        boolean state = false; // Indicates if either of the kings are in check
         kingCapturePieces.clear();
+        Player enemy = playerTwo;
+        if(!_player.isFirst())
+            enemy = playerOne;
 
         // Player One
-        for(int i=0;i<playerTwo.getPieceList().size();i++){
-            checkMoves = board.getValidMoves(playerTwo.getPieceList().get(i))[1]; // Get valid capture moves for piece
+        for(int i=0;i<enemy.getPieceList().size();i++){
+            checkMoves = board.getValidMoves(enemy.getPieceList().get(i))[1]; // Get valid capture moves for piece
             for(int ii=0;ii<checkMoves.size();ii++){
-                if(checkMoves.get(ii).equals(playerOne.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
-                    kingCapturePieces.add(playerTwo.getPieceList().get(i));
+                if(checkMoves.get(ii).equals(_player.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
+                    kingCapturePieces.add(enemy.getPieceList().get(i));
                     highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
                     graphics.highlight(highlights);
-                    state = true;
-                    Log.d("PlayerOneKing", "Check");
+                    Log.d("Player "+_player.toString(), "Check");
+                    return true;
                 }
             }
         }
-        // Player Two
-        for(int i=0;i<playerOne.getPieceList().size();i++){
-            checkMoves = board.getValidMoves(playerOne.getPieceList().get(i))[1]; // Get valid capture moves for piece
-            for(int ii=0;ii<checkMoves.size();ii++){
-                if(checkMoves.get(ii).equals(playerTwo.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
-                    kingCapturePieces.add(playerOne.getPieceList().get(i));
-                    highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
-                    graphics.highlight(highlights);
-                    state = true;
-                    Log.d("PlayerTwoKing", "Check");
-                }
-            }
-        }
-        return state;
+        return false;
     }
 
     public boolean kingInCheckmate(Player _player) {
@@ -396,8 +403,10 @@ public class GameController {
         // Check if any player's piece's capture movements contain enemy square
         for (int i = 0; i < kingCapturePieces.size(); i++) // Check all the pieces that can capture king (the ones that are causing check)
             if (!kingCapturePieces.get(i).getPlayer().equals(_player)) // Check pieces that belong to enemy
-                for (int ii = 0; ii < _player.getPieceList().size(); ii++) // Check all pieces for player
-                    if (board.getValidMoves(_player.getPieceList().get(ii))[1].contains(kingCapturePieces.get(i).getSquare())) { // Check if piece's capture moves contain enemy square
+                for (int ii = 0; ii < _player.getPieceList().size(); ii++){ // Check all pieces for player
+                    List<Square> captureList = board.getValidMoves(_player.getPieceList().get(ii))[1];
+                    if (!_player.getPieceList().get(ii).getPieceType().equals("King") && // Don't apply this to king
+                        captureList.contains(kingCapturePieces.get(i).getSquare())) { // Check if piece's capture moves contain enemy square
                         highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                         if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                             allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
@@ -406,6 +415,7 @@ public class GameController {
                         if(!capturePieces.contains(kingCapturePieces.get(i)))
                             capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                     }
+                }
         if(capturePieces.size()==kingCapturePieces.size()) // All the enemy pieces that can capture king can be captured by own pieces
             canCaptureEnemy = true;
 
@@ -416,52 +426,53 @@ public class GameController {
                     if(!_player.getPieceList().get(ii).getPieceType().equals("King")){
                         int difVerticalKing = (int) _player.getPieceByType("King").getSquare().getId().charAt(0) - (int) kingCapturePieces.get(i).getSquare().getId().charAt(0); // Difference between king and enemy piece
                         int difHorizontalKing = (int) _player.getPieceByType("King").getSquare().getId().charAt(1) - (int) kingCapturePieces.get(i).getSquare().getId().charAt(1);
+                        List<Square> moveList = board.getValidMoves(_player.getPieceList().get(ii))[0];
 
-                        for (int iii = 0; iii < board.getValidMoves(_player.getPieceList().get(ii))[0].size(); iii++) { // Check all the moves for the piece
+                        for (int iii = 0; iii < moveList.size(); iii++) { // Check all the moves for the piece
                             // Vertical check
-                            if (difVerticalKing==0 && board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) == kingCapturePieces.get(i).getSquare().getId().charAt(0) && ( // Same column
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) > (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1) && // Enemy>Square>King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1) > (int) _player.getPieceByType("King").getSquare().getId().charAt(1) ||
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) < (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1) && // Enemy<Square<King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1) < (int) _player.getPieceByType("King").getSquare().getId().charAt(1))){
+                            if (difVerticalKing==0 && moveList.get(iii).getId().charAt(0) == kingCapturePieces.get(i).getSquare().getId().charAt(0) && ( // Same column
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) > (int) moveList.get(iii).getId().charAt(1) && // Enemy>Square>King
+                                (int) moveList.get(iii).getId().charAt(1) > (int) _player.getPieceByType("King").getSquare().getId().charAt(1) ||
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) < (int) moveList.get(iii).getId().charAt(1) && // Enemy<Square<King
+                                (int) moveList.get(iii).getId().charAt(1) < (int) _player.getPieceByType("King").getSquare().getId().charAt(1))){
                                 highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
-                                if(!allowedSquares.contains(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)))
-                                    allowedSquares.add(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)); // One of the allowed squares where to move
+                                if(!allowedSquares.contains(moveList.get(iii)))
+                                    allowedSquares.add(moveList.get(iii)); // One of the allowed squares where to move
                                 if(!capturePieces.contains(kingCapturePieces.get(i)))
                                     capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                             }
 
                             // Horizontal check
-                            if (difHorizontalKing==0 && board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1) == kingCapturePieces.get(i).getSquare().getId().charAt(1) && ( // Same row
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) > (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) && // Enemy>Square>King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) && // Enemy<Square<King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
+                            if (difHorizontalKing==0 && moveList.get(iii).getId().charAt(1) == kingCapturePieces.get(i).getSquare().getId().charAt(1) && ( // Same row
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) > (int) moveList.get(iii).getId().charAt(0) && // Enemy>Square>King
+                                (int) moveList.get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) moveList.get(iii).getId().charAt(0) && // Enemy<Square<King
+                                (int) moveList.get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
                                 highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
-                                if(!allowedSquares.contains(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)))
-                                    allowedSquares.add(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)); // One of the allowed squares where to move
+                                if(!allowedSquares.contains(moveList.get(iii)))
+                                    allowedSquares.add(moveList.get(iii)); // One of the allowed squares where to move
                                 if(!capturePieces.contains(kingCapturePieces.get(i)))
                                     capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                             }
 
                             // Diagonal check
-                            int difVerticalSquare = (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) - (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0);
-                            int difHorizontalSquare = (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) - (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(1);
+                            int difVerticalSquare = (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) - (int) moveList.get(iii).getId().charAt(0);
+                            int difHorizontalSquare = (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) - (int) moveList.get(iii).getId().charAt(1);
                             if (Math.abs(difHorizontalKing)==Math.abs(difVerticalKing) &&  // Same row
                                 Math.abs(difHorizontalSquare)==Math.abs(difVerticalSquare) &&(
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) > (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) && // Enemy>Square>King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
-                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) && // Enemy<Square<King
-                                (int) board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) > (int) moveList.get(iii).getId().charAt(0) && // Enemy>Square>King
+                                (int) moveList.get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) moveList.get(iii).getId().charAt(0) && // Enemy<Square<King
+                                (int) moveList.get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
                                 highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
-                                if(!allowedSquares.contains(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)))
-                                    allowedSquares.add(board.getValidMoves(_player.getPieceList().get(ii))[0].get(iii)); // One of the allowed squares where to move
+                                if(!allowedSquares.contains(moveList.get(iii)))
+                                    allowedSquares.add(moveList.get(iii)); // One of the allowed squares where to move
                                 if(!capturePieces.contains(kingCapturePieces.get(i)))
                                     capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                             }
