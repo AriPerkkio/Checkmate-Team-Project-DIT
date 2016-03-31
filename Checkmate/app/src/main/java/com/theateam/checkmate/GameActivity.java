@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 public class GameActivity extends Activity {
 
-    public static TextView coordinates;
+    //public static TextView coordinates;
     private GameController gameController = GameController.getInstance(); // At the moment this makes sure there is atleas one instance of gameController
 
     @Override
@@ -22,7 +22,7 @@ public class GameActivity extends Activity {
         decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        coordinates = (TextView) findViewById(R.id.coordinateText);
+        //coordinates = (TextView) findViewById(R.id.coordinateText);
 
     }
 }
