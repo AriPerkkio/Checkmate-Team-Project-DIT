@@ -92,7 +92,8 @@ public class Player {
     public void addPiece(Piece _piece){
         pieceList.add(_piece);
         _piece.setPlayer(this);
-        Log.d("Player", _piece.getPieceType()+" added");
+        if(_piece.getPieceType()!=null)
+            Log.d("Player", _piece.getPieceType()+" added");
     }
 
     public void removePiece(Piece _piece){
