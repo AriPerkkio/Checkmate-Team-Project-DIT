@@ -23,7 +23,7 @@ public class Rook extends Piece {
         this.setPieceType("Rook");
 
         //set initial movements
-        for(int i=0;i<8;i++) {
+        for(int i=1;i<8;i++) {
             rookMoves.add(new int[]{i,0});     // right
             rookMoves.add(new int[]{0,i});     // up
             rookMoves.add(new int[]{-i,0});    // left
