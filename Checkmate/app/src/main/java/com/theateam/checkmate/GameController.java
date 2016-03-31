@@ -43,7 +43,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as AI or human
+        playerTwo = new Player("AI", false); // Can be set as AI or human
         board = new Board(playerOne, playerTwo);
     }
 
@@ -267,7 +267,6 @@ public class GameController {
         return false;
     }
 
-    // TODO: Bug found here. When rotating not enables, Player Two has still inverted popup window (Check log of OpenGLRenderer.rotated)
     // This is only called when user has to pick specific piece for pawn promoting
     public boolean processPromoting(String _square){
 
@@ -467,7 +466,11 @@ public class GameController {
                                 (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) > (int) moveList.get(iii).getId().charAt(0) && // Enemy>Square>King
                                 (int) moveList.get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
                                 (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) moveList.get(iii).getId().charAt(0) && // Enemy<Square<King
-                                (int) moveList.get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
+                                (int) moveList.get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0)) && (
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) > (int) moveList.get(iii).getId().charAt(1) && // Enemy>Square>King
+                                (int) moveList.get(iii).getId().charAt(1) > (int) _player.getPieceByType("King").getSquare().getId().charAt(1) ||
+                                (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) < (int) moveList.get(iii).getId().charAt(1) && // Enemy<Square<King
+                                (int) moveList.get(iii).getId().charAt(1) < (int) _player.getPieceByType("King").getSquare().getId().charAt(1))){
                                 highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
@@ -513,7 +516,6 @@ public class GameController {
         }
 
         for (int i = 0; i < player.getPieceList().size(); i++) { // Check all the enemy pieces
-            // TODO: Found bug here. PawnSquare X7, King can't capture X5 pieces. Check printscreens
             // Pawns capture movements have to be constructed manually
             if(player.getPieceList().get(i).getPieceType().equals("Pawn")) {
                 // Construct possible capture movements from pawns square
@@ -528,7 +530,7 @@ public class GameController {
                     preventMoves.add(captureSqrTwo);
             }
             else
-                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2]; // Other pieces can getValidMoves()
+                preventMoves = board.getValidMoves(player.getPieceList().get(i))[2]; // Other pieces can use getValidMoves()
 
             for (int ii = 0; ii < preventMoves.size(); ii++) {
                 if (_moveList.contains(preventMoves.get(ii))) { // Check if enemy's valid moves match with king's valid moves
