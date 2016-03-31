@@ -341,7 +341,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 allCoordinates.promotePawnWindow[3],
                 allCoordinates.promotePawnWindow[1]
         );
-        if(_player.equals("PlayerOne")){
+        if(!rotated){
             picture.changeTextureCoordinates(pieceId,
                     allCoordinates.promotePieces.get("queen"+_player)[0],
                     allCoordinates.promotePieces.get("queen"+_player)[4],
