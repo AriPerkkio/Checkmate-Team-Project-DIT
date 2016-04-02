@@ -3,7 +3,9 @@ package com.theateam.checkmate;
 import android.os.SystemClock;
 import android.util.Log;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -38,7 +40,9 @@ public class GameController {
     private List<Piece> kingCapturePieces = new Vector<>(); // Holds pieces that can capture king
     private List<Piece> allowedPieces = new Vector<>(); // Holds pieces that are allowed to be moved when in check
     private List<Square> allowedSquares = new Vector<>(); // Holds squares where it is allowed to move when in check
-
+    private List<Square> castlingSquares = new Vector<>(); // Holds squares where king can do castling move
+    private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
+    private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
 
     private GameController() {
         OpenGLRenderer.gameController = this;
@@ -59,12 +63,8 @@ public class GameController {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
-        if(kingInCheck(playerOne))  // Check if king is already in check
-            if (turn && kingInCheckmate(playerOne))
-                Log.d("selectSquare", "Player One CHECKMATE");
-        if(kingInCheck(playerTwo))
-            if (!turn && kingInCheckmate(playerTwo))
-                Log.d("selectSquare", "Player Two CHECKMATE");
+        if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
+            return false; // One king in checkmate, break here
 
         if(pawnPromoting) { // Check if pawn promote is on
             processPromoting(clickedSquare); // Process users piece choosing
@@ -104,6 +104,8 @@ public class GameController {
         graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
         from.setPiece(null); // Set old square empty
         _piece.setSquare(target); // Place piece to the new square
+        if(_piece.getPieceType().equals("Rook")) ((Rook) _piece).cantCastle();
+        if(_piece.getPieceType().equals("King")) ((King) _piece).cantCastle();
     }
 
     // Check if new click was made to make selected piece to move or to eliminate a piece
@@ -115,17 +117,12 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
+                if(selectedPiece.getPieceType().equals("King")) // Check castling for kings
+                    if(castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
+                        movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
                  // Check if the move caused check
-                if(kingInCheck(playerOne))
-                    if (turn && kingInCheckmate(playerOne)){
-                        Log.d("checkClickMovement1", "Player One CHECKMATE");
-                        return false;
-                    }
-                if(kingInCheck(playerTwo))
-                    if (!turn && kingInCheckmate(playerTwo)){
-                        Log.d("checkClickMovement2", "Player Two CHECKMATE");
-                        return false;
-                    }
+                if(checkKingsForCheckmate())
+                    return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
@@ -138,16 +135,8 @@ public class GameController {
                     return false;
                 turn = !turn;
                 // Check if the move caused check
-                if(kingInCheck(playerOne))
-                    if (turn && kingInCheckmate(playerOne)){
-                        Log.d("checkClickMovement3", "Player One CHECKMATE");
-                        return false;
-                    }
-                if(kingInCheck(playerTwo))
-                    if (!turn && kingInCheckmate(playerTwo)){
-                        Log.d("checkClickMovement4", "Player Two CHECKMATE");
-                        return false;
-                    }
+                if(checkKingsForCheckmate())
+                    return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             }
@@ -167,6 +156,7 @@ public class GameController {
 
         // Revalidate king's movements - remove the ones that expose it
         if(selectedPiece.getPieceType().equals("King")){
+            castlingCheck();
             preventExposeMove(selectedPiece, squareList, true); // Check if valid moves expose king
             preventExposeMove(selectedPiece, squareListTwo, true); // Check if valid capture moves expose king
         }
@@ -502,6 +492,20 @@ public class GameController {
                 capturePieces.size()>1 && !kingHasMoves; // Or if king has no movements and it's exposed by more than one piece
     }
 
+    public boolean checkKingsForCheckmate(){
+        if(kingInCheck(playerOne))
+            if (turn && kingInCheckmate(playerOne)){
+                Log.d("checkClickMovement1", "Player One CHECKMATE");
+                return true;
+            }
+        if(kingInCheck(playerTwo))
+            if (!turn && kingInCheckmate(playerTwo)){
+                Log.d("checkClickMovement2", "Player Two CHECKMATE");
+                return true;
+            }
+        return false;
+    }
+
     // TODO: May be moved to Board.java, returning third square list for exposing moves (Requires work-around for player references - could be read from piece tho)
     // Check if king's valid moves are exposed
     // I.e. Check if moving king to A4 makes it exposed to enemy pieces' captures.
@@ -542,11 +546,10 @@ public class GameController {
         }
     }
 
-    // TODO: King + castle castling rule
-    public void castlingCheck(){
+    public boolean castlingCheck(){
         /**
-         1. King cannot have previously moved
-         2. Rook that is castling also cannot have previously moved
+         1. King cannot have made its first move
+         2. Rook that is castling also cannot have made its first move
          3. No pieces can be between the king and the rook that is castling
          4. The king cannot be in check
          5. The king cannot walk into check
@@ -557,6 +560,105 @@ public class GameController {
             3. his destination square
          - if an enemy is looking at those squares, he cannot castle that side
         **/
+
+        Player enemy = playerTwo;
+        if(selectedPiece.getPlayer().equals(enemy))
+            enemy = playerOne;
+
+        // Apply this function only for kings that can castle
+        if(!selectedPiece.getPieceType().equals("King") ||
+           !((King) selectedPiece).checkCastling() ||
+           kingInCheck(selectedPiece.getPlayer()))
+            return false;
+
+        // Initialize squares for player one
+        Square rookOneSquare = board.getSquare("A1");
+        Square rookTwoSquare = board.getSquare("H1");
+        Square castleSquareOne = board.getSquare("C1");
+        Square castleSquareTwo = board.getSquare("G1");
+        Square rookMoveOneSquare = board.getSquare("D1");
+        Square rookMoveTwoSquare = board.getSquare("F1");
+        if(selectedPiece.getPlayer().equals(playerTwo)){ // Change values for player two
+            rookOneSquare = board.getSquare("A8");
+            rookTwoSquare = board.getSquare("H8");
+            castleSquareOne = board.getSquare("C8");
+            castleSquareTwo = board.getSquare("G8");
+            rookMoveOneSquare = board.getSquare("D8");
+            rookMoveTwoSquare = board.getSquare("F8");
+            if(board.getSquare("B8").getPiece()!=null || // Squares between king and rook have to be empty
+               board.getSquare("C8").getPiece()!=null ||
+               rookMoveOneSquare.getPiece()!=null)
+                castleSquareOne = null;
+            if(rookMoveTwoSquare.getPiece()!=null ||
+               board.getSquare("G8").getPiece()!=null)
+                castleSquareTwo = null;
+        }
+        else {
+            if (board.getSquare("B1").getPiece() != null ||
+                board.getSquare("C1").getPiece() != null ||
+                rookMoveOneSquare.getPiece() != null)
+                castleSquareOne = null;
+            if (rookMoveTwoSquare.getPiece() != null ||
+                board.getSquare("G1").getPiece() != null)
+                castleSquareTwo = null;
+        }
+        if(rookOneSquare.getPiece()==null || // If rookSquare has no rook set castleSquare as null
+           !rookOneSquare.getPiece().getPieceType().equals("Rook") ||
+           !((Rook) rookOneSquare.getPiece()).checkCastling())
+            castleSquareOne=null;
+
+        if(rookTwoSquare.getPiece()==null ||
+           !rookTwoSquare.getPiece().getPieceType().equals("Rook") ||
+           !((Rook) rookTwoSquare.getPiece()).checkCastling())
+            castleSquareTwo=null;
+
+        // Check if any of the squares are exposed by enemy piece
+        for(int i=0;i<enemy.getPieceList().size();i++){
+            List<Square> movementList = board.getValidMoves(enemy.getPieceList().get(i))[0]; // EnemyPiece's movements
+            List<Square> captureList = board.getValidMoves(enemy.getPieceList().get(i))[1];  //              captures
+            if(enemy.equals(playerTwo)) {
+                if (movementList.contains(board.getSquare("B1")) ||
+                    movementList.contains(board.getSquare("C1")) ||
+                    movementList.contains(board.getSquare("D1")))
+                    castleSquareOne = null;
+                if (movementList.contains(board.getSquare("F1")) ||
+                    movementList.contains(board.getSquare("G1")))
+                    castleSquareTwo = null;
+                if(captureList.contains(rookOneSquare)) // TODO: Is it OK that rook is in enemy pieces capture range? This prevents it atm.
+                    castleSquareOne = null;
+                if(captureList.contains(rookTwoSquare))
+                    castleSquareTwo = null;
+            }
+            else {
+                if (movementList.contains(board.getSquare("B8")) ||
+                    movementList.contains(board.getSquare("C8")) ||
+                    movementList.contains(board.getSquare("D8")))
+                    castleSquareOne = null;
+                if (movementList.contains(board.getSquare("F8")) ||
+                    movementList.contains(board.getSquare("G8")))
+                    castleSquareTwo = null;
+                if(captureList.contains(rookOneSquare))
+                    castleSquareOne = null;
+                if(captureList.contains(rookTwoSquare))
+                    castleSquareTwo = null;
+            }
+        }
+
+        if(castleSquareOne==null&&castleSquareTwo==null) return false; // There are no valid castlingSquares, end here
+
+        if(castleSquareOne!=null) { // squareOne is valid
+            squareList.add(castleSquareOne); // Add extra move for king
+            castlingSquares.add(castleSquareOne); // Save square to other list - it's used for comparing in checkClickMovement()
+            rookForSquare.put(castleSquareOne, (Rook) rookOneSquare.getPiece()); // Save pair of king's target square and rook
+            squareForRook.put((Rook) rookOneSquare.getPiece(), rookMoveOneSquare); // Save pair of rook and its target square
+        }
+        if(castleSquareTwo!=null) {
+            squareList.add(castleSquareTwo);
+            castlingSquares.add(castleSquareTwo);
+            rookForSquare.put(castleSquareTwo, (Rook) rookTwoSquare.getPiece());
+            squareForRook.put((Rook) rookTwoSquare.getPiece(), rookMoveTwoSquare);
+        }
+        return true; // Castling can be done
     }
 
     public void tests(){
