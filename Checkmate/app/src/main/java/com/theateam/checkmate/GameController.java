@@ -24,6 +24,7 @@ public class GameController {
     private boolean turn = true; // True indicates that it's playerOne's turn
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
     private boolean testsDone = false; // Tester
+    public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
 
     //References for other classes
     private Board board;

@@ -277,6 +277,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             String square = list.get(i)[0];
             String shape = list.get(i)[1];
             String color = list.get(i)[2];
+            if(!gameController.learningTool && // LearningTool disabled
+               !((color+" "+shape).equals("green square")) && // Allow highlighting clicked piece
+               !((color+" "+shape).equals("red square"))) // Allow highlighting king in check
+                square = "hide"; // Change given highlight texture to hidden one
+
             // Get chosen learningTool texture
             float[] learningToolTexture = allCoordinates.learningToolList.get(color+" "+shape);
 
@@ -305,7 +310,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                     learningToolTexture[1], // Top
                     learningToolTexture[3]  // Bottom
             );
-
         }
     }
 
