@@ -11,7 +11,6 @@ public class King extends Piece {
 
     //fields
     private List<int[]> kingMoves = new Vector<>();
-    private boolean inCheck;
     private boolean canCastle;
 
     //constructor
@@ -19,8 +18,7 @@ public class King extends Piece {
         super(initialSquare, owner, textureId);
 
         //initial state of king
-        inCheck = false;
-        canCastle = false;
+        canCastle = true;
 
         // Set piece type
         this.setPieceType("King");
@@ -38,5 +36,11 @@ public class King extends Piece {
         this.setMovementList(kingMoves);
     }
 
-    //methods
+    public void cantCastle(){
+        canCastle = false;
+    }
+
+    public boolean checkCastling(){
+        return canCastle;
+    }
 }

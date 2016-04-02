@@ -8,8 +8,6 @@ import java.util.Vector;
  */
 public class Rook extends Piece {
 
-    //mark test push
-
     //fields
     private boolean canCastle;
     private List<int[]> rookMoves = new Vector<>();
@@ -18,7 +16,7 @@ public class Rook extends Piece {
     public Rook(Square initialSquare, Player owner, int textureId) {
         super(initialSquare, owner, textureId);
 
-        this.canCastle = false;
+        this.canCastle = true;
 
         this.setPieceType("Rook");
 
@@ -32,5 +30,11 @@ public class Rook extends Piece {
         this.setMovementList(rookMoves);
     }
 
-    //methods
+    public void cantCastle(){
+        canCastle = false;
+    }
+
+    public boolean checkCastling(){
+        return canCastle;
+    }
 }
