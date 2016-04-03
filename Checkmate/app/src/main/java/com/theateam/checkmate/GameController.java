@@ -25,6 +25,7 @@ public class GameController {
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
     private boolean testsDone = false; // Tester
     public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
+    public String fenString = ""; // Board layout using FEN
 
     //References for other classes
     private Board board;
@@ -61,7 +62,7 @@ public class GameController {
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
-
+        refereshFen();
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
@@ -660,6 +661,135 @@ public class GameController {
             squareForRook.put((Rook) rookTwoSquare.getPiece(), rookMoveTwoSquare);
         }
         return true; // Castling can be done
+    }
+
+    private void refereshFen(){
+        /**
+         https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+         A FEN "record" defines a particular game position, all in one text line and using only the ASCII character set. A text file with only FEN data records should have the file extension ".fen".[1]
+         A FEN record contains six fields. The separator between fields is a space. The fields are:
+            1. Piece placement (from white's perspective). Each rank is described, starting with rank 8 and ending with rank 1; within each rank, the contents of each square are described from file "a" through file "h". Following the Standard Algebraic Notation (SAN), each piece is identified by a single letter taken from the standard English names (pawn = "P", knight = "N", bishop = "B", rook = "R", queen = "Q" and king = "K").[1] White pieces are designated using upper-case letters ("PNBRQK") while black pieces use lowercase ("pnbrqk"). Empty squares are noted using digits 1 through 8 (the number of empty squares), and "/" separates ranks.
+            2. Active color. "w" means White moves next, "b" means Black.
+            3. Castling availability. If neither side can castle, this is "-". Otherwise, this has one or more letters: "K" (White can castle kingside), "Q" (White can castle queenside), "k" (Black can castle kingside), and/or "q" (Black can castle queenside).
+            4. En passant target square in algebraic notation. If there's no en passant target square, this is "-". If a pawn has just made a two-square move, this is the position "behind" the pawn. This is recorded regardless of whether there is a pawn in position to make an en passant capture.[2]
+            5. Halfmove clock: This is the number of halfmoves since the last capture or pawn advance. This is used to determine if a draw can be claimed under the fifty-move rule.
+            6. Fullmove number: The number of the full move. It starts at 1, and is incremented after Black's move.
+
+         Examples
+         Here is the FEN for the starting position:
+            rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (WIKIPEDIA)
+            rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR (LOGCAT)
+         Here is the FEN after the move 1. e4:
+            rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1 (WIKIPEDIA)
+            rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR (LOGCAT)
+         And then after 1. ... c5:
+            rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2 (WIKIPEDIA)
+            rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR (LOGCAT)
+         And then after 2. Nf3:
+            rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 (WIKIPEDIA)
+            rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R (LOGCAT)
+         */
+        fenString = ""; // Clear old board layout
+        int emptyCounter=0;
+
+        // Construct piece placement
+        for(int x=8;x>=1;x--) { // X = Row
+            if(emptyCounter!=0) fenString+=""+emptyCounter;
+            if(x<8) fenString+="/";
+            emptyCounter = 0;
+            for (int y = (int) 'A'; y <= (int) 'H'; y++) { // Y = Column
+                Square checkSquare = board.getSquare((char) y + "" + x);
+                if (checkSquare.getPiece() != null) {
+                    if(emptyCounter!=0) fenString+=""+emptyCounter;
+                    fenString+=fenForPiece(checkSquare.getPiece());
+                    emptyCounter = 0;
+                } else {
+                    emptyCounter++;
+                }
+            }
+        }
+        // Piece placements complete
+        // Construct Active Color
+        if(turn) fenString+=" w ";
+        else fenString+=" b ";
+
+        // Construct castling indicators
+        if(board.getSquare("H1").getPiece()!=null &&
+           board.getSquare("H1").getPiece().getPieceType().equals("Rook") &&
+           ((Rook)board.getSquare("H1").getPiece()).checkCastling() &&
+           ((King) playerOne.getPieceByType("King")).checkCastling())
+            fenString+="K";
+        else fenString+="-";
+        if(board.getSquare("A1").getPiece()!=null &&
+           board.getSquare("A1").getPiece().getPieceType().equals("Rook") &&
+           ((Rook)board.getSquare("A1").getPiece()).checkCastling() &&
+           ((King) playerOne.getPieceByType("King")).checkCastling())
+            fenString+="Q";
+        else fenString+="-";
+        if(board.getSquare("H8").getPiece()!=null &&
+           board.getSquare("H8").getPiece().getPieceType().equals("Rook") &&
+           ((Rook)board.getSquare("H8").getPiece()).checkCastling() &&
+           ((King) playerTwo.getPieceByType("King")).checkCastling())
+            fenString+="k";
+        else fenString+="-";
+        if(board.getSquare("A8").getPiece()!=null &&
+           board.getSquare("A8").getPiece().getPieceType().equals("Rook") &&
+           ((Rook)board.getSquare("A8").getPiece()).checkCastling() &&
+           ((King) playerTwo.getPieceByType("King")).checkCastling())
+            fenString+="q";
+        else fenString+="-";
+
+        // Construct en passant target square
+        // TODO
+        fenString+= " - "; // Atm no en passants, waiting for Jamal's implementation
+
+        // Construct halfMoves
+        fenString+= "0";
+
+        // Construct fullMoves
+        fenString+=" 0";
+
+        Log.d("Final FenString", fenString);
+    }
+
+    private char fenForPiece(Piece _piece){
+        /**
+         * pawn = "P"
+         * knight = "N"
+         * bishop = "B"
+         * rook = "R"
+         * queen = "Q"
+         * king = "K"
+         * White pieces are designated using upper-case
+         */
+        char fenChar = ' ';
+        switch(_piece.getPieceType()){
+            case "Pawn":
+                fenChar = 'P';
+            break;
+            case "Knight":
+                fenChar = 'N';
+            break;
+            case "Bishop":
+                fenChar = 'B';
+            break;
+            case "Rook":
+                fenChar = 'R';
+            break;
+            case "Queen":
+                fenChar = 'Q';
+            break;
+            case "King":
+                fenChar = 'K';
+            break;
+            default:
+                fenChar = 'E'; // Error
+            break;
+        }
+        if(fenChar=='E') Log.e("FenChar E", "Piece "+_piece.getPieceType());
+        if(_piece.getPlayer().equals(playerTwo))
+            fenChar = Character.toLowerCase(fenChar);
+        return fenChar;
     }
 
     public void tests(){
