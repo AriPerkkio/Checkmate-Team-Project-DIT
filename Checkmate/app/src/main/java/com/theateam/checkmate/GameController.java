@@ -6,6 +6,8 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +35,7 @@ public class GameController {
     private boolean testsDone = false; // Tester
     public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
     private String fenString = ""; // Board layout using FEN
-    private String enginePath = "/data/tmp/stockfish-6-arm";
+    private String enginePath = null; // Initialized in getAiMove()
     private int halfMoves = 0;
     private int fullMoves = 0;
 
@@ -59,8 +61,9 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo);
+        Log.e("GameController", "enginePath "+enginePath);
     }
 
     public static GameController getInstance() {
@@ -815,14 +818,17 @@ public class GameController {
             fenChar = Character.toLowerCase(fenChar);
         return fenChar;
     }
+
     Process process =null;
     DataOutputStream out = null;
     BufferedReader in = null; // TODO: When Game is over -> in.close();
     public String getAiMove(String command){
+        if(enginePath==null) enginePath = GameActivity.getInstance().getDirectory() +"/stockfish"; // Update AI Engine path
         String text="";
         String oneLine = "";
         String move = "";
         String ponderMove = "";
+
         try {
             if(process==null) process = Runtime.getRuntime().exec(enginePath);
             if(out==null) out = new DataOutputStream(process.getOutputStream());
@@ -836,6 +842,7 @@ public class GameController {
             do{
                 text = in.readLine();
                 if(text!=null){
+                    Log.i("Full text", text);
                     oneLine = text.split(" ")[0];
                     move = text.split(" ")[1];
                     if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
