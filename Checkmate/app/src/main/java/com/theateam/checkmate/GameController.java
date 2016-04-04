@@ -2,7 +2,14 @@ package com.theateam.checkmate;
 
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +32,10 @@ public class GameController {
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
     private boolean testsDone = false; // Tester
     public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
-    public String fenString = ""; // Board layout using FEN
+    private String fenString = ""; // Board layout using FEN
+    private String enginePath = "/data/tmp/stockfish-6-arm";
+    private int halfMoves = 0;
+    private int fullMoves = 0;
 
     //References for other classes
     private Board board;
@@ -49,7 +59,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as AI or human
+        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo);
     }
 
@@ -62,7 +72,7 @@ public class GameController {
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
-        refereshFen();
+
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
@@ -73,15 +83,18 @@ public class GameController {
             return false; // Break function here
         }
 
-        checkClickMovement();  // Allow piece movement to highlighted squares
+        if(checkClickMovement())  // Allow piece movement to highlighted squares
+            if(!turn && !playerTwo.isHuman()) aiMove(); // PlayerOne made a movement, make AI make the next move
 
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if (!checkSquare(clickedSquare)) // True means new piece was clicked
             return false; // Break function here
 
         // When in check, only allowed pieces are allowed to be selected
-        if( (kingInCheck(playerOne) || kingInCheck(playerTwo)) && !allowedPieces.contains(board.getSquare(clickedSquare).getPiece()))
+        if( (kingInCheck(playerOne) || kingInCheck(playerTwo)) && !allowedPieces.contains(board.getSquare(clickedSquare).getPiece())){
+            Log.e("CheckAllowedPiece", board.getSquare(clickedSquare).getPiece().getPieceType()+" not allowed");
             return false;
+        }
 
         // Get new piece
         selectedPiece = board.getSquare(clickedSquare).getPiece();
@@ -99,6 +112,22 @@ public class GameController {
 
         highlightsOff(); // Reset all the highlights
         //tests(); // See function
+
+        return true;
+    }
+
+    public boolean aiMove(){
+        // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
+        selectedPiece = null; Log.e("selectedPiece nulling", "#7, aiMove");
+        highlightsOff();
+        if(!playerTwo.isHuman() && !turn) {
+            refreshFen();
+            String bestMove = getAiMove(fenString);
+            String clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1));
+            String clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3));
+            selectSquare(clickedSquareOne); // AI makes "click" to select piece
+            selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
+        }
         return true;
     }
 
@@ -238,7 +267,7 @@ public class GameController {
 
     // Check if another player is not AI and does the rotating
     public void checkRotating() {
-        if (!playerTwo.isHuman()) { // Check if playerTwo is AI
+        if (playerTwo.isHuman()) { // Check if playerTwo is AI
             SystemClock.sleep(500); // Sleep 500ms to make rotating and highlightsOff smoother
             graphics.rotate(); // Rotate board and pieces
         }
@@ -508,7 +537,6 @@ public class GameController {
         return false;
     }
 
-    // TODO: May be moved to Board.java, returning third square list for exposing moves (Requires work-around for player references - could be read from piece tho)
     // Check if king's valid moves are exposed
     // I.e. Check if moving king to A4 makes it exposed to enemy pieces' captures.
     // Also works for capture movements. Checks if king becomes exposed after eliminating enemy piece
@@ -663,7 +691,7 @@ public class GameController {
         return true; // Castling can be done
     }
 
-    private void refereshFen(){
+    private void refreshFen(){
         /**
          https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
          A FEN "record" defines a particular game position, all in one text line and using only the ASCII character set. A text file with only FEN data records should have the file extension ".fen".[1]
@@ -678,16 +706,12 @@ public class GameController {
          Examples
          Here is the FEN for the starting position:
             rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (WIKIPEDIA)
-            rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR (LOGCAT)
          Here is the FEN after the move 1. e4:
             rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1 (WIKIPEDIA)
-            rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR (LOGCAT)
          And then after 1. ... c5:
             rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2 (WIKIPEDIA)
-            rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR (LOGCAT)
          And then after 2. Nf3:
             rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 (WIKIPEDIA)
-            rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R (LOGCAT)
          */
         fenString = ""; // Clear old board layout
         int emptyCounter=0;
@@ -749,7 +773,7 @@ public class GameController {
         // Construct fullMoves
         fenString+=" 0";
 
-        Log.d("Final FenString", fenString);
+        //Log.d("Final FenString", fenString);
     }
 
     private char fenForPiece(Piece _piece){
@@ -762,7 +786,7 @@ public class GameController {
          * king = "K"
          * White pieces are designated using upper-case
          */
-        char fenChar = ' ';
+        char fenChar;
         switch(_piece.getPieceType()){
             case "Pawn":
                 fenChar = 'P';
@@ -790,6 +814,40 @@ public class GameController {
         if(_piece.getPlayer().equals(playerTwo))
             fenChar = Character.toLowerCase(fenChar);
         return fenChar;
+    }
+    Process process =null;
+    DataOutputStream out = null;
+    BufferedReader in = null; // TODO: When Game is over -> in.close();
+    public String getAiMove(String command){
+        String text="";
+        String oneLine = "";
+        String move = "";
+        String ponderMove = "";
+        try {
+            if(process==null) process = Runtime.getRuntime().exec(enginePath);
+            if(out==null) out = new DataOutputStream(process.getOutputStream());
+
+            out.writeBytes("position fen "+command+ "\n");
+            out.writeBytes("go"+ "\n");
+            out.flush();
+
+            if(in==null) in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            do{
+                text = in.readLine();
+                if(text!=null){
+                    oneLine = text.split(" ")[0];
+                    move = text.split(" ")[1];
+                    if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
+                }
+            }while(text!=null && !oneLine.equals("bestmove"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.i("Engine", text);
+        Log.i("Ponder", ponderMove);
+        Log.i("Returning AiMove", move);
+        return move;
     }
 
     public void tests(){
