@@ -53,6 +53,8 @@ public class Coordinates {
                 });
             }
         }
+        coordinateList.put("empty", hideCoordinates);
+
         // Add learning tool textures to map
         learningToolList.put("blue circle", learningTool_circle_blue);
         learningToolList.put("green circle", learningTool_circle_green);
