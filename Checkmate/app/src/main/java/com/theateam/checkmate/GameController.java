@@ -35,7 +35,6 @@ public class GameController {
     private boolean testsDone = false; // Tester
     public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
     private String fenString = ""; // Board layout using FEN
-    private String enginePath = null; // Initialized in getAiMove()
     private int halfMoves = 0;
     private int fullMoves = 0;
 
@@ -45,6 +44,7 @@ public class GameController {
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
     static GameController instance;
     private FenParser fenParser = new FenParser();
+    private AiEngine aiEngine = new AiEngine();
 
     // Initialized by methods of other classes
     private Player playerTwo; // Either Human or AI
@@ -64,7 +64,6 @@ public class GameController {
         graphics = OpenGLRenderer.getInstance();
         playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo);
-        Log.e("GameController", "enginePath "+enginePath);
     }
 
     public static GameController getInstance() {
@@ -72,6 +71,8 @@ public class GameController {
             instance = new GameController();
         return instance;
     }
+
+    public boolean getTurn(){ return turn;    }
 
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
@@ -126,7 +127,7 @@ public class GameController {
         highlightsOff();
         if(!playerTwo.isHuman() && !turn) {
             fenString = fenParser.refreshFen(board, turn ,playerOne,playerTwo);
-            String bestMove = getAiMove(fenString);
+            String bestMove = aiEngine.getAiMove(fenString);
             String clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1));
             String clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3));
             selectSquare(clickedSquareOne); // AI makes "click" to select piece
@@ -695,46 +696,11 @@ public class GameController {
         return true; // Castling can be done
     }
 
-    Process process =null;
-    DataOutputStream out = null;
-    BufferedReader in = null; // TODO: When Game is over -> in.close();
-    public String getAiMove(String command){
-        if(enginePath==null) enginePath = GameActivity.getInstance().getDirectory() +"/stockfish"; // Update AI Engine path
-        String text="";
-        String oneLine = "";
-        String move = "";
-        String ponderMove = "";
-
-        try {
-            if(process==null){
-                process = Runtime.getRuntime().exec(enginePath);
-                out = new DataOutputStream(process.getOutputStream());
-                out.writeBytes("uci"+ "\n");
-                out.writeBytes("setoption name Skill Level value 1"+ "\n"); // TODO: Set skill level
-            }
-
-            out.writeBytes("position fen "+command+ "\n");
-            out.writeBytes("go"+ "\n");
-            out.flush();
-
-            if(in==null) in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            do{
-                text = in.readLine();
-                if(text!=null){
-                    Log.i("Full text", text);
-                    oneLine = text.split(" ")[0];
-                    if(text.split(" ").length>1) move = text.split(" ")[1];
-                    if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
-                }
-            }while(text!=null && !oneLine.equals("bestmove"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Log.i("Engine", text);
-        Log.i("Ponder", ponderMove);
-        Log.i("Returning AiMove", move);
-        return move;
+    public String getPieceLayout(){
+        String returnString = "";
+        returnString+=playerOne.getPieceLayout();
+        returnString+=playerTwo.getPieceLayout();
+        return returnString;
     }
 
     public void tests(){
