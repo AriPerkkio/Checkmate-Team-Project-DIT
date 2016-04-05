@@ -44,7 +44,7 @@ public class GameController {
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
     static GameController instance;
     private FenParser fenParser = new FenParser();
-    private AiEngine aiEngine = new AiEngine();
+    private AiEngine aiEngine;
 
     // Initialized by methods of other classes
     private Player playerTwo; // Either Human or AI
@@ -127,6 +127,7 @@ public class GameController {
         highlightsOff();
         if(!playerTwo.isHuman() && !turn) {
             fenString = fenParser.refreshFen(board, turn ,playerOne,playerTwo);
+            if(aiEngine==null) aiEngine = new AiEngine(GameActivity.getDirectory() +"stockfish");
             String bestMove = aiEngine.getAiMove(fenString);
             String clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1));
             String clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3));

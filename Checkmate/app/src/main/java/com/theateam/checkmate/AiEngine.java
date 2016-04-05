@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Created by arska on 05/04/16.
+ * Created by AriPerkkio on 05/04/16.
  */
 public class AiEngine {
 
@@ -17,8 +17,12 @@ public class AiEngine {
     DataOutputStream out = null;
     BufferedReader in = null; // TODO: When Game is over -> in.close();
 
+    public AiEngine(String _enginePath){
+        enginePath=_enginePath;
+        Log.d("AiEngine", "Constructor with path: "+enginePath);
+    }
+
     public String getAiMove(String command){
-        if(enginePath==null) enginePath = GameActivity.getInstance().getDirectory() +"/stockfish"; // Update AI Engine path
         String text="";
         String oneLine = "";
         String move = "";
@@ -31,7 +35,6 @@ public class AiEngine {
                 out.writeBytes("uci"+ "\n");
                 out.writeBytes("setoption name Skill Level value 1"+ "\n"); // TODO: Set skill level
             }
-
             out.writeBytes("position fen "+command+ "\n");
             out.writeBytes("go"+ "\n"); // Calculate new move
             out.flush();
@@ -41,12 +44,12 @@ public class AiEngine {
             do{
                 text = in.readLine();
                 if(text!=null){
-                    //Log.i("Full text", text);
+                    Log.i("Full text", text);
                     oneLine = text.split(" ")[0];
                     if(text.split(" ").length>1) move = text.split(" ")[1];
                     if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
                 }
-            }while(text!=null && (!oneLine.equals("bestmove") ||!oneLine.equals("no")));
+            }while(text!=null && !oneLine.equals("bestmove"));
         } catch (IOException e) {
             e.printStackTrace();
         }
