@@ -26,6 +26,7 @@ public class Player {
     private String type;
     private boolean first; // True if player is first to start / bottom one / white pieces
     public Map<String, Integer> pieceIds = new HashMap<>();
+    private List<Integer> eliminatedIndex = new Vector<>();
 
     public Player(String _type, boolean isFirst){
         type = _type;
@@ -72,13 +73,37 @@ public class Player {
     public List<Piece> getPieceList(){
         return pieceList;
     }
+    public List<Integer> getEliminatedIndex(){ return eliminatedIndex;}
 
     public Piece getPieceByType(String _type){
+        int textParts = _type.split(" ").length;
+        int pieceNumber = 1;
+        if(textParts==2) pieceNumber = Integer.parseInt(_type.split(" ")[1]+"");
+        int pieceCounter = 0;
         for(int i=0;i<pieceList.size();i++)
-            if(pieceList.get(i).getPieceType().equals(_type))
-                return pieceList.get(i);
+            if(pieceList.get(i).getPieceType().equals( _type.split(" ")[0])) {
+                pieceCounter++;
+                if (pieceCounter == pieceNumber)
+                    return pieceList.get(i);
+            }
         Log.e("getPieceByType", "Not found: "+_type);
         return null;
+    }
+
+    public String getPieceLayout(){
+        for(int i=0;i<eliminatedIndex.size();i++)
+            Log.e("EliminatedIndex i "+i, "Value: "+eliminatedIndex.get(i));
+        String returnString = "";
+        for(int i=0;i<pieceList.size();i++){
+            //Log.i("I", ""+i);
+            if(eliminatedIndex.contains(i)){
+                returnString+="empty ";
+                Log.d("Setting empty", "index "+i);
+            }
+                returnString+=pieceList.get(i).getSquare().getId()+" ";
+
+        }
+        return returnString;
     }
 
     public boolean isHuman(){
@@ -97,7 +122,12 @@ public class Player {
     }
 
     public void removePiece(Piece _piece){
-        Log.d("Player", _piece.getPieceType()+" removed");
+        int index = pieceList.indexOf(_piece);
+
+        if(eliminatedIndex.contains(index))
+            index++; // TODO
+        eliminatedIndex.add(index);
+        Log.d("Player", _piece.getPieceType()+" removed, id "+index);
         pieceList.remove(_piece);
     }
 
