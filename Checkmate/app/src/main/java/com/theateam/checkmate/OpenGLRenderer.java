@@ -34,6 +34,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     static OpenGLView viewInstance = OpenGLView.getInstance(); // Used for renderRequests
     static OpenGLRenderer instance; // For the current instance
     static GameController gameController = GameController.getInstance(); // Used for passing clicked square
+    private String boardLayout;
 
     // Matrix Initializations
     private final float[] mMVPMatrix = new float[16];
@@ -73,53 +74,20 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     {
         Log.d("Renderer","onSurfaceCreated");
 
-        // TODO: This kind of initializing may not be used once Game Logic works.
-        // TODO: Game logic should call each piece to set up into its starting point.
-        // TODO: Only board is drawn by calling printBoard()
-
         // Order of coordinateList must match TextureGL's textureCoordinates
-        // Current IDs: 0 reserved for board
-        //              1-27 Square Highlights
-        //              28-44 Player One pieces
-        //              39-55 Player Two pieces
         coordinateList.add(allCoordinates.boardCoordinates); // Board
         // Learning tool
         for(int i=0;i<TextureGL.count;i++)
             coordinateList.add(allCoordinates.hideCoordinates);  // Learning Tool #1-27
+
+        boardLayout = gameController.getPieceLayout();
+        Log.i("Renderer", "Length "+boardLayout.split(" ").length+" : "+boardLayout);
+        if(boardLayout.split(" ").length!=32) Log.e("BoardLayout", "Size "+boardLayout.split(" ").length);
+
         // Player one
-        coordinateList.add(allCoordinates.coordinateList.get("A2")); // Pawn #1 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("B2")); // Pawn #2 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("C2")); // Pawn #3 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("D2")); // Pawn #4 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("E2")); // Pawn #5 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("F2")); // Pawn #6 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("G2")); // Pawn #7 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("H2")); // Pawn #8 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("A1")); // Rook #1 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("B1")); // Knight #1 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("C1")); // Bishop #1 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("E1")); // King Player One
-        coordinateList.add(allCoordinates.coordinateList.get("D1")); // Queen Player One
-        coordinateList.add(allCoordinates.coordinateList.get("F1")); // Bishop #2 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("G1")); // Knight #2 Player One
-        coordinateList.add(allCoordinates.coordinateList.get("H1")); // Rook #2 Player One
-        // Player two
-        coordinateList.add(allCoordinates.coordinateList.get("A7")); // Pawn #1 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("B7")); // Pawn #2 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("C7")); // Pawn #3 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("D7")); // Pawn #4 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("E7")); // Pawn #5 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("F7")); // Pawn #6 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("G7")); // Pawn #7 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("H7")); // Pawn #8 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("A8")); // Rook #1 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("B8")); // Knight #1 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("C8")); // Bishop #1 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("E8")); // King Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("D8")); // Queen Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("F8")); // Bishop #2 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("G8")); // Knight #2 Player Two
-        coordinateList.add(allCoordinates.coordinateList.get("H8")); // Rook #2 Player Two
+        for(int i=0;i<boardLayout.split(" ").length;i++)
+            coordinateList.add(allCoordinates.coordinateList.get(boardLayout.split(" ")[i]));
+
         // Extra graphics
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Window
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #1
@@ -135,6 +103,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
        picture = new TextureGL(mActivityContext, // OpenGLView's context
                coordinates, // Starting point coordinates
                R.mipmap.wooden); // Picture for the theme package
+        if(!gameController.getTurn() && rotated){
+            rotate();
+            rotated=!rotated;
+        }
     }
 
     // Called for each print
