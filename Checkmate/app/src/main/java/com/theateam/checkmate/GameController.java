@@ -63,7 +63,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo);
         for(int i=0;i<16;i++)
             allPawns.add("pawn");

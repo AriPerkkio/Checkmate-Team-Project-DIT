@@ -161,8 +161,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         float x = event.getX(); // Get horizontal pixel value
         float y = event.getY(); // Get vertical pixel value
-        float screenWidth = 1080; // Setup screen props
-        float screenHeight =  1920*0.5625f; // 9/16 = 0.5625
+        int Screenwidth = GameActivity.getscreenwidth();
+        float screenWidth = (float)Screenwidth; // Setup screen props
+        int Screenheight = GameActivity.getscreenheight();
+        float screenHeight =  (float)Screenheight*0.5625f; // 9/16 = 0.5625
 
         // Convert pixels into OpenGL coordinate system
         float sceneX = (x / screenWidth) * 2.0f - 1.0f;

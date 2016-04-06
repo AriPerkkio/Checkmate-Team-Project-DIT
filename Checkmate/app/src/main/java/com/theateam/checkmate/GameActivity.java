@@ -2,6 +2,8 @@ package com.theateam.checkmate;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
+import android.graphics.Point;
+import android.view.Display;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -16,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+
 
 public class GameActivity extends Activity {
 
@@ -92,6 +96,23 @@ public class GameActivity extends Activity {
         while((read = in.read(buffer)) != -1){
             out.write(buffer, 0, read);
         }
+    }
+    public static int getscreenwidth()
+    {
+        Display display = instance.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        return width;
+
+    }
+    public static int getscreenheight()
+    {
+        Display display = instance.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int height = size.y;
+        return height;
     }
  }
 
