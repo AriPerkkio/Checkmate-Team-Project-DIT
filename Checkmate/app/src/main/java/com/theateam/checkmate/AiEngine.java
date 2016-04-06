@@ -23,43 +23,44 @@ public class AiEngine {
         Log.d("AiEngine", "Constructor with path: "+enginePath);
     }
 
-    public String getAiMove(String command){
+    public String getAiMove(String command, int thinkTime){ // TODO: Add parameter for skill level and depth
         String text="";
         String oneLine = "";
-        String move = "";
+        String move = ""; // I.e "a1a2"
         String ponderMove = "";
 
         try {
             if(process==null){
                 process = Runtime.getRuntime().exec(enginePath); // Start stockfish by cmd-line
                 out = new DataOutputStream(process.getOutputStream()); // Stream for communicating with AI Engine
-                out.writeBytes("uci"+ "\n");
-                out.writeBytes("setoption name Skill Level value 1"+ "\n"); // TODO: Set skill level
-                out.writeBytes("setoption name Slow Mover value 1000");
-                out.writeBytes("ucinewgame"+ "\n");
-                out.writeBytes("isready"+ "\n");
+                out.writeBytes("uci"+ "\n"); // Start UCI communication
+                out.writeBytes("setoption name Skill Level value 0"+ "\n"); // Setup level for AI
+                out.writeBytes("setoption name Slow Mover value 1000"+ "\n"); //
+                out.writeBytes("ucinewgame"+ "\n"); // Start new game
+                out.writeBytes("isready"+ "\n"); // GUI ready to start
             }
-            out.writeBytes("position fen "+command+ "\n");
-            out.writeBytes("go depth 1"+ "\n"); // Calculate new move
-            out.flush();
+            out.writeBytes("position fen "+command+ "\n"); // Update board layout to AI Engine
+            out.writeBytes("go depth 1 movetime "+thinkTime+ "\n"); // Calculate new move with given depth and thinkTime
+            out.flush(); // Write messages above
+            // AI Engine is kept on during the game
 
-            if(in==null) in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            if(in==null) in = new BufferedReader(new InputStreamReader(process.getInputStream())); // Get inputStream for reading AI's responses
 
             do{
-                text = in.readLine();
+                text = in.readLine(); // Read AI's response
                 if(text!=null){
-                    Log.i("Full text", text);
-                    if(text.split(" ").length>1) {
-                        oneLine = text.split(" ")[0];
-                        move = text.split(" ")[1];
+                    Log.i("Full text", text); // Logging, should be removed later
+                    if(text.split(" ").length>1) { // TODO: Learn more about AI's responses and create proper parses
+                        oneLine = text.split(" ")[0]; // First word
+                        move = text.split(" ")[1]; // Second word / given move, i.e "bestmove a1a2"
                     }
-                    if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
+                    if(text.split(" ").length==4) ponderMove = text.split(" ")[3]; // Ponder move is given as 4th string, i.e. "bestmove a1a2 ponder a7a6"
                 }
             }while(text!=null && !oneLine.equals("bestmove"));
-        } catch (IOException e) {
+        } catch (IOException e) { // Read/Write errors
             e.printStackTrace();
         }
-        Log.i("Engine", text);
+        Log.i("Engine", text); // Remove later
         Log.i("Ponder", ponderMove);
         Log.i("Returning AiMove", move);
         return move;
