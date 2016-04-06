@@ -21,6 +21,7 @@ public class Piece {
     private String pieceType;
     private List<int[]> movementList;
     private int textureId;
+    private int listId;
 
     public Piece(Square initialSquare, Player owner, int _textureId){
         square = initialSquare;
@@ -30,6 +31,12 @@ public class Piece {
         textureId = _textureId;
     }
 
+    public void setListId(int id){
+        listId=id;
+    }
+    public int getListId(){
+        return listId;
+    }
     public Player getPlayer(){
         return player;
     }
