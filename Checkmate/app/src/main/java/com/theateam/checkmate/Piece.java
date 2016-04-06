@@ -46,8 +46,8 @@ public class Piece {
     }
 
     // Used when piece is eliminated
-    public void remove(){
-        player.removePiece(this);
+    public void remove(boolean isPawnPromoting){
+        player.removePiece(this, isPawnPromoting);
         this.player = null;
         this.square = null;
     }
