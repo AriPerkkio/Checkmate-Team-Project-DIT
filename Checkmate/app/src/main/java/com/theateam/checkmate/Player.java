@@ -73,7 +73,6 @@ public class Player {
     public List<Piece> getPieceList(){
         return pieceList;
     }
-    public List<Integer> getEliminatedIndex(){ return eliminatedIndex;}
 
     public Piece getPieceByType(String _type){
         int textParts = _type.split(" ").length;
@@ -90,20 +89,18 @@ public class Player {
         return null;
     }
 
+    // Used for graphics to check each square for each piece. Works even when pawn is promoted since it uses index numbers - not pieceTypes
     public String getPieceLayout(){
-        for(int i=0;i<eliminatedIndex.size();i++)
-            Log.e("EliminatedIndex i "+i, "Value: "+eliminatedIndex.get(i));
-        String returnString = "";
-        for(int i=0;i<pieceList.size();i++){
-            //Log.i("I", ""+i);
-            if(eliminatedIndex.contains(i)){
-                returnString+="empty ";
-                Log.d("Setting empty", "index "+i);
-            }
-                returnString+=pieceList.get(i).getSquare().getId()+" ";
-
+        String returnString = ""; // Empty old one
+        for(int i=0;i<16;i++) { // 16 Squares/Pieces per player
+            if(eliminatedIndex.contains(i)) // Piece with this index is eliminated - set this square as empty
+                returnString += "empty ";
+            else // Not eliminated
+                for(int ii=0;ii<pieceList.size();ii++) // Check all pieces
+                    if (pieceList.get(ii).getListId() == i)  // This piece has listId of the index - correct piece
+                        returnString += pieceList.get(ii).getSquare().getId() + " "; // Add its square to string
         }
-        return returnString;
+        return returnString; // I.e. "A1 A2 A5 F4 F5 ..." Same piece order as used in graphics
     }
 
     public boolean isHuman(){
@@ -117,22 +114,30 @@ public class Player {
     public void addPiece(Piece _piece){
         pieceList.add(_piece);
         _piece.setPlayer(this);
-        if(_piece.getPieceType()!=null)
-            Log.d("Player", _piece.getPieceType()+" added");
+        if(_piece.getPieceType()!=null) {
+            Log.d("Player", _piece.getPieceType() + " added");
+        }
+        _piece.setListId(pieceList.indexOf(_piece));
     }
 
-    public void removePiece(Piece _piece){
-        int index = pieceList.indexOf(_piece);
-
-        if(eliminatedIndex.contains(index))
-            index++; // TODO
-        eliminatedIndex.add(index);
-        Log.d("Player", _piece.getPieceType()+" removed, id "+index);
+    public void removePiece(Piece _piece, boolean isPawnPromoting){
+        int index = _piece.getListId();
+        if(!isPawnPromoting) eliminatedIndex.add(index); // Add removed piece to eliminated list
         pieceList.remove(_piece);
     }
+
 
     // Used to print debug info about current player
     public String toString(){
         return type+ "";
+    }
+
+    /** DEBUG **/
+    private void printIdLists(){
+        Log.d("455", "Print, Player: "+type);
+        for(int i=0;i<eliminatedIndex.size();i++)
+            Log.d("455", "Print eliminated, I: "+i+". ID: "+eliminatedIndex.get(i));
+        for(int i=0;i<pieceList.size();i++)
+            Log.d("455", "Print pieceList, I: "+i+". Piece: "+pieceList.get(i).getPieceType()+". ID: "+pieceList.get(i).getListId());
     }
 }
