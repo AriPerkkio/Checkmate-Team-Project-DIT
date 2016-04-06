@@ -67,13 +67,20 @@ public class TextureGL {
     private Coordinates allCoordinates = new Coordinates();
     private List<float[]> coordinateList = new Vector<>();
     private float[] TextureCoordinateData;
+    private List<float[]> playerOnePawnTextures;
+    private List<float[]> playerTwoPawnTextures;
+
 
     // Constructor (Parameters with current coordinates for all the pictures, resourceId to pick
     // correct theme. )
-    public TextureGL(Context _context, float[] _coordinates, int _resourceId) {
-        mActivityContext = _context;
+    public TextureGL(Context _context, float[] _coordinates, int _resourceId, List<float[]> playerOnePawns, List<float[]> playerTwoPawns) {
+        mActivityContext = _context;OpenGLRenderer.getInstance();
         coordinates = _coordinates;
-        drawOrder = new short[(coordinates.length/8)*6];
+        drawOrder = new short[(coordinates.length / 8) * 6];
+        playerOnePawnTextures = playerOnePawns; // Coordinates for player one pieces 1-8
+        playerTwoPawnTextures = playerTwoPawns; // Coordinates for player two pieces 1-8
+        if(playerOnePawnTextures.size()!=8) Log.e("TextureGL","playerOneTexturesSize "+playerOnePawnTextures.size());
+        if(playerTwoPawnTextures.size()!=8) Log.e("TextureGL","playerTwoTexturesSize "+playerTwoPawnTextures.size());
 
         // Fill drawOrder for each texture
         int last = 0;
@@ -97,14 +104,8 @@ public class TextureGL {
         for(int i=0;i<count;i++)
             coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool #1-27
         // Player One
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #1
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #2
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #3
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #4
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #5
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #6
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #7
-        coordinateList.add(allCoordinates.pawnPlayerOne); // Player one pawn #8
+        for(int i=0;i<8;i++)
+            coordinateList.add(playerOnePawnTextures.get(i)); // Pawns #1-8 PlayerOne
         coordinateList.add(allCoordinates.rookPlayerOne); // Rook #1 Player One
         coordinateList.add(allCoordinates.knightPlayerOne); // Knight #1 Player One
         coordinateList.add(allCoordinates.bishopPlayerOne); // Bishop #1 Player One
@@ -114,14 +115,8 @@ public class TextureGL {
         coordinateList.add(allCoordinates.knightPlayerOne); // Knight #2 Player One
         coordinateList.add(allCoordinates.rookPlayerOne); // Rook #2 Player One
         // Player Two
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #1
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #2
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #3
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #4
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #5
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #6
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #7
-        coordinateList.add(allCoordinates.pawnPlayerTwo); // Player two pawn #8
+        for(int i=0;i<8;i++)
+            coordinateList.add(playerTwoPawnTextures.get(i)); // Pawns #1-8 PlayerTwo
         coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #1 Player two
         coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #1 Player two
         coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #1 Player two
