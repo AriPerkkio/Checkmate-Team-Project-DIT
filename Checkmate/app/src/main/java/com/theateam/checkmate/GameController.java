@@ -140,12 +140,20 @@ public class GameController {
                 clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1)); // From square - Get piece from this one
                 clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
                 selectSquare(clickedSquareOne); // AI makes "click" to select piece
-                if (selectedPiece == null) { // Invalid move
+                if(selectedPiece!=null &&
+                   !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) &&
+                   !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))))
+                    Log.e("aiMove", selectedPiece.getPieceType()+" at "+selectedPiece.getSquare().getId()+" has no moves");
+                if (selectedPiece == null || // Invalid pieceSelect
+                    !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) && // Piece with no moves
+                    !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))) ){
                     thinkTime++; // Give AI more time to think for a proper move
+                    selectedPiece = null; // Search for new piece
                     Log.i("ThinkTime", "Increased to "+thinkTime);
                 }
             }
         } while (selectedPiece == null); // Exit when AI got a proper move calculated
+
         selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
         return true;
     }
