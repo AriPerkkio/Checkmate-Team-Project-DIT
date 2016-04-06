@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +23,7 @@ public class GameActivity extends Activity {
     private GameController gameController = GameController.getInstance(); // At the moment this makes sure there is atleas one instance of gameController
     private static GameActivity instance;
     private static String directory;
+    public static TextView textField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,7 @@ public class GameActivity extends Activity {
         decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        //coordinates = (TextView) findViewById(R.id.coordinateText);
+        textField = (TextView) findViewById(R.id.textField);
         instance = this;
         writeEngineToDevice();
         directory = getFilesDir().toString()+"/engines/";
