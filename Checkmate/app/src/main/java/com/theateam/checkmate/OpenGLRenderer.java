@@ -76,16 +76,15 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         // Order of coordinateList must match TextureGL's textureCoordinates
         coordinateList.add(allCoordinates.boardCoordinates); // Board
+
         // Learning tool
         for(int i=0;i<TextureGL.count;i++)
-            coordinateList.add(allCoordinates.hideCoordinates);  // Learning Tool #1-27
+            coordinateList.add(allCoordinates.hideCoordinates);
 
-        boardLayout = gameController.getPieceLayout();
-        Log.i("Renderer", "Length "+boardLayout.split(" ").length+" : "+boardLayout);
-        if(boardLayout.split(" ").length!=32) Log.e("BoardLayout", "Size "+boardLayout.split(" ").length);
+        boardLayout = gameController.getPieceLayout(); // Get current board layout
+        if(boardLayout.split(" ").length!=32) Log.e("Renderer","BoardLayout, Size "+boardLayout.split(" ").length);
 
-        // Player one
-        for(int i=0;i<boardLayout.split(" ").length;i++)
+        for(int i=0;i<boardLayout.split(" ").length;i++) // Setup pieces to board or as empty
             coordinateList.add(allCoordinates.coordinateList.get(boardLayout.split(" ")[i]));
 
         // Extra graphics
@@ -95,7 +94,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #3
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #4
 
-        Log.d("Renrdr. CoordList size:", ""+coordinateList.size()); // See if matches with TextureGL's log output
+        Log.d("Renderer", "CoordList size "+coordinateList.size()); // See if matches with TextureGL's log output
         coordinates = new float[coordinateList.size()*8];
         coordinates = setupMatrixCoordinates(coordinateList); // Combine multiple float[]s to one
 
