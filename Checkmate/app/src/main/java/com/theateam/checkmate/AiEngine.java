@@ -13,12 +13,13 @@ import java.io.InputStreamReader;
 public class AiEngine {
 
     private String enginePath = null; // Initialized in getAiMove()
-    Process process =null;
+    Process process = null;
     DataOutputStream out = null;
     BufferedReader in = null; // TODO: When Game is over -> in.close();
 
     public AiEngine(String _enginePath){
-        enginePath=_enginePath;
+        enginePath = _enginePath;
+        if(enginePath==null) Log.e("AiEngine", "Constructor, Engine Path Null");
         Log.d("AiEngine", "Constructor with path: "+enginePath);
     }
 
@@ -34,9 +35,12 @@ public class AiEngine {
                 out = new DataOutputStream(process.getOutputStream()); // Stream for communicating with AI Engine
                 out.writeBytes("uci"+ "\n");
                 out.writeBytes("setoption name Skill Level value 1"+ "\n"); // TODO: Set skill level
+                out.writeBytes("setoption name Slow Mover value 1000");
+                out.writeBytes("ucinewgame"+ "\n");
+                out.writeBytes("isready"+ "\n");
             }
             out.writeBytes("position fen "+command+ "\n");
-            out.writeBytes("go"+ "\n"); // Calculate new move
+            out.writeBytes("go depth 1"+ "\n"); // Calculate new move
             out.flush();
 
             if(in==null) in = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -45,8 +49,10 @@ public class AiEngine {
                 text = in.readLine();
                 if(text!=null){
                     Log.i("Full text", text);
-                    oneLine = text.split(" ")[0];
-                    if(text.split(" ").length>1) move = text.split(" ")[1];
+                    if(text.split(" ").length>1) {
+                        oneLine = text.split(" ")[0];
+                        move = text.split(" ")[1];
+                    }
                     if(text.split(" ").length==4) ponderMove = text.split(" ")[3];
                 }
             }while(text!=null && !oneLine.equals("bestmove"));
