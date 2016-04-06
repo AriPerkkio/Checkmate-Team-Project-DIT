@@ -47,9 +47,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     public static boolean rotated = false; // Also accessed from TextureGL
 
     // Picture for drawing
-    private TextureGL picture; // Includes all the textures
+    private TextureGL picture = null; // Includes all the textures
     private float[] coordinates; // For matrix coordinates
     private List<float[]> coordinateList = new Vector<>(); // Matrix coordinates for each texture
+    private List<float[]> playerOnePawnTextures = new Vector<>();
+    private List<float[]> playerTwoPawnTextures = new Vector<>();
 
     public OpenGLRenderer(final Context activityContext)
     {
@@ -62,6 +64,19 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         if(gameController==null){ // Error checking
             Log.e("Renderer", "GameController reinitializing");
             gameController= GameController.getInstance();
+        }
+
+        List<String> allPawns = gameController.getAllPawns(); // Get pieces 1-8 for both players
+
+        for(int i=0;i<8;i++){ // Check pieces 1-8 for both players
+            if(!allPawns.get(i).equals("pawn")) // When piece is promoted, it's not pawn in this list anymore
+                playerOnePawnTextures.add(allCoordinates.promotePieces.get(allPawns.get(i)+"PlayerOne")); // Update promoted piece to list
+            else
+                playerOnePawnTextures.add(allCoordinates.pawnPlayerOne); // It's pawn - set pawn coordinates
+            if(!allPawns.get(i+7).equals("pawn"))
+                playerTwoPawnTextures.add(allCoordinates.promotePieces.get(allPawns.get(i+7)+"PlayerTwo"));
+            else
+                playerTwoPawnTextures.add(allCoordinates.pawnPlayerTwo);
         }
     }
 
@@ -99,9 +114,16 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinates = setupMatrixCoordinates(coordinateList); // Combine multiple float[]s to one
 
        // Initialize the drawn picture
-       picture = new TextureGL(mActivityContext, // OpenGLView's context
-               coordinates, // Starting point coordinates
-               R.mipmap.wooden); // Picture for the theme package
+       if(picture == null) { // TODO: Remove this, it's always null here...
+           picture = new TextureGL(mActivityContext, // OpenGLView's context
+                   coordinates, // Starting point coordinates
+                   R.mipmap.wooden,  // Picture for the theme package
+                   playerOnePawnTextures,
+                   playerTwoPawnTextures);
+            Log.e("Picture", "null");
+       }
+        // TODO: When pawnPromoting window is open and device rotated/activity relaunched, the window disappears.
+
         if(!gameController.getTurn() && rotated){
             rotate();
             rotated=!rotated;
@@ -284,10 +306,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         }
     }
 
-    public void promotePawn(int pieceSelect, String textureName){
+    public void promotePawn(int pieceSelect, String textureName) {
 
-        if(allCoordinates.promotePieces.get(textureName) == null)
-            Log.e("Rendr.PromotePawn", "Name: "+textureName);
+        if (allCoordinates.promotePieces.get(textureName) == null)
+            Log.e("Rendr.PromotePawn", "Name: " + textureName);
 
         float[] texture = allCoordinates.promotePieces.get(textureName);
 
@@ -297,10 +319,15 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 texture[3],
                 texture[1]
         );
+        if (TextureGL.count < pieceSelect && pieceSelect < TextureGL.count + 9)  // Player One Pawn ID 51-58
+            playerOnePawnTextures.set(pieceSelect - TextureGL.count -1, texture);
+
+        if (TextureGL.count + 16 < pieceSelect && pieceSelect < TextureGL.count + 25)  // Player Two Pawn ID 67-74
+            playerTwoPawnTextures.set(pieceSelect - (TextureGL.count + 17), texture);
     }
 
     public void pawnPromoteOn(String _player){
-                                            // Board+Highlights+all the pieces
+        // Board+Highlights+all the pieces
         int windowId = TextureGL.count+1+32;
         int pieceId = windowId+1;
 
