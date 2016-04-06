@@ -46,7 +46,7 @@ public class GameController {
     private FenParser fenParser = new FenParser();
     private AiEngine aiEngine;
 
-    // Initialized by methods of other classes
+    // Initialized by methods
     private Player playerTwo; // Either Human or AI
     private List<Square>[] bothSquareLists;
     private List<Square> squareList = new Vector<>(); // Holds info about possible moves
@@ -58,12 +58,15 @@ public class GameController {
     private List<Square> castlingSquares = new Vector<>(); // Holds squares where king can do castling move
     private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
     private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
+    private List<String> allPawns = new Vector<>();
 
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo);
+        for(int i=0;i<16;i++)
+            allPawns.add("pawn");
     }
 
     public static GameController getInstance() {
@@ -73,6 +76,7 @@ public class GameController {
     }
 
     public boolean getTurn(){ return turn;    }
+    public List<String> getAllPawns(){ return allPawns; }
 
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
@@ -164,7 +168,7 @@ public class GameController {
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
                 int tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
-                board.getSquare(clickedSquare).getPiece().remove(); // Eliminate old piece from game logic
+                board.getSquare(clickedSquare).getPiece().remove(false); // Eliminate old piece from game logic
                 movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
                 graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId()); // Eliminate old piece from graphics
                 highlightsOff(); // Turn off all the highlights
@@ -361,13 +365,18 @@ public class GameController {
 
         }
         // Construct textureId to choose correct player's piece texture
-        if(tempSquare.getPiece().getPlayer().isFirst())
-            textureName+="PlayerOne";
-        else
-            textureName+="PlayerTwo";
+        if(tempSquare.getPiece().getPlayer().isFirst()) {
+            allPawns.set(selectedPiece.getListId(), textureName);
+            textureName += "PlayerOne";
+        }
+        else {
+            allPawns.set(7+selectedPiece.getListId(), textureName);
+            textureName += "PlayerTwo";
+        }
         graphics.pawnPromoteOff();
         graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
-        selectedPiece.remove(); // Get rid of current pawn
+        tempSquare.getPiece().setListId(selectedPiece.getListId()); // TODO: Test // Set listId from old piece to new one
+        selectedPiece.remove(true); // Get rid of current pawn
         graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
         graphics.promotePawn(tempTextureId, textureName); // Change texture to match chosen piece
         turn = !turn;
@@ -389,7 +398,6 @@ public class GameController {
         if(!_player.isFirst())
             enemy = playerOne;
 
-        // Player One
         for(int i=0;i<enemy.getPieceList().size();i++){
             checkMoves = board.getValidMoves(enemy.getPieceList().get(i))[1]; // Get valid capture moves for piece
             for(int ii=0;ii<checkMoves.size();ii++){
@@ -442,6 +450,15 @@ public class GameController {
                             capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                     }
                 }
+        // TODO: Testing. There's bug with the piece here
+        for(int ii=0;ii<capturePieces.size();ii++){
+            if(board.getValidMoves(capturePieces.get(ii))[0].size()==0){
+                capturePieces.remove(ii);
+                ii=-1; // Reset since list modified
+            }
+        }
+
+
         if(capturePieces.size()==kingCapturePieces.size()) // All the enemy pieces that can capture king can be captured by own pieces
             canCaptureEnemy = true;
 
@@ -533,11 +550,13 @@ public class GameController {
         if(kingInCheck(playerOne))
             if (turn && kingInCheckmate(playerOne)){
                 Log.d("checkClickMovement1", "Player One CHECKMATE");
+                GameActivity.textField.setText("Player One Checkmate");
                 return true;
             }
         if(kingInCheck(playerTwo))
             if (!turn && kingInCheckmate(playerTwo)){
                 Log.d("checkClickMovement2", "Player Two CHECKMATE");
+                GameActivity.textField.setText("Player Two Checkmate");
                 return true;
             }
         return false;
@@ -715,7 +734,7 @@ public class GameController {
                 for (int y = 1; y <= 8; y++) {
                     if (board.getSquare(startChar + "" + y).getPiece()!=null &&
                         board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Pawn")){
-                        board.getSquare(startChar + "" + y).getPiece().remove(); // Eliminate old piece from game logic
+                        board.getSquare(startChar + "" + y).getPiece().remove(false); // Eliminate old piece from game logic
                         graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
                         board.getSquare(startChar + "" + y).setPiece(null);
                     }
