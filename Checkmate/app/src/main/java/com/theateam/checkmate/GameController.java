@@ -42,16 +42,16 @@ public class GameController {
     private Board board;
     private Player playerOne = new Player("Human", true); // Always Human
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
-    static GameController instance;
-    private FenParser fenParser = new FenParser();
-    private AiEngine aiEngine;
+    static GameController instance; // The only instance of GameController
+    private FenParser fenParser = new FenParser(); // Used to create FEN-string
+    private AiEngine aiEngine; // Initialized in aiMove()
 
     // Initialized by methods
     private Player playerTwo; // Either Human or AI
     private List<Square>[] bothSquareLists;
     private List<Square> squareList = new Vector<>(); // Holds info about possible moves
     private List<Square> squareListTwo = new Vector<>(); // Holds info about possible capture moves
-    private Piece selectedPiece;
+    private Piece selectedPiece; // Piece that is selected by player or AI
     private List<Piece> kingCapturePieces = new Vector<>(); // Holds pieces that can capture king
     private List<Piece> allowedPieces = new Vector<>(); // Holds pieces that are allowed to be moved when in check
     private List<Square> allowedSquares = new Vector<>(); // Holds squares where it is allowed to move when in check
@@ -64,13 +64,13 @@ public class GameController {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
         playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
-        board = new Board(playerOne, playerTwo);
-        for(int i=0;i<16;i++)
-            allPawns.add("pawn");
+        board = new Board(playerOne, playerTwo); // Initialized board with these two players
+        for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
+            allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
     }
 
     public static GameController getInstance() {
-        if (instance == null)
+        if (instance == null) // Only one instance should exist
             instance = new GameController();
         return instance;
     }
@@ -127,21 +127,35 @@ public class GameController {
 
     public boolean aiMove(){
         // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
-        selectedPiece = null; Log.e("selectedPiece nulling", "#7, aiMove");
         highlightsOff();
-        if(!playerTwo.isHuman() && !turn) {
-            fenString = fenParser.refreshFen(board, turn ,playerOne,playerTwo);
-            if(aiEngine==null) aiEngine = new AiEngine(GameActivity.getDirectory() +"stockfish");
-            String bestMove = aiEngine.getAiMove(fenString);
-            String clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1));
-            String clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3));
-            selectSquare(clickedSquareOne); // AI makes "click" to select piece
-            selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
-        }
+        String clickedSquareOne;
+        String clickedSquareTwo = null;
+        int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
+        do {
+            if (!playerTwo.isHuman() && !turn) { // AI's turn
+                selectedPiece = null;
+                fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo); // Get fresh FEN-string
+                if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
+                String bestMove = aiEngine.getAiMove(fenString, thinkTime); // Get best move from AI calculations
+                clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1)); // From square - Get piece from this one
+                clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
+                selectSquare(clickedSquareOne); // AI makes "click" to select piece
+                if (selectedPiece == null) { // Invalid move
+                    thinkTime++; // Give AI more time to think for a proper move
+                    Log.i("ThinkTime", "Increased to "+thinkTime);
+                }
+            }
+        } while (selectedPiece == null); // Exit when AI got a proper move calculated
+        selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
         return true;
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
+        // TODO: Bug, crashed here once
+        if(target==null) Log.e("movePiece", "target null");
+        if(from==null) Log.e("movePiece", "from null");
+        if(_piece==null) Log.e("movePiece", "piece null");
+
         graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
         from.setPiece(null); // Set old square empty
         _piece.setSquare(target); // Place piece to the new square
@@ -283,19 +297,20 @@ public class GameController {
         }
     }
 
+    // Check if pawn promoting is possible
     public boolean callForPromote(){
         if(selectedPiece != null && selectedPiece.getPieceType().equals("Pawn")){
             if(selectedPiece.getSquare().getId().charAt(1)=='1' ||
                selectedPiece.getSquare().getId().charAt(1)=='8'){
                 pawnPromoting = true;
                 if(selectedPiece.getPlayer().isFirst())
-                    graphics.pawnPromoteOn("PlayerOne");
+                    graphics.pawnPromoteOn("PlayerOne"); // Tell graphics to setup window for pawn promoting
                 else
                     graphics.pawnPromoteOn("PlayerTwo");
-                return true;
+                return true; // Pawn promoting is possible
             }
         }
-        return false;
+        return false; // Pawn promoting not possible
     }
 
     // This is only called when user has to pick specific piece for pawn promoting
@@ -366,20 +381,20 @@ public class GameController {
         }
         // Construct textureId to choose correct player's piece texture
         if(tempSquare.getPiece().getPlayer().isFirst()) {
-            allPawns.set(selectedPiece.getListId(), textureName);
+            allPawns.set(selectedPiece.getListId(), textureName); // Update pawnList with new piece type
             textureName += "PlayerOne";
         }
         else {
-            allPawns.set(7+selectedPiece.getListId(), textureName);
+            allPawns.set(7+selectedPiece.getListId(), textureName); // "7+", since ids 0-7 belong to playerOne
             textureName += "PlayerTwo";
         }
-        graphics.pawnPromoteOff();
+        graphics.pawnPromoteOff(); // New piece type has been chosen - close pawn promoting window
         graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
-        tempSquare.getPiece().setListId(selectedPiece.getListId()); // TODO: Test // Set listId from old piece to new one
+        tempSquare.getPiece().setListId(selectedPiece.getListId()); // Set listId from old piece to new one
         selectedPiece.remove(true); // Get rid of current pawn
         graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
         graphics.promotePawn(tempTextureId, textureName); // Change texture to match chosen piece
-        turn = !turn;
+        turn = !turn; // Change turn
         checkRotating();
         highlightsOff();
         selectedPiece = null;
@@ -393,24 +408,23 @@ public class GameController {
     public boolean kingInCheck(Player _player){
 
         List<Square> checkMoves;
-        kingCapturePieces.clear();
+        kingCapturePieces.clear(); // Pieces that could capture king
         Player enemy = playerTwo;
         if(!_player.isFirst())
-            enemy = playerOne;
+            enemy = playerOne; // Enemy is always the other player
 
         for(int i=0;i<enemy.getPieceList().size();i++){
             checkMoves = board.getValidMoves(enemy.getPieceList().get(i))[1]; // Get valid capture moves for piece
-            for(int ii=0;ii<checkMoves.size();ii++){
+            for(int ii=0;ii<checkMoves.size();ii++)
                 if(checkMoves.get(ii).equals(_player.getPieceByType("King").getSquare())){ // One of the capture movements matches to kings position - check
-                    kingCapturePieces.add(enemy.getPieceList().get(i));
+                    kingCapturePieces.add(enemy.getPieceList().get(i)); // Add piece to capturing pieces
                     highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
-                    graphics.highlight(highlights);
+                    graphics.highlight(highlights); // Paint king red
                     Log.d("Player "+_player.toString(), "Check");
-                    return true;
+                    return true; // Player's king is in check
                 }
-            }
         }
-        return false;
+        return false; // Player's king not in check
     }
 
     public boolean kingInCheckmate(Player _player) {
@@ -679,9 +693,9 @@ public class GameController {
                 if (movementList.contains(board.getSquare("F1")) ||
                     movementList.contains(board.getSquare("G1")))
                     castleSquareTwo = null;
-                if(captureList.contains(rookOneSquare)) // TODO: Is it OK that rook is in enemy pieces capture range? This prevents it atm.
+                if(captureList.contains(rookOneSquare)) // TODO: Remove This + Test
                     castleSquareOne = null;
-                if(captureList.contains(rookTwoSquare))
+                if(captureList.contains(rookTwoSquare)) // And this
                     castleSquareTwo = null;
             }
             else {
@@ -716,10 +730,12 @@ public class GameController {
         return true; // Castling can be done
     }
 
+    // Used to give graphics squares' of all the pieces
+    // It uses same piece order that is used in graphics
     public String getPieceLayout(){
         String returnString = "";
-        returnString+=playerOne.getPieceLayout();
-        returnString+=playerTwo.getPieceLayout();
+        returnString+=playerOne.getPieceLayout(); // Add player one pieces' squares
+        returnString+=playerTwo.getPieceLayout(); // Add player two pieces' squares
         return returnString;
     }
 
