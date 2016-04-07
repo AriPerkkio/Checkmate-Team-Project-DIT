@@ -63,7 +63,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo); // Initialized board with these two players
         for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
             allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
@@ -130,7 +130,7 @@ public class GameController {
         highlightsOff();
         String clickedSquareOne;
         String clickedSquareTwo = null;
-        int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
+        int thinkTime = 10; // Time given for AI to think for a move - has an effect on AI difficult level
         do {
             if (!playerTwo.isHuman() && !turn) { // AI's turn
                 selectedPiece = null;
@@ -144,6 +144,8 @@ public class GameController {
                    !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) &&
                    !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))))
                     Log.e("aiMove", selectedPiece.getPieceType()+" at "+selectedPiece.getSquare().getId()+" has no moves");
+                if(selectedPiece!=null)
+                    Log.i("aiMove", "Piece has "+board.getValidMoves(selectedPiece)[0].size()+" valid moves, "+board.getValidMoves(selectedPiece)[1].size()+" capture moves");
                 if (selectedPiece == null || // Invalid pieceSelect
                     !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) && // Piece with no moves
                     !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))) ){
@@ -482,14 +484,6 @@ public class GameController {
                             capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                     }
                 }
-        // TODO: Testing. There's bug with the piece here
-        for(int ii=0;ii<capturePieces.size();ii++){
-            if(board.getValidMoves(capturePieces.get(ii))[0].size()==0){
-                capturePieces.remove(ii);
-                ii=-1; // Reset since list modified
-            }
-        }
-
 
         if(capturePieces.size()==kingCapturePieces.size()) // All the enemy pieces that can capture king can be captured by own pieces
             canCaptureEnemy = true;
@@ -560,6 +554,31 @@ public class GameController {
                     }
                 }
 
+        // TODO: Testing required.
+        for(int i=0;i<allowedPieces.size();i++) {
+            if (!allowedPieces.get(i).getPieceType().equals("King")) {
+                List<Square>[] allMoves = board.getValidMoves(allowedPieces.get(i));
+
+                for (int ii = 0; ii < allMoves[0].size(); ii++) {
+                    if (!allowedSquares.contains(allMoves[0].get(ii))) {
+                        allMoves[0].remove(ii);
+                        ii = -1; // Reset
+                    }
+                }
+                for (int ii = 0; ii < allMoves[1].size(); ii++) {
+                    if (allMoves[1].size() > ii && !allowedSquares.contains(allMoves[1].get(ii))) {
+                        allMoves[1].remove(ii);
+                        ii = -1; // Reset
+                    }
+                }
+                Log.i("allowedPieces", allowedPieces.get(i).getPieceType() + " has " + allMoves[0].size() + " moves, " + allMoves[1].size() + " captures");
+                if (allMoves[0].size() == 0 && allMoves[1].size() == 0) {
+                    Log.i("allowerdPieces", allowedPieces.get(i).getPieceType() + " has 0 allowed moves, removing");
+                    allowedPieces.remove(i);
+                    i = -1; // Reset
+                }
+            }
+        }
         if(capturePieces.size()==kingCapturePieces.size()) // Can move between all the pieces
             canMoveBetween = true;
 
