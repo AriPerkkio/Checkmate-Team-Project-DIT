@@ -160,10 +160,15 @@ public class GameController {
 
     public void movePiece(Piece _piece, Square target, Square from) {
         // TODO: Bug, crashed here once
-        if(target==null) Log.e("movePiece", "target null");
-        if(from==null) Log.e("movePiece", "from null");
-        if(_piece==null) Log.e("movePiece", "piece null");
-
+        /** ERROR LOG **/
+        if(target==null || from == null || _piece == null){
+            if(target==null) Log.e("movePiece", "target null");
+            else Log.e("movePiece", "target "+target.getId());
+            if(from==null) Log.e("movePiece", "from null");
+            else Log.e("movePiece", "from "+from.getId());
+            if(_piece==null) Log.e("movePiece", "piece null");
+            else Log.e("movePiece", "Piece: "+_piece.getPieceType()+ " at "+_piece.getSquare().getId());
+        }
         graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
         from.setPiece(null); // Set old square empty
         _piece.setSquare(target); // Place piece to the new square
