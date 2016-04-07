@@ -53,9 +53,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     private List<float[]> playerOnePawnTextures = new Vector<>(); // Holds textures that are selected for player one 1-8 pieces
     private List<float[]> playerTwoPawnTextures = new Vector<>(); // Holds textures that are selected for player two 1-8 pieces
     private int theme = R.mipmap.defaulttheme; // Chosen theme
+    private boolean promotingOn = false;
+    private String promotingPlayer = "";
 
     public OpenGLRenderer(final Context activityContext)
     {
+        /** When device is rotated or activity is relaunched the whole class is built again - all the variables reset back to default **/
+
         Log.d("Renderer", "Constructor");
         mActivityContext = activityContext; // catch the context
         viewInstance = OpenGLView.getInstance(); // Initialize all the instances
@@ -76,6 +80,12 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             else
                 playerTwoPawnTextures.add(allCoordinates.pawnPlayerTwo);
         }
+
+        promotingOn = gameController.getPawnPromoting(); // Update promoting attribute from gameController
+        if(gameController.getTurn())
+            promotingPlayer = "PlayerOne"; // PlayerOne's turn
+        else
+            promotingPlayer = "PlayerTwo"; // PlayerTwo's turn
     }
 
     public static OpenGLRenderer getInstance(){ // Get reference for current instance
@@ -95,7 +105,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             coordinateList.add(allCoordinates.hideCoordinates);
 
         boardLayout = gameController.getPieceLayout(); // Get current board layout
-        if(boardLayout.split(" ").length!=32) Log.e("Renderer","BoardLayout, Size "+boardLayout.split(" ").length); // Error check
+        /** ERROR LOG **/  if(boardLayout.split(" ").length!=32) Log.e("Renderer","BoardLayout, Size "+boardLayout.split(" ").length); // Error check
 
         for(int i=0;i<boardLayout.split(" ").length;i++) // Setup pieces to board or as empty
             coordinateList.add(allCoordinates.coordinateList.get(boardLayout.split(" ")[i])); // Each square is separated by space - check piece order from TextureGL
@@ -115,15 +125,18 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         picture = new TextureGL(mActivityContext, // OpenGLView's context
                 coordinates, // Starting point coordinates
                 theme,  // Picture for the theme package
-                playerOnePawnTextures, // Pawn textures
-                playerTwoPawnTextures);
-
-        // TODO: When pawnPromoting window is open and device rotated/activity relaunched, the window disappears.
+                playerOnePawnTextures, // Pawn textures player one
+                playerTwoPawnTextures); // Pawn textures player two
 
         if(!gameController.getTurn() && rotated){ // Check if board was rotated before
             rotate();
             rotated=!rotated;
         }
+
+        /** ERROR LOG **/ if(promotingOn && promotingPlayer.equals(" ")) Log.e("Renderer", "Promoting on, player empty"); // Promoting is on without player
+
+        if(promotingOn) // Check if pawn promoting was called previously (Before OpenGL Surface was finished last time)
+            pawnPromoteOn(promotingPlayer); // Set up promoting window for chosen player
     }
 
     // Called for each print
@@ -144,8 +157,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     }
 
     // Used in TextureGL
-    public static int loadShader(int type, String shaderCode)
-    {
+    public static int loadShader(int type, String shaderCode) {
         int shader = GLES20.glCreateShader(type);
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
@@ -157,12 +169,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         float x = event.getX(); // Get horizontal pixel value
         float y = event.getY(); // Get vertical pixel value
-        float screenWidth = (float)GameActivity.getscreenwidth(); // Setup screen props
-        float screenHeight =  (float)GameActivity.getscreenheight()*0.5625f; // 9/16 = 0.5625
+        float screenWidth = (float) GameActivity.getscreenwidth(); // Setup screen props
+        float screenHeight =  (float) GameActivity.getscreenheight();
+        float gameViewEdge = screenHeight * (screenWidth/screenHeight); // Calculate length of one edge using screen ratio
+        //Log.d("screenProps", "Height: "+screenHeight+". \nWidth: "+screenWidth+". \nRatio: "+(screenWidth/screenHeight)+".\nGameViewEdge: "+gameViewEdge);
 
         // Convert pixels into OpenGL coordinate system
-        float sceneX = (x / screenWidth) * 2.0f - 1.0f;
-        float sceneY = (y / screenHeight) * -2.0f + 1.0f;
+        float sceneX = (x / gameViewEdge) * 2.0f - 1.0f;
+        float sceneY = (y / gameViewEdge) * -2.0f + 1.0f;
 
         // Convert coordinates into chessboard's square
         String clickedSquare = coordinatesToSquare(sceneX, sceneY);
@@ -274,15 +288,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
             // Get chosen learningTool texture
             float[] learningToolTexture = allCoordinates.learningToolList.get(color+" "+shape);
 
-            if(square.equals("hide")){
+            if(square.equals("hide"))
                 picture.changePieceCoordinates(i + 1,
                         allCoordinates.hideCoordinates[0], // Left
                         allCoordinates.hideCoordinates[4], // Right
                         allCoordinates.hideCoordinates[1], // Top
                         allCoordinates.hideCoordinates[3]  // Bottom
                 );
-            }
-            else {
+            else
                 // Set square's coordinates
                 picture.changePieceCoordinates(i + 1,
                         allCoordinates.coordinateList.get(square)[0], // Left
@@ -290,7 +303,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                         allCoordinates.coordinateList.get(square)[1], // Top
                         allCoordinates.coordinateList.get(square)[3]  // Bottom
                 );
-            }
 
             // Set shape and color
             picture.changeTextureCoordinates(i + 1,
@@ -304,8 +316,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     public void promotePawn(int pieceSelect, String textureName) {
 
-        if (allCoordinates.promotePieces.get(textureName) == null)
-            Log.e("Rendr.PromotePawn", "Name: " + textureName);
+        /** ERROR LOG **/ if (allCoordinates.promotePieces.get(textureName) == null) Log.e("Rendr.PromotePawn", "Name: " + textureName);
 
         float[] texture = allCoordinates.promotePieces.get(textureName);
 
@@ -323,6 +334,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     }
 
     public void pawnPromoteOn(String _player){
+        promotingOn = true; // Indicates that pawn promoting is turned on
+        promotingPlayer = _player; // ...for this player
         // Board+Highlights+all the pieces
         int windowId = TextureGL.count+1+32;
         int pieceId = windowId+1;
@@ -420,19 +433,18 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
     }
 
+    // Hide pawn promoting window
     public void pawnPromoteOff(){
 
         int windowId = coordinateList.size()-5;
 
         for(int i=0;i<5;i++) {
-
             picture.changeTextureCoordinates(windowId+i,
                     allCoordinates.hideCoordinates[0],
                     allCoordinates.hideCoordinates[4],
                     allCoordinates.hideCoordinates[1],
                     allCoordinates.hideCoordinates[3]
             );
-
             picture.changePieceCoordinates(windowId+i,
                     allCoordinates.hideCoordinates[0],
                     allCoordinates.hideCoordinates[4],
@@ -440,6 +452,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                     allCoordinates.hideCoordinates[3]
             );
         }
+        promotingOn = false;
+        promotingPlayer = "";
     }
 
     // Convert coordinates to String square

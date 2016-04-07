@@ -63,7 +63,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo); // Initialized board with these two players
         for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
             allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
@@ -320,6 +320,11 @@ public class GameController {
         }
         return false; // Pawn promoting not possible
     }
+
+    public boolean getPawnPromoting(){
+        return pawnPromoting;
+    }
+
 
     // This is only called when user has to pick specific piece for pawn promoting
     public boolean processPromoting(String _square){
@@ -753,19 +758,17 @@ public class GameController {
             Log.e("tester", "selectedPiece null");
 
         if(!testsDone){
-            for(int x=0;x<8;x++) {
-                char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
-                for (int y = 1; y <= 8; y++) {
-                    if (board.getSquare(startChar + "" + y).getPiece()!=null &&
-                        board.getSquare(startChar + "" + y).getPiece().getPieceType().equals("Pawn")){
-                        board.getSquare(startChar + "" + y).getPiece().remove(false); // Eliminate old piece from game logic
-                        graphics.eliminatePiece(board.getSquare(startChar + "" + y).getPiece().getTextureId(), board.getSquare(startChar + "" + y).getId()); // Eliminate old piece from graphics
-                        board.getSquare(startChar + "" + y).setPiece(null);
-                    }
-                }
-            }
+            movePiece(board.getSquare("A7").getPiece(), board.getSquare("A3"), board.getSquare("A7"));
+            movePiece(board.getSquare("A2").getPiece(), board.getSquare("A7"), board.getSquare("A2"));
+            movePiece(board.getSquare("A3").getPiece(), board.getSquare("A2"), board.getSquare("A3"));
+            movePiece(board.getSquare("B7").getPiece(), board.getSquare("B3"), board.getSquare("B7"));
+            movePiece(board.getSquare("B2").getPiece(), board.getSquare("B7"), board.getSquare("B2"));
+            movePiece(board.getSquare("B3").getPiece(), board.getSquare("B2"), board.getSquare("B3"));
+            movePiece(board.getSquare("C7").getPiece(), board.getSquare("C3"), board.getSquare("C7"));
+            movePiece(board.getSquare("C2").getPiece(), board.getSquare("C7"), board.getSquare("C2"));
+            movePiece(board.getSquare("C3").getPiece(), board.getSquare("C2"), board.getSquare("C3"));
 
-            selectedPiece = board.getSquare("E1").getPiece(); //Avoids null pointter for selected piece
+            selectedPiece = board.getSquare("D1").getPiece(); //Avoids null pointter for selected piece
             testsDone = true;
         }
     }
