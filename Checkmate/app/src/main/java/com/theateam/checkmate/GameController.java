@@ -63,7 +63,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo); // Initialized board with these two players
         for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
             allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
@@ -475,7 +475,6 @@ public class GameController {
                     List<Square> captureList = board.getValidMoves(_player.getPieceList().get(ii))[1];
                     if (!_player.getPieceList().get(ii).getPieceType().equals("King") && // Don't apply this to king
                         captureList.contains(kingCapturePieces.get(i).getSquare())) { // Check if piece's capture moves contain enemy square
-                        highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                         if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                             allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
                         if(!allowedSquares.contains(kingCapturePieces.get(i).getSquare()))
@@ -504,7 +503,6 @@ public class GameController {
                                 (int) moveList.get(iii).getId().charAt(1) > (int) _player.getPieceByType("King").getSquare().getId().charAt(1) ||
                                 (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) < (int) moveList.get(iii).getId().charAt(1) && // Enemy<Square<King
                                 (int) moveList.get(iii).getId().charAt(1) < (int) _player.getPieceByType("King").getSquare().getId().charAt(1))){
-                                highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
                                 if(!allowedSquares.contains(moveList.get(iii)))
@@ -519,7 +517,6 @@ public class GameController {
                                 (int) moveList.get(iii).getId().charAt(0) > (int) _player.getPieceByType("King").getSquare().getId().charAt(0) ||
                                 (int) kingCapturePieces.get(i).getSquare().getId().charAt(0) < (int) moveList.get(iii).getId().charAt(0) && // Enemy<Square<King
                                 (int) moveList.get(iii).getId().charAt(0) < (int) _player.getPieceByType("King").getSquare().getId().charAt(0))){
-                                highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
                                 if(!allowedSquares.contains(moveList.get(iii)))
@@ -541,7 +538,6 @@ public class GameController {
                                 (int) moveList.get(iii).getId().charAt(1) > (int) _player.getPieceByType("King").getSquare().getId().charAt(1) ||
                                 (int) kingCapturePieces.get(i).getSquare().getId().charAt(1) < (int) moveList.get(iii).getId().charAt(1) && // Enemy<Square<King
                                 (int) moveList.get(iii).getId().charAt(1) < (int) _player.getPieceByType("King").getSquare().getId().charAt(1))){
-                                highlights.add(new String[]{ _player.getPieceList().get(ii).getSquare().getId(), "square", "blue"});
                                 if(!allowedPieces.contains(_player.getPieceList().get(ii)))
                                     allowedPieces.add(_player.getPieceList().get(ii)); // This is one of the pieces that is allowed to be moved
                                 if(!allowedSquares.contains(moveList.get(iii)))
@@ -549,36 +545,35 @@ public class GameController {
                                 if(!capturePieces.contains(kingCapturePieces.get(i)))
                                     capturePieces.add(kingCapturePieces.get(i)); // Update capturePieces list with new piece
                             }
-
                         }
                     }
                 }
 
-        // TODO: Testing required.
+        // Check if allowedPieces have actually moves that could be done
         for(int i=0;i<allowedPieces.size();i++) {
-            if (!allowedPieces.get(i).getPieceType().equals("King")) {
-                List<Square>[] allMoves = board.getValidMoves(allowedPieces.get(i));
+            List<Square>[] allMoves = board.getValidMoves(allowedPieces.get(i)); // Get moves for the piece
+            board.checkPinningMoves(allMoves, allowedPieces.get(i)); // Get rid of pinning moves
 
-                for (int ii = 0; ii < allMoves[0].size(); ii++) {
-                    if (!allowedSquares.contains(allMoves[0].get(ii))) {
-                        allMoves[0].remove(ii);
-                        ii = -1; // Reset
-                    }
+            for (int ii = 0; ii < allMoves[0].size(); ii++) // Check all valid moves
+                if (!allowedSquares.contains(allMoves[0].get(ii))) { // Remove all but allowed squares
+                    allMoves[0].remove(ii);
+                    ii = -1; // Reset
                 }
-                for (int ii = 0; ii < allMoves[1].size(); ii++) {
-                    if (allMoves[1].size() > ii && !allowedSquares.contains(allMoves[1].get(ii))) {
-                        allMoves[1].remove(ii);
-                        ii = -1; // Reset
-                    }
+            for (int ii = 0; ii < allMoves[1].size(); ii++) // Check all the capture moves
+                if (allMoves[1].size() > ii && !allowedSquares.contains(allMoves[1].get(ii))) {
+                    allMoves[1].remove(ii);
+                    ii = -1; // Reset
                 }
-                Log.i("allowedPieces", allowedPieces.get(i).getPieceType() + " has " + allMoves[0].size() + " moves, " + allMoves[1].size() + " captures");
-                if (allMoves[0].size() == 0 && allMoves[1].size() == 0) {
-                    Log.i("allowerdPieces", allowedPieces.get(i).getPieceType() + " has 0 allowed moves, removing");
-                    allowedPieces.remove(i);
-                    i = -1; // Reset
-                }
+            if (allMoves[0].size() == 0 && allMoves[1].size() == 0) { // Check if piece has any valid moves left
+                allowedPieces.remove(i);
+                i = -1; // Reset
             }
         }
+
+        for(int i=0;i<allowedPieces.size();i++) // Highlight allowed pieces
+            if (!allowedPieces.get(i).getPieceType().equals("King")) // Keep king highlighted as red
+                highlights.add(new String[]{ allowedPieces.get(i).getSquare().getId(), "square", "blue"});
+
         if(capturePieces.size()==kingCapturePieces.size()) // Can move between all the pieces
             canMoveBetween = true;
 
