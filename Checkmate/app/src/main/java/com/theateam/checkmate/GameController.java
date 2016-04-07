@@ -63,7 +63,7 @@ public class GameController {
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
         board = new Board(playerOne, playerTwo); // Initialized board with these two players
         for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
             allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
@@ -84,17 +84,24 @@ public class GameController {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
+        if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
+            aiMove();
+
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
             return false; // One king in checkmate, break here
 
         if(pawnPromoting) { // Check if pawn promote is on
-            processPromoting(clickedSquare); // Process users piece choosing
-            return false; // Break function here
+            if(processPromoting(clickedSquare) && !turn) // Process users piece choosing
+                aiMove(); // If turn was for AI, make its move
+            else
+                return false; // Break function here
         }
 
-        if(checkClickMovement())  // Allow piece movement to highlighted squares
-            if(!turn && !playerTwo.isHuman()) aiMove(); // PlayerOne made a movement, make AI make the next move
-
+        if(checkClickMovement()) {  // Allow piece movement to highlighted squares
+            if (!turn && !playerTwo.isHuman())
+                aiMove(); // PlayerOne made a movement, make AI make the next move
+            return true;
+        }
         // Check if click is OutOfBoard, empty square or same as on the same piece as before
         if (!checkSquare(clickedSquare)) // True means new piece was clicked
             return false; // Break function here
@@ -125,20 +132,24 @@ public class GameController {
         return true;
     }
 
-    public boolean aiMove(){
+    public void aiMove(){
         // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
         highlightsOff();
         String clickedSquareOne;
         String clickedSquareTwo = null;
-        int thinkTime = 10; // Time given for AI to think for a move - has an effect on AI difficult level
+        char pawnPromoteClick = 0;
+        int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
+        boolean movementMade = false;
         do {
             if (!playerTwo.isHuman() && !turn) { // AI's turn
                 selectedPiece = null;
                 fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo); // Get fresh FEN-string
+                Log.d("FEN-String", " \n"+fenString);
                 if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
                 String bestMove = aiEngine.getAiMove(fenString, thinkTime); // Get best move from AI calculations
                 clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1)); // From square - Get piece from this one
                 clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
+                if(bestMove.length()==5) pawnPromoteClick = bestMove.charAt(4);
                 selectSquare(clickedSquareOne); // AI makes "click" to select piece
                 if(selectedPiece!=null &&
                    !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) &&
@@ -153,11 +164,28 @@ public class GameController {
                     selectedPiece = null; // Search for new piece
                     Log.i("ThinkTime", "Increased to "+thinkTime);
                 }
+                if(selectedPiece!=null) {
+                    movementMade = selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
+                    if(!movementMade) Log.e("aiMove", "Invalid second click to "+clickedSquareTwo);
+                }
             }
-        } while (selectedPiece == null); // Exit when AI got a proper move calculated
+        } while (!movementMade); // Exit when AI got a proper move calculated
 
-        selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
-        return true;
+        if(pawnPromoteClick!=0){ //Convert AI's pawn promoting to square
+            if(pawnPromoteClick=='q') // Queen
+                selectSquare("A4");
+            if(pawnPromoteClick=='r') // Rook
+                selectSquare("C4");
+            if(pawnPromoteClick=='b') // Bishop
+                selectSquare("E4");
+            if(pawnPromoteClick=='k') // Knight
+                selectSquare("G4");
+        }
+        selectedPiece = null; // Move has been made, null the piece
+        highlights.clear(); // Clear highlights
+        if(kingInCheck(playerOne)) // Highlight possible checked king
+            checkKingsForCheckmate(); // Check for checkmate
+        highlightsOff(); // Highlight
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
@@ -466,7 +494,6 @@ public class GameController {
         List<Piece> capturePieces = new Vector<>(); // Holds pieces which are capturing king
         allowedPieces.clear(); // Clear old allowed pieces and squares from the list
         allowedSquares.clear();
-        allowedPieces.add(_player.getPieceByType("King")); // King is always able to be selected
 
         // Check if any player's piece's capture movements contain enemy square
         for (int i = 0; i < kingCapturePieces.size(); i++) // Check all the pieces that can capture king (the ones that are causing check)
@@ -569,6 +596,7 @@ public class GameController {
                 i = -1; // Reset
             }
         }
+        allowedPieces.add(_player.getPieceByType("King")); // King is always able to be selected
 
         for(int i=0;i<allowedPieces.size();i++) // Highlight allowed pieces
             if (!allowedPieces.get(i).getPieceType().equals("King")) // Keep king highlighted as red
