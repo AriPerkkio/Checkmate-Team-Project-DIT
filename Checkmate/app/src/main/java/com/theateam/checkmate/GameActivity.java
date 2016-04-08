@@ -8,6 +8,7 @@ import android.view.Display;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -120,16 +121,17 @@ public class GameActivity extends Activity {
     {
         Display display = ((WindowManager)instance.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
-        if (rotation == 0)
-            return("portrait");
-        if (rotation == 180)
-            return("portrait");
-        if (rotation == 90)
-            return("landscape");
-        if (rotation == 270)
-            return("landscape");
-        else
-            return ("portrait");
+        String orientation = "";
+        if (Surface.ROTATION_0 == rotation) {
+            orientation = "portrait";
+        } else if(Surface.ROTATION_180 == rotation) {
+            orientation = "portrait";
+        } else if(Surface.ROTATION_90 == rotation) {
+            orientation = "landscape";
+        } else if(Surface.ROTATION_270 == rotation) {
+            orientation = "landscape";
+        }
+        return orientation;
     }
  }
 

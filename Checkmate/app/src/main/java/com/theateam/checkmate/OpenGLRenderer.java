@@ -172,14 +172,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         float screenWidth = (float) GameActivity.getscreenwidth(); // Setup screen props
         float screenHeight =  (float) GameActivity.getscreenheight();
         String orientation = (String) GameActivity.getorientation();
-        if (orientation =="Landscape")
-        {
-            float temp = screenHeight;
-            screenHeight = screenWidth;
-            screenWidth = temp;
-        }
+
         float gameViewEdge = screenHeight * (screenWidth/screenHeight); // Calculate length of one edge using screen ratio
-        Log.d("screenProps", "Height: "+screenHeight+". \nWidth: "+screenWidth+". \nRatio: "+(screenWidth/screenHeight)+".\nGameViewEdge: "+gameViewEdge);
+        Log.d("screenProps", "Height: "+screenHeight+". \nWidth: "+screenWidth+". \nRatio: "+(screenWidth/screenHeight)+".\nGameViewEdge: "+gameViewEdge+"\nOrientation: "+orientation);
 
         // Convert pixels into OpenGL coordinate system
         float sceneX = (x / gameViewEdge) * 2.0f - 1.0f;
