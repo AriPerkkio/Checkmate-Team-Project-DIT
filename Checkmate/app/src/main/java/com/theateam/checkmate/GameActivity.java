@@ -1,6 +1,7 @@
 package com.theateam.checkmate;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.view.Display;
@@ -113,6 +114,21 @@ public class GameActivity extends Activity {
         display.getSize(size);
         int height = size.y;
         return height;
+    }
+    public static String getorientation()
+    {
+        Display display = ((WindowManager)instance.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int rotation = display.getRotation();
+        if (rotation == 0)
+            return("portrait");
+        if (rotation == 180)
+            return("portrait");
+        if (rotation == 90)
+            return("landscape");
+        if (rotation == 270)
+            return("landscape");
+        else
+            return ("portrait");
     }
  }
 
