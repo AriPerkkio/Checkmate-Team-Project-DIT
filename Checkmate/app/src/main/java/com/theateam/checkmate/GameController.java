@@ -84,11 +84,11 @@ public class GameController {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
+        if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
+            return true; // One king in checkmate, break here
+
         if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
             aiMove();
-
-        if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
-            return false; // One king in checkmate, break here
 
         if(pawnPromoting) { // Check if pawn promote is on
             if(processPromoting(clickedSquare) && !turn) // Process users piece choosing
@@ -142,6 +142,7 @@ public class GameController {
         boolean movementMade = false;
         do {
             if (!playerTwo.isHuman() && !turn) { // AI's turn
+                highlights.clear();
                 selectedPiece = null;
                 fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo); // Get fresh FEN-string
                 Log.d("FEN-String", " \n"+fenString);
@@ -165,7 +166,8 @@ public class GameController {
                     Log.i("ThinkTime", "Increased to "+thinkTime);
                 }
                 if(selectedPiece!=null) {
-                    movementMade = selectSquare(clickedSquareTwo); // AI makes "click" to move the piece
+                    movementMade = (selectSquare(clickedSquareTwo) || checkKingsForCheckmate()); // AI makes "click" to move the piece
+                    // Movement made is boolean when selectSquare() return true (when valid move was made) or when checkmate
                     if(!movementMade) Log.e("aiMove", "Invalid second click to "+clickedSquareTwo);
                 }
             }
@@ -182,7 +184,6 @@ public class GameController {
                 selectSquare("G4");
         }
         selectedPiece = null; // Move has been made, null the piece
-        highlights.clear(); // Clear highlights
         if(kingInCheck(playerOne)) // Highlight possible checked king
             checkKingsForCheckmate(); // Check for checkmate
         highlightsOff(); // Highlight
@@ -689,6 +690,7 @@ public class GameController {
             3. his destination square
          - if an enemy is looking at those squares, he cannot castle that side
         **/
+        castlingSquares.clear(); // TODO: BugFix for movePiece()
 
         Player enemy = playerTwo;
         if(selectedPiece.getPlayer().equals(enemy))
