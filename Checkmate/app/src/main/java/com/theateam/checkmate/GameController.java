@@ -2,16 +2,7 @@ package com.theateam.checkmate;
 
 import android.os.SystemClock;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +35,12 @@ public class GameController {
     static OpenGLRenderer graphics = OpenGLRenderer.getInstance();
     static GameController instance; // The only instance of GameController
     private FenParser fenParser = new FenParser(); // Used to create FEN-string
+
+    // AI
     private AiEngine aiEngine; // Initialized in aiMove()
+    private int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
+    private int thinkDepth = 1; // Depth of moves used in calculation
+    private int level = 0;
 
     // Initialized by methods
     private Player playerTwo; // Either Human or AI
@@ -58,15 +54,16 @@ public class GameController {
     private List<Square> castlingSquares = new Vector<>(); // Holds squares where king can do castling move
     private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
     private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
-    private List<String> allPawns = new Vector<>();
+    private Map<Integer, Piece> textureIdToPiece;
+    private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
         playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
-        board = new Board(playerOne, playerTwo); // Initialized board with these two players
-        for(int i=0;i<16;i++) // Player One Pieces 1-8 + Player Two Pieces 1-8
-            allPawns.add("pawn"); // Initialize these as pawn (Changed when pawn is promoted)
+        board = new Board(); // Initialized board with these two players
+        textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
+        updateTextureIdToPiece(); // TODO: Test without this line
     }
 
     public static GameController getInstance() {
@@ -75,13 +72,22 @@ public class GameController {
         return instance;
     }
 
-    public boolean getTurn(){ return turn;    }
-    public List<String> getAllPawns(){ return allPawns; }
+    // Refresh textureId&Piece pairs using current FEN-string of board
+    public void updateTextureIdToPiece(){
+        textureIdToPiece.clear();
+        fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo);
+        textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
+    }
+
+    public Map<Integer, Piece> getTextureIdToPiece(){
+        return textureIdToPiece;
+    }
+
+    public boolean getTurn(){ return turn; }
 
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
-
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
@@ -138,8 +144,8 @@ public class GameController {
         String clickedSquareOne;
         String clickedSquareTwo = null;
         char pawnPromoteClick = 0;
-        int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
         boolean movementMade = false;
+        int _thinkTime = thinkTime; // Use default think time first, increase if needed
         do {
             if (!playerTwo.isHuman() && !turn) { // AI's turn
                 highlights.clear();
@@ -147,7 +153,7 @@ public class GameController {
                 fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo); // Get fresh FEN-string
                 Log.d("FEN-String", " \n"+fenString);
                 if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
-                String bestMove = aiEngine.getAiMove(fenString, thinkTime); // Get best move from AI calculations
+                String bestMove = aiEngine.getAiMove(fenString, level, _thinkTime, thinkDepth); // Get best move from AI calculations
                 clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1)); // From square - Get piece from this one
                 clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
                 if(bestMove.length()==5) pawnPromoteClick = bestMove.charAt(4);
@@ -190,7 +196,8 @@ public class GameController {
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
-        // TODO: Bug, crashed here once
+        // TODO: Bug, crashed here once.
+        // TODO: It may be tests() that causes crash here
         /** ERROR LOG **/
         if(target==null || from == null || _piece == null){
             if(target==null) Log.e("movePiece", "target null");
@@ -429,17 +436,15 @@ public class GameController {
 
         }
         // Construct textureId to choose correct player's piece texture
-        if(tempSquare.getPiece().getPlayer().isFirst()) {
-            allPawns.set(selectedPiece.getListId(), textureName); // Update pawnList with new piece type
+        if(tempSquare.getPiece().getPlayer().isFirst())
             textureName += "PlayerOne";
-        }
-        else {
-            allPawns.set(7+selectedPiece.getListId(), textureName); // "7+", since ids 0-7 belong to playerOne
+        else
             textureName += "PlayerTwo";
-        }
+
         graphics.pawnPromoteOff(); // New piece type has been chosen - close pawn promoting window
         graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
         tempSquare.getPiece().setListId(selectedPiece.getListId()); // Set listId from old piece to new one
+
         selectedPiece.remove(true); // Get rid of current pawn
         graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
         graphics.promotePawn(tempTextureId, textureName); // Change texture to match chosen piece
@@ -793,11 +798,15 @@ public class GameController {
     }
 
     // Used to give graphics squares' of all the pieces
-    // It uses same piece order that is used in graphics
     public String getPieceLayout(){
         String returnString = "";
-        returnString+=playerOne.getPieceLayout(); // Add player one pieces' squares
-        returnString+=playerTwo.getPieceLayout(); // Add player two pieces' squares
+        updateTextureIdToPiece(); // Get latest textureID&Piece pairs
+        for(int i=51;i<83;i++) {
+            if(textureIdToPiece.get(i)!=null) // Piece is not eliminated
+                returnString += textureIdToPiece.get(i).getSquare().getId() + " "; // Piece's square
+            else
+                returnString += "empty "; // Eliminated piece is empty square
+        }
         return returnString;
     }
 
