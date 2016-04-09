@@ -54,8 +54,9 @@ public class GameController {
     private List<Square> castlingSquares = new Vector<>(); // Holds squares where king can do castling move
     private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
     private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
-    private Map<Integer, Piece> textureIdToPiece;
+    private Map<Integer, Piece> textureIdToPiece; // Holds Texture IDs to each piece
     private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
 
     private GameController() {
         OpenGLRenderer.gameController = this;
@@ -88,6 +89,10 @@ public class GameController {
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
+
+        if(!fenList.contains(fenString=fenParser.refreshFen(board, turn, playerOne, playerTwo))) // Only new FEN-Strings
+            fenList.add(fenString); // Add latest FEN-String
+
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
@@ -346,6 +351,8 @@ public class GameController {
             SystemClock.sleep(500); // Sleep 500ms to make rotating and highlightsOff smoother
             graphics.rotate(); // Rotate board and pieces
         }
+        selectedPiece = null;
+        Log.e("selectedPiece nulling", "#8");
     }
 
     // Check if pawn promoting is possible
@@ -639,6 +646,7 @@ public class GameController {
                 GameActivity.textField.setText("Player Two Checkmate");
                 return true;
             }
+        GameActivity.textField.setText("");
         return false;
     }
 
@@ -808,6 +816,28 @@ public class GameController {
                 returnString += "empty "; // Eliminated piece is empty square
         }
         return returnString;
+    }
+
+    // Called from GameActivity ONLY
+    // Undo previous move
+    public boolean undoMove(){
+        if(fenList.size()==0) // No moves has been made
+            return false; // Unable to undo move
+        selectedPiece = null;
+        Log.e("selectedPiece nulling", "#7");
+        turn = !turn; // Revert turn
+        highlights.clear(); // Clear old highlights
+        fenString = fenList.get(fenList.size()-1); // Get old FEN-string
+        fenList.remove(fenList.size()-1); // Remove the latest FEN-string
+        textureIdToPiece.clear(); // Clear old textureId&Piece pairs
+        board.clearBoard(); // Clear board from pieces
+        textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs using new FEN-string
+        graphics.refresh(); // Refresh graphics
+        if(!turn && !playerTwo.isHuman()) // Make AI make the next move
+            undoMove(); // When playing against AI, undo 1st AI's latest move, then players own move
+        checkRotating(); // Rotate if two player game
+        highlightsOff();
+        return true; // Move was undone
     }
 
     public void tests(){
