@@ -23,7 +23,7 @@ public class AiEngine {
         Log.d("AiEngine", "Constructor with path: "+enginePath);
     }
 
-    public String getAiMove(String command, int thinkTime){ // TODO: Add parameter for skill level and depth
+    public String getAiMove(String command, int level, int thinkTime, int thinkDepth){
         String text="";
         String oneLine = "";
         String move = ""; // I.e "a1a2"
@@ -34,13 +34,13 @@ public class AiEngine {
                 process = Runtime.getRuntime().exec(enginePath); // Start stockfish by cmd-line
                 out = new DataOutputStream(process.getOutputStream()); // Stream for communicating with AI Engine
                 out.writeBytes("uci"+ "\n"); // Start UCI communication
-                out.writeBytes("setoption name Skill Level value 0"+ "\n"); // Setup level for AI
+                out.writeBytes("setoption name Skill Level value "+level+ "\n"); // Setup level for AI
                 out.writeBytes("setoption name Slow Mover value 1000"+ "\n"); //
                 out.writeBytes("ucinewgame"+ "\n"); // Start new game
                 out.writeBytes("isready"+ "\n"); // GUI ready to start
             }
             out.writeBytes("position fen "+command+ "\n"); // Update board layout to AI Engine
-            out.writeBytes("go depth 1 movetime "+thinkTime+ "\n"); // Calculate new move with given depth and thinkTime
+            out.writeBytes("go depth "+thinkDepth+" movetime "+thinkTime+ "\n"); // Calculate new move with given depth and thinkTime
             out.flush(); // Write messages above
             // AI Engine is kept on during the game
 
@@ -50,7 +50,7 @@ public class AiEngine {
                 text = in.readLine(); // Read AI's response
                 if(text!=null){
                     Log.i("Full text", text); // Logging, should be removed later
-                    if(text.split(" ").length>1) { // TODO: Learn more about AI's responses and create proper parses
+                    if(text.split(" ").length>1) {
                         oneLine = text.split(" ")[0]; // First word
                         move = text.split(" ")[1]; // Second word / given move, i.e "bestmove a1a2"
                     }
