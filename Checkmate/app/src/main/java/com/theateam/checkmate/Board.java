@@ -34,13 +34,26 @@ public class Board {
     *************************************************/
 
     public Board(){
+        setupBoard();
+    }
 
+    // Setup board with squares
+    public void setupBoard(){
         // Initialize array
         for(int x=0;x<8;x++) {
             char startChar = (char) ((int) 'A' +x); // Using ascii values of characters
             for (int y = 0; y < 8; y++)
                 squareList[x][y] = new Square(startChar+""+(y+1));
         }
+    }
+
+    // Clear board from pieces
+    public void clearBoard(){
+        for(int x=0;x<8;x++)
+            for (int y = 0; y < 8; y++)
+                if(squareList[x][y].getPiece()!=null)
+                    squareList[x][y].getPiece().remove(false);
+        setupBoard(); // Setup board again
     }
 
     public Square getSquare(String _square){
