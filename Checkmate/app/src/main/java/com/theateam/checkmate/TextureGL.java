@@ -13,6 +13,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -67,20 +68,13 @@ public class TextureGL {
     private Coordinates allCoordinates = new Coordinates();
     private List<float[]> coordinateList = new Vector<>();
     private float[] TextureCoordinateData;
-    private List<float[]> playerOnePawnTextures;
-    private List<float[]> playerTwoPawnTextures;
-
 
     // Constructor (Parameters with current coordinates for all the pictures, resourceId to pick
     // correct theme. )
-    public TextureGL(Context _context, float[] _coordinates, int _resourceId, List<float[]> playerOnePawns, List<float[]> playerTwoPawns) {
+    public TextureGL(Context _context, float[] _coordinates, int _resourceId, Map<Integer, Piece> textureIdToPiece) {
         mActivityContext = _context;OpenGLRenderer.getInstance();
         coordinates = _coordinates;
         drawOrder = new short[(coordinates.length / 8) * 6];
-        playerOnePawnTextures = playerOnePawns; // Coordinates for player one pieces 1-8
-        playerTwoPawnTextures = playerTwoPawns; // Coordinates for player two pieces 1-8
-        if(playerOnePawnTextures.size()!=8) Log.e("TextureGL","playerOneTexturesSize "+playerOnePawnTextures.size());
-        if(playerTwoPawnTextures.size()!=8) Log.e("TextureGL","playerTwoTexturesSize "+playerTwoPawnTextures.size());
 
         // Fill drawOrder for each texture
         int last = 0;
@@ -95,36 +89,21 @@ public class TextureGL {
         }
 
         // Order of coordinateList must match OpenGLRenderer's coordinateList
-        // Current IDs: 0 reserved for board
-        //              1-27 Square Highlights
-        //              28-44 Player One pieces
-        //              39-55 Player Two pieces
-        coordinateList.add(allCoordinates.boardTexture); // Board
+        coordinateList.add(allCoordinates.boardTexture); // Board TextureID 0
         // Learning tool
         for(int i=0;i<count;i++)
-            coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool #1-27
-        // Player One
-        for(int i=0;i<8;i++)
-            coordinateList.add(playerOnePawnTextures.get(i)); // Pawns #1-8 PlayerOne
-        coordinateList.add(allCoordinates.rookPlayerOne); // Rook #1 Player One
-        coordinateList.add(allCoordinates.knightPlayerOne); // Knight #1 Player One
-        coordinateList.add(allCoordinates.bishopPlayerOne); // Bishop #1 Player One
-        coordinateList.add(allCoordinates.kingPlayerOne); // King Player One
-        coordinateList.add(allCoordinates.queenPlayerOne); // Queen Player One
-        coordinateList.add(allCoordinates.bishopPlayerOne); // Bishop #2 Player One
-        coordinateList.add(allCoordinates.knightPlayerOne); // Knight #2 Player One
-        coordinateList.add(allCoordinates.rookPlayerOne); // Rook #2 Player One
-        // Player Two
-        for(int i=0;i<8;i++)
-            coordinateList.add(playerTwoPawnTextures.get(i)); // Pawns #1-8 PlayerTwo
-        coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #1 Player two
-        coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #1 Player two
-        coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #1 Player two
-        coordinateList.add(allCoordinates.kingPlayerTwo); // King Player two
-        coordinateList.add(allCoordinates.queenPlayerTwo); // Queen Player two
-        coordinateList.add(allCoordinates.bishopPlayerTwo); // Bishop #2 Player two
-        coordinateList.add(allCoordinates.knightPlayerTwo); // Knight #2 Player two
-        coordinateList.add(allCoordinates.rookPlayerTwo); // Rook #2 Player two
+            coordinateList.add(allCoordinates.learningTool_circle_green); // Learning tool TextureIDs 1-50
+        // Pieces
+        for(int i=count+1;i<count+33;i++){ // Piece TextureIDs 51-83
+            if(textureIdToPiece.get(i)!=null) {
+                if (textureIdToPiece.get(i).getPlayer().isFirst())
+                    coordinateList.add(allCoordinates.promotePieces.get(textureIdToPiece.get(i).getPieceType().toLowerCase() + "PlayerOne"));
+                else
+                    coordinateList.add(allCoordinates.promotePieces.get(textureIdToPiece.get(i).getPieceType().toLowerCase() + "PlayerTwo"));
+            }
+            else
+                coordinateList.add(allCoordinates.hideCoordinates);
+        }
         // Extra graphics
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Window
         coordinateList.add(allCoordinates.hideCoordinates); // Promote pawn, Piece #1
