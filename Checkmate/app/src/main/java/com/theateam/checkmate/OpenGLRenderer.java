@@ -82,6 +82,28 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     {
         Log.d("Renderer","onSurfaceCreated");
 
+        setupCoordinates();
+
+       // Initialize the drawn picture
+        picture = new TextureGL(mActivityContext, // OpenGLView's context
+                coordinates, // Starting point coordinates
+                theme,  // Picture for the theme package
+                gameController.getTextureIdToPiece());
+
+        if(!gameController.getTurn() && rotated){ // Check if board was rotated before
+            rotate();
+            rotated=!rotated;
+        }
+
+        /** ERROR LOG **/ if(promotingOn && promotingPlayer.equals(" ")) Log.e("Renderer", "Promoting on, player empty"); // Promoting is on without player
+
+        if(promotingOn) // Check if pawn promoting was called previously (Before OpenGL Surface was finished last time)
+            pawnPromoteOn(promotingPlayer); // Set up promoting window for chosen player
+    }
+
+    public void setupCoordinates(){
+        coordinateList.clear();
+
         // Order of coordinateList must match TextureGL's textureCoordinates
         coordinateList.add(allCoordinates.boardCoordinates); // Board
 
@@ -106,28 +128,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinates = new float[coordinateList.size()*8]; // Setup coordinate float[] for all the coordinates
         coordinates = setupMatrixCoordinates(coordinateList); // Combine multiple float[]s to one
 
-        if(gameController==null) gameController.getInstance(); // TODO: Test to remove this line
-
-       // Initialize the drawn picture
-        picture = new TextureGL(mActivityContext, // OpenGLView's context
-                coordinates, // Starting point coordinates
-                theme,  // Picture for the theme package
-                gameController.getTextureIdToPiece());
-
-        if(!gameController.getTurn() && rotated){ // Check if board was rotated before
-            rotate();
-            rotated=!rotated;
-        }
-
-        /** ERROR LOG **/ if(promotingOn && promotingPlayer.equals(" ")) Log.e("Renderer", "Promoting on, player empty"); // Promoting is on without player
-
-        if(promotingOn) // Check if pawn promoting was called previously (Before OpenGL Surface was finished last time)
-            pawnPromoteOn(promotingPlayer); // Set up promoting window for chosen player
     }
 
     // Called for each print
-    public void onDrawFrame(GL10 unused)
-    {
+    public void onDrawFrame(GL10 unused) {
         // Clear everything before draw - otherwise rotating looks strange
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // Set eyes to selected place, xyz
@@ -140,6 +144,31 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);
         // Draw the picture using matrix values as set above
         picture.Draw(mMVPMatrix);
+    }
+
+    public void refresh(){
+        setupCoordinates(); // Construct latest coordinates for pieces
+        Map<Integer, Piece> textureIdToPiece = gameController.getTextureIdToPiece(); // Get latest textureId&Piece pairs
+        for(int i=TextureGL.count+1;i<TextureGL.count+33;i++) { // Loop through reserved piece texture ids
+            if(textureIdToPiece.get(i) != null) { //
+                float[] coordinates = allCoordinates.coordinateList.get(textureIdToPiece.get(i).getSquare().getId());
+                float left = coordinates[0]; // Order of matrix coordinates (0, 4, 1, 3 - left, right, top, bot)
+                float right = coordinates[4];
+                float top = coordinates[1];
+                float bot = coordinates[3];
+                String player = "PlayerOne";
+                if (!textureIdToPiece.get(i).getPlayer().isFirst())
+                    player = "PlayerTwo";
+                float[] texture = allCoordinates.promotePieces.get(textureIdToPiece.get(i).getPieceType().toLowerCase() + player);
+                float textLeft = texture[4]; // Order of texture coordinates are flipped (4, 0, 3, 1 - left, right, top, bot)
+                float textRight = texture[0];
+                float textTop = texture[3];
+                float textBot = texture[1];
+                picture.changePieceCoordinates(i, left, right, top, bot); // Move piece
+                picture.changeTextureCoordinates(i, textLeft, textRight, textTop, textBot); // Setup correct texture
+            }
+        }
+        viewInstance.requestRender(); // Render changes
     }
 
     // Used in TextureGL
@@ -160,7 +189,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         String orientation = (String) GameActivity.getorientation();
 
         float gameViewEdge = screenHeight * (screenWidth/screenHeight); // Calculate length of one edge using screen ratio
-        Log.d("screenProps", "Height: "+screenHeight+". \nWidth: "+screenWidth+". \nRatio: "+(screenWidth/screenHeight)+".\nGameViewEdge: "+gameViewEdge+"\nOrientation: "+orientation);
+        //Log.d("screenProps", "Height: "+screenHeight+". \nWidth: "+screenWidth+". \nRatio: "+(screenWidth/screenHeight)+".\nGameViewEdge: "+gameViewEdge+"\nOrientation: "+orientation);
 
         // Convert pixels into OpenGL coordinate system
         float sceneX = (x / gameViewEdge) * 2.0f - 1.0f;
