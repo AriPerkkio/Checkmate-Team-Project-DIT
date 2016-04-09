@@ -32,6 +32,7 @@ public class FenParser {
          And then after 2. Nf3:
          rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 (WIKIPEDIA)
          */
+        // TODO: Fix 1rb1kr22/1p1p3p/2n3p1/2bpp3/p7/4B1K1/PPP3PP/RN3BNR b ---- - 0 0
 
         String fenString = ""; // Clear old board layout
         int emptyCounter=0;
@@ -49,6 +50,8 @@ public class FenParser {
                     emptyCounter = 0;
                 } else {
                     emptyCounter++;
+                    if(checkSquare.getId().equals("H1"))
+                        fenString+=""+emptyCounter;
                 }
             }
         }
