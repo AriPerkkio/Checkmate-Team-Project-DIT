@@ -50,8 +50,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     private TextureGL picture = null; // Includes all the textures
     private float[] coordinates; // For matrix coordinates
     private List<float[]> coordinateList = new Vector<>(); // Matrix coordinates for each texture
-    private List<float[]> playerOnePawnTextures = new Vector<>(); // Holds textures that are selected for player one 1-8 pieces
-    private List<float[]> playerTwoPawnTextures = new Vector<>(); // Holds textures that are selected for player two 1-8 pieces
     private int theme = R.mipmap.defaulttheme; // Chosen theme
     private boolean promotingOn = false;
     private String promotingPlayer = "";
@@ -67,19 +65,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         GameController.graphics = this; // Set instance
 
         if(gameController==null) gameController= GameController.getInstance();
-
-        List<String> allPawns = gameController.getAllPawns(); // Get pieces 1-8 for both players
-
-        for(int i=0;i<8;i++){ // Check pieces 1-8 for both players
-            if(!allPawns.get(i).equals("pawn")) // When piece is promoted, it's not pawn in this list anymore
-                playerOnePawnTextures.add(allCoordinates.promotePieces.get(allPawns.get(i)+"PlayerOne")); // Update promoted piece to list
-            else
-                playerOnePawnTextures.add(allCoordinates.pawnPlayerOne); // It's pawn - set pawn coordinates
-            if(!allPawns.get(i+7).equals("pawn"))
-                playerTwoPawnTextures.add(allCoordinates.promotePieces.get(allPawns.get(i+7)+"PlayerTwo"));
-            else
-                playerTwoPawnTextures.add(allCoordinates.pawnPlayerTwo);
-        }
 
         promotingOn = gameController.getPawnPromoting(); // Update promoting attribute from gameController
         if(gameController.getTurn())
@@ -121,12 +106,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
         coordinates = new float[coordinateList.size()*8]; // Setup coordinate float[] for all the coordinates
         coordinates = setupMatrixCoordinates(coordinateList); // Combine multiple float[]s to one
 
+        if(gameController==null) gameController.getInstance(); // TODO: Test to remove this line
+
        // Initialize the drawn picture
         picture = new TextureGL(mActivityContext, // OpenGLView's context
                 coordinates, // Starting point coordinates
                 theme,  // Picture for the theme package
-                playerOnePawnTextures, // Pawn textures player one
-                playerTwoPawnTextures); // Pawn textures player two
+                gameController.getTextureIdToPiece());
 
         if(!gameController.getTurn() && rotated){ // Check if board was rotated before
             rotate();
@@ -326,11 +312,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 texture[3],
                 texture[1]
         );
-        if (TextureGL.count < pieceSelect && pieceSelect < TextureGL.count + 9)  // Player One Pawn ID 51-58
-            playerOnePawnTextures.set(pieceSelect - TextureGL.count -1, texture); // Update new piece texture
-
-        if (TextureGL.count + 16 < pieceSelect && pieceSelect < TextureGL.count + 25)  // Player Two Pawn ID 67-74
-            playerTwoPawnTextures.set(pieceSelect - (TextureGL.count + 17), texture); // Update new piece texture
     }
 
     public void pawnPromoteOn(String _player){
