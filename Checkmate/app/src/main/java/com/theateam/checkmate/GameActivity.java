@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,13 +24,14 @@ import java.io.OutputStream;
 
 
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements View.OnClickListener{
 
     //public static TextView coordinates;
     private GameController gameController = GameController.getInstance(); // At the moment this makes sure there is atleas one instance of gameController
     private static GameActivity instance;
     private static String directory;
     public static TextView textField;
+    private Button btnUndoMove;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,8 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         textField = (TextView) findViewById(R.id.textField);
+        btnUndoMove = (Button) findViewById(R.id.btnRedo);
+        btnUndoMove.setOnClickListener(this);
         instance = this;
         writeEngineToDevice();
         directory = getFilesDir().toString()+"/engines/";
@@ -56,6 +60,15 @@ public class GameActivity extends Activity {
     public static GameActivity getInstance(){
         if(instance==null) Log.e("Instance", "null");
         return instance;
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnRedo:
+                if(!gameController.undoMove())
+                    Toast.makeText(this, "Board still at starting positions", Toast.LENGTH_LONG).show();
+            break;
+        }
     }
 
     public static String getDirectory(){
