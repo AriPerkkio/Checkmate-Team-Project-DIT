@@ -2,8 +2,11 @@ package com.theateam.checkmate;
 
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Created by arska on 05/04/16.
+ * Created by AriPerkkio on 05/04/16.
  */
 public class FenParser {
 
@@ -90,7 +93,6 @@ public class FenParser {
         // Construct fullMoves
         fenString+=" 0";
 
-        //Log.d("Final FenString", fenString);
         return fenString;
     }
 
@@ -128,9 +130,127 @@ public class FenParser {
                 fenChar = 'E'; // Error
                 break;
         }
-        if(fenChar=='E') Log.e("FenChar E", "Piece "+_piece.getPieceType());
+        /** ERROR LOG **/ if(fenChar=='E') Log.e("FenChar E", "Piece "+_piece.getPieceType());
         if(_piece.getPlayer().equals(playerTwo))
             fenChar = Character.toLowerCase(fenChar);
         return fenChar;
+    }
+
+    // Reads FEN-string and adds piece's to player with correct square from board. Returns map with pairs of (textureId & piece)
+    public Map<Integer, Piece> setupFromFen(String _fenString, Player playerOne, Player playerTwo, Board board){
+
+        String[] allRows = _fenString.split("/"); // Split FEN-string into each row
+        String firstParse = ""; // First parse will modify empty squares into 0's, i.e. 8 -> 00000000 and 3p4 -> 000p0000
+        Map<Integer, Piece> textureIdToPiece = new HashMap<>(); // Holds reserved texture id and the piece
+
+        for(int i=0;i<8;i++) // Check all rows
+            for(int ii=0;ii<allRows[i].length();ii++) { // Check all characters
+                if(allRows[i].charAt(ii)==' ') // Row 1 ends with space. See definition on FEN-string for info
+                    break; // Reached last square, end here
+                if (!Character.isDigit(allRows[i].charAt(ii))) // Picked character is not number
+                    firstParse += allRows[i].charAt(ii); // Add to list
+                else // Picked character is number
+                    for(int iii=0;iii<Integer.parseInt(allRows[i].charAt(ii)+"");iii++) // I.e. Picked character is 3, run loop 3 times
+                        firstParse+=0; // I.e. Picked character is 3, make it 000
+        }
+        /** ERROR LOG **/ if(firstParse.length()!=64) Log.e("fenParser", "firstParseLength "+firstParse.length()+"\n"+firstParse);
+
+        int charPick = 0; // From 0-63
+        int pieceCount = 0; // Used to keep track for given textureIds
+        playerOne.getPieceList().clear(); // Clear all pieceLists
+        playerTwo.getPieceList().clear();
+
+        for(int y=8;y>=1;y--)// From column 'A' to 'H'
+            for(int x= (int) 'A';x<=((int) 'A' +7);x++){ // From Row 8 to 1
+                char checkChar = firstParse.charAt(charPick);
+                if(checkChar!='0'){ // Ignore empty squares
+                    pieceCount++; // Piece found, increase textureId
+                    Square square = board.getSquare((char)x+""+y); // Current square
+                    Player _player = playerOne;
+                    if(Character.isLowerCase(checkChar)) // Lowercase indicates playerTwo pieces
+                        _player = playerTwo;
+
+                    switch(Character.toLowerCase(checkChar)){
+                        case 'p': // Pawns
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square); // Add piece to player and square
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+
+                        case 'n': // Knights
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square);
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+
+                        case 'b': // Bishops
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square);
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+
+                        case 'r': // Rooks
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square);
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+
+                        case 'q':
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square);
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+
+                        case 'k':
+                            if(_player==playerOne)
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerOne, square);
+                            else
+                                reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
+                        break;
+                    }
+
+                }
+                charPick++;
+            }
+
+        // Construct textureId&Piece pairs from both players' pieceLists
+        for(int i=0;i<playerOne.getPieceList().size();i++)
+            textureIdToPiece.put(playerOne.getPieceList().get(i).getTextureId(), playerOne.getPieceList().get(i));
+        for(int i=0;i<playerTwo.getPieceList().size();i++)
+            textureIdToPiece.put(playerTwo.getPieceList().get(i).getTextureId(), playerTwo.getPieceList().get(i));
+
+        return textureIdToPiece; // Map<Integer, Piece>
+    }
+
+    // Creates piece from given FEN-String character to player with given textureid and square
+    private void reverseFen(char _char,int textureId, Player _player, Square square){
+
+        switch(Character.toLowerCase(_char)){
+            case 'p': // Pawn
+                 new Pawn(square, _player, textureId);
+            break;
+            case 'n': // Knight
+                 new Knight(square, _player, textureId);
+            break;
+            case 'b': // Bishop
+                 new Bishop(square, _player, textureId);
+            break;
+            case 'r': // Rook
+                 new Rook(square, _player, textureId);
+            break;
+            case 'q': // Queen
+                 new Queen(square, _player, textureId);
+            break;
+            case 'k': // King
+                 new King(square, _player, textureId);
+            break;
+            default:
+                /** ERROR LOG **/ Log.e("reverseFen", "Char: "+_char); // Error - not a FEN-string character
+        }
     }
 }
