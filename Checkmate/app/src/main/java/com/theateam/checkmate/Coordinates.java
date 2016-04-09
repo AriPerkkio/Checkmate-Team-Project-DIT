@@ -70,7 +70,7 @@ public class Coordinates {
         learningToolList.put("red square",learningTool_square_red);
         learningToolList.put("empty empty", hideCoordinates);
 
-        // Add textures for pawn promoting
+        // Add textures for pawn promoting + Now added all the piece textures here
         promotePieces.put("rookPlayerOne", rookPlayerOne);
         promotePieces.put("bishopPlayerOne", bishopPlayerOne);
         promotePieces.put("queenPlayerOne", queenPlayerOne);
@@ -79,6 +79,13 @@ public class Coordinates {
         promotePieces.put("bishopPlayerTwo", bishopPlayerTwo);
         promotePieces.put("queenPlayerTwo", queenPlayerTwo);
         promotePieces.put("knightPlayerTwo", knightPlayerTwo);
+        // + EXTRAS:
+        promotePieces.put("pawnPlayerOne", pawnPlayerOne);
+        promotePieces.put("pawnPlayerTwo", pawnPlayerTwo);
+        promotePieces.put("kingPlayerOne", kingPlayerOne);
+        promotePieces.put("kingPlayerTwo", kingPlayerTwo);
+
+
 
         promotePawnWindow = new float[] {
                 // Top 6, Bottom 3, Left A, Right H
