@@ -50,14 +50,15 @@ public class Piece {
         player.removePiece(this, isPawnPromoting);
         this.player = null;
         this.square = null;
+        this.textureId = 0;
     }
 
     public void setPieceType(String _pieceType){
-        this.pieceType = _pieceType;
+        pieceType = _pieceType;
     }
 
     public String getPieceType(){
-        return this.pieceType;
+        return pieceType;
     }
 
     public void setMovementList(List<int[]> movements){
