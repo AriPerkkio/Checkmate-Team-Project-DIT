@@ -147,26 +147,42 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
     }
 
     public void refresh(){
+        float[] coordinates;
+        float left; // Order of matrix coordinates (0, 4, 1, 3 - left, right, top, bot)
+        float right;
+        float top;
+        float bot;
+        float[] texture;
+        float textLeft; // Order of texture coordinates are flipped (4, 0, 3, 1 - left, right, top, bot)
+        float textRight;
+        float textTop;
+        float textBot;
+
         setupCoordinates(); // Construct latest coordinates for pieces
         Map<Integer, Piece> textureIdToPiece = gameController.getTextureIdToPiece(); // Get latest textureId&Piece pairs
         for(int i=TextureGL.count+1;i<TextureGL.count+33;i++) { // Loop through reserved piece texture ids
-            if(textureIdToPiece.get(i) != null) { //
-                float[] coordinates = allCoordinates.coordinateList.get(textureIdToPiece.get(i).getSquare().getId());
-                float left = coordinates[0]; // Order of matrix coordinates (0, 4, 1, 3 - left, right, top, bot)
-                float right = coordinates[4];
-                float top = coordinates[1];
-                float bot = coordinates[3];
+            if(textureIdToPiece.get(i) != null) { // Texture with piece
                 String player = "PlayerOne";
                 if (!textureIdToPiece.get(i).getPlayer().isFirst())
                     player = "PlayerTwo";
-                float[] texture = allCoordinates.promotePieces.get(textureIdToPiece.get(i).getPieceType().toLowerCase() + player);
-                float textLeft = texture[4]; // Order of texture coordinates are flipped (4, 0, 3, 1 - left, right, top, bot)
-                float textRight = texture[0];
-                float textTop = texture[3];
-                float textBot = texture[1];
-                picture.changePieceCoordinates(i, left, right, top, bot); // Move piece
-                picture.changeTextureCoordinates(i, textLeft, textRight, textTop, textBot); // Setup correct texture
+                coordinates = allCoordinates.coordinateList.get(textureIdToPiece.get(i).getSquare().getId());
+                texture = allCoordinates.promotePieces.get(textureIdToPiece.get(i).getPieceType().toLowerCase() + player);
             }
+            else { // Texture without piece - make it empty
+                coordinates = allCoordinates.hideCoordinates;
+                texture = allCoordinates.hideCoordinates;
+            }
+            left = coordinates[0]; // Order of matrix coordinates (0, 4, 1, 3 - left, right, top, bot)
+            right = coordinates[4];
+            top = coordinates[1];
+            bot = coordinates[3];
+
+            textLeft = texture[4]; // Order of texture coordinates are flipped (4, 0, 3, 1 - left, right, top, bot)
+            textRight = texture[0];
+            textTop = texture[3];
+            textBot = texture[1];
+            picture.changePieceCoordinates(i, left, right, top, bot); // Move piece
+            picture.changeTextureCoordinates(i, textLeft, textRight, textTop, textBot); // Setup correct texture
         }
         viewInstance.requestRender(); // Render changes
     }
