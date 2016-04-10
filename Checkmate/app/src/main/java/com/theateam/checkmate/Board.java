@@ -489,6 +489,19 @@ public class Board {
         } // Close diagonal testing
     }
 
+    // After GameController.undoMove() this is called to check if undoing a move caused pawn promoting
+    public Piece checkPromoteRows(){
+        for(int column=(int) 'A';column<=(int) 'H';column++) {
+            if (getSquare((char) column + "" + 8).getPiece() != null && // A8 - H8
+                    getSquare((char) column + "" + 8).getPiece().getPieceType().equals("Pawn"))
+                return getSquare((char) column + "" + 8).getPiece(); // Return pawn
+            if (getSquare((char) column + "" + 1).getPiece() != null && // A1 - H1
+                    getSquare((char) column + "" + 1).getPiece().getPieceType().equals("Pawn"))
+                return getSquare((char) column + "" + 1).getPiece(); // Return pawn
+        }
+        return null; // No pawns found
+    }
+
     // Tester
     public void logBoardPrint() {
 
