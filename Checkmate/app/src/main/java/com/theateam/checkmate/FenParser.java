@@ -160,6 +160,10 @@ public class FenParser {
 
         int charPick = 0; // From 0-63
         int pieceCount = 0; // Used to keep track for given textureIds
+        for(int i=0;i<playerOne.getPieceList().size();i++)
+            playerOne.getPieceList().get(i).remove(false);
+        for(int i=0;i<playerTwo.getPieceList().size();i++)
+            playerTwo.getPieceList().get(i).remove(false);
         playerOne.getPieceList().clear(); // Clear all pieceLists
         playerTwo.getPieceList().clear();
 
