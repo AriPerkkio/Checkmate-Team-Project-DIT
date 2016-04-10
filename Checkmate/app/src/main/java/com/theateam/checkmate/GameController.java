@@ -56,7 +56,7 @@ public class GameController {
     private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
     private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
     private Map<Integer, Piece> textureIdToPiece; // Holds Texture IDs to each piece
-    private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
     private boolean undoMoveStatus = false; // Indicates if undoMove is going on
 
@@ -67,6 +67,7 @@ public class GameController {
         board = new Board(); // Initialized board with these two players
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
         updateTextureIdToPiece(); // TODO: Test without this line
+        fenList.add(startingFenString); // Add starting board layout to fenList
     }
 
     public static GameController getInstance() {
@@ -91,9 +92,6 @@ public class GameController {
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
-
-        if(!fenList.contains(fenString=fenParser.refreshFen(board, turn, playerOne, playerTwo))) // Only new FEN-Strings
-            fenList.add(fenString); // Add latest FEN-String
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
@@ -140,9 +138,18 @@ public class GameController {
         processMovements();
 
         highlightsOff(); // Reset all the highlights
-        tests(); // See function
+        //tests(); // See function
 
         return true;
+    }
+
+    // Called when board layout has changed in game logic
+    private void updateFen(){
+        if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo)))
+            fenList.add(fenString); // Add latest FEN-String
+        Log.d("updateFen, size: "+fenList.size(), fenString);
+        for(int i=0;i<fenList.size();i++)
+            Log.d("fenList "+i, fenList.get(i));
     }
 
     public void aiMove(){
@@ -230,6 +237,7 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
+                updateFen(); // Update FEN before changing board layout // TODO: Check how castling affects
                 if(selectedPiece.getPieceType().equals("King")) // Check castling for kings
                     if(castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
                         movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
@@ -247,6 +255,7 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
+                updateFen(); // Update FEN before changing board layout
                 // Check if the move caused check
                 if(checkKingsForCheckmate())
                     return false; // One king in checkmate, break here
@@ -466,6 +475,7 @@ public class GameController {
         Log.e("selectedPiece nulling", "#6");
         Log.d("Promote", "Complete");
         pawnPromoting = false; // Turn off promoting for pawn
+        updateFen(); // Update FEN since new piece on board
         return true;
     }
 
@@ -826,34 +836,31 @@ public class GameController {
     // Called from GameActivity ONLY
     // Undo previous move
     public boolean undoMove(){
-        Log.d("undoMove", "Starting");
-        if(fenList.size()==0) // No moves has been made
+        if(fenList.size()==1 || fenList.get(fenList.size()-1).equals(startingFenString)) // No moves has been made
             return false; // Unable to undo move
-        undoMoveStatus = true;
-        graphics.pawnPromoteOff();
-        //selectedPiece = null;
-        //Log.e("selectedPiece nulling", "#7");
-        turn = !turn; // Revert turn
+        fenList.remove(fenList.size()-1); // Remove current layout
+        graphics.pawnPromoteOff(); // Remove pawn promoting window if it's visible
+        if(!pawnPromoting) // Don't change turn when pawn promoting was going on
+            turn = !turn; // Revert turn
         highlights.clear(); // Clear old highlights
         fenString = fenList.get(fenList.size()-1); // Get old FEN-string
-        fenList.remove(fenList.size()-1); // Remove the latest FEN-string
         textureIdToPiece.clear(); // Clear old textureId&Piece pairs
         board.clearBoard(); // Clear board from pieces
         textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs using new FEN-string
         graphics.refresh(); // Refresh graphics
-        if(!turn && !playerTwo.isHuman()) // Make AI make the next move
+        if(!turn && !playerTwo.isHuman()) // Opponent is AI
             undoMove(); // When playing against AI, undo 1st AI's latest move, then players own move
         highlightsOff();
-        Log.d("undoMove", "PawnPromoting: "+pawnPromoting);
+        if(!pawnPromoting) // Don't rotate when pawnPromoting is on
+            checkRotating();
         pawnPromoting = false; // Turn off promoting for pawn
-        checkRotating();
-        selectedPiece = board.checkPromoteRows();
-        if (selectedPiece != null)
-            if(!callForPromote()){
-                checkRotating();
-                turn =! turn;
+        selectedPiece = board.checkPromoteRows(); // Check if undo a move caused pawn promoting
+        if (selectedPiece != null) // Piece null when pawn promoting is off
+            if(!callForPromote()){ // False when pawn promoting not possible
+                checkRotating(); // No promoting - rotate board
+                turn =! turn; // And flip turn
             }
-        Log.d("undoMove", "Complete, true");
+        updateFen(); // Add latest FEN
         return true; // Move was undone
     }
 
