@@ -458,7 +458,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 allCoordinates.promotePawnFour[3],
                 allCoordinates.promotePawnFour[1]
         );
-
+        viewInstance.requestRender();
     }
 
     // Hide pawn promoting window
