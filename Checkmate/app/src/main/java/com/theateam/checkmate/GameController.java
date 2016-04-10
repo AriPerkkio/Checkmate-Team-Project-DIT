@@ -2,6 +2,7 @@ package com.theateam.checkmate;
 
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,11 +58,12 @@ public class GameController {
     private Map<Integer, Piece> textureIdToPiece; // Holds Texture IDs to each piece
     private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
+    private boolean undoMoveStatus = false; // Indicates if undoMove is going on
 
     private GameController() {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
         board = new Board(); // Initialized board with these two players
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
         updateTextureIdToPiece(); // TODO: Test without this line
@@ -102,7 +104,7 @@ public class GameController {
             aiMove();
 
         if(pawnPromoting) { // Check if pawn promote is on
-            if(processPromoting(clickedSquare) && !turn) // Process users piece choosing
+            if(processPromoting(clickedSquare) && !turn && !playerTwo.isHuman()) // Process users piece choosing
                 aiMove(); // If turn was for AI, make its move
             else
                 return false; // Break function here
@@ -138,7 +140,7 @@ public class GameController {
         processMovements();
 
         highlightsOff(); // Reset all the highlights
-        //tests(); // See function
+        tests(); // See function
 
         return true;
     }
@@ -346,13 +348,15 @@ public class GameController {
 
 
     // Check if another player is not AI and does the rotating
-    public void checkRotating() {
+    public boolean checkRotating() {
         if (playerTwo.isHuman()) { // Check if playerTwo is AI
             SystemClock.sleep(500); // Sleep 500ms to make rotating and highlightsOff smoother
             graphics.rotate(); // Rotate board and pieces
+            selectedPiece = null;
+            Log.e("selectedPiece nulling", "#8");
+            return true;
         }
-        selectedPiece = null;
-        Log.e("selectedPiece nulling", "#8");
+        return false;
     }
 
     // Check if pawn promoting is possible
@@ -460,6 +464,7 @@ public class GameController {
         highlightsOff();
         selectedPiece = null;
         Log.e("selectedPiece nulling", "#6");
+        Log.d("Promote", "Complete");
         pawnPromoting = false; // Turn off promoting for pawn
         return true;
     }
@@ -821,10 +826,13 @@ public class GameController {
     // Called from GameActivity ONLY
     // Undo previous move
     public boolean undoMove(){
+        Log.d("undoMove", "Starting");
         if(fenList.size()==0) // No moves has been made
             return false; // Unable to undo move
-        selectedPiece = null;
-        Log.e("selectedPiece nulling", "#7");
+        undoMoveStatus = true;
+        graphics.pawnPromoteOff();
+        //selectedPiece = null;
+        //Log.e("selectedPiece nulling", "#7");
         turn = !turn; // Revert turn
         highlights.clear(); // Clear old highlights
         fenString = fenList.get(fenList.size()-1); // Get old FEN-string
@@ -835,10 +843,20 @@ public class GameController {
         graphics.refresh(); // Refresh graphics
         if(!turn && !playerTwo.isHuman()) // Make AI make the next move
             undoMove(); // When playing against AI, undo 1st AI's latest move, then players own move
-        checkRotating(); // Rotate if two player game
         highlightsOff();
+        Log.d("undoMove", "PawnPromoting: "+pawnPromoting);
+        pawnPromoting = false; // Turn off promoting for pawn
+        checkRotating();
+        selectedPiece = board.checkPromoteRows();
+        if (selectedPiece != null)
+            if(!callForPromote()){
+                checkRotating();
+                turn =! turn;
+            }
+        Log.d("undoMove", "Complete, true");
         return true; // Move was undone
     }
+
 
     public void tests(){
 
