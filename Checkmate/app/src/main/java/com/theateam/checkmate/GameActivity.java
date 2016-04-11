@@ -21,17 +21,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GameActivity extends Activity implements View.OnClickListener{
 
     //public static TextView coordinates;
-    private GameController gameController = GameController.getInstance(); // At the moment this makes sure there is atleas one instance of gameController
+    private GameController gameController;
     private static GameActivity instance;
     private static String directory;
     public static TextView textField;
     private Button btnUndoMove;
+    private String gameModeSelect;
+    private boolean learningToolSwitch;
+    private String gameStartingFen;
+    private List<String> gameFenHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +54,17 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
+
+        // TODO: Read values from previous activity - i.e. getIntent().getExtras().
+        /** Get values for these from settings menu **/
+        gameModeSelect = "AiMedium"; //getIntent().getExtras().getString("gameMode");
+        learningToolSwitch = true; //getIntent().getExtras().getBoolean("learningTool");
+        gameStartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //getIntent().getExtras().getString("startingFen");
+        gameFenHistory = new ArrayList<>(); // getIntent().getExtras().getStringArrayList() ???
+        /*********************************************/
+        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
         setContentView(R.layout.activity_game);
+
         textField = (TextView) findViewById(R.id.textField);
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
         btnUndoMove.setOnClickListener(this);

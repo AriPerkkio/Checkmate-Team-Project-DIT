@@ -13,7 +13,6 @@ import java.util.Vector;
  * Created by AriPerkkio on 21/02/16.
  *
  * Class to control game logic.
- * This class is set as singleton in order to avoid problems with multiple instances
  * See class diagram for detailed info
  *
  */
@@ -25,7 +24,7 @@ public class GameController {
     private boolean turn = true; // True indicates that it's playerOne's turn
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
     private boolean testsDone = false; // Tester
-    public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
+    public boolean learningTool; // Used in OpenGLRenderer.highlight()
     private String fenString = ""; // Board layout using FEN
 
     //References for other classes
@@ -37,9 +36,9 @@ public class GameController {
 
     // AI
     private AiEngine aiEngine; // Initialized in aiMove()
-    private int thinkTime = 1; // Time given for AI to think for a move - has an effect on AI difficult level
-    private int thinkDepth = 1; // Depth of moves used in calculation
-    private int level = 0;
+    private int thinkTime; // Time given for AI to think for a move - has an effect on AI difficult level
+    private int thinkDepth;; // Depth of moves used in calculation
+    private int level;
 
     // Initialized by methods
     private Player playerTwo; // Either Human or AI
@@ -54,22 +53,58 @@ public class GameController {
     private Map<Square, Rook> rookForSquare = new HashMap<>(); // Holds rook for kings castling square
     private Map<Rook, Square> squareForRook = new HashMap<>(); // Holds square for rooks castling move
     private Map<Integer, Piece> textureIdToPiece; // Holds Texture IDs to each piece
-    private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    private String startingFenString; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
 
-    private GameController() {
+    public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory) {
+        // Instances
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
-        playerTwo = new Player("Human", false); // Can be set as "AI" or "Human"
+        // Game options
+        learningTool = _learningTool;
+        startingFenString = _startingFenString;
+        for(int i=0;i<fenHistory.size();i++) // Add FEN history to list
+            fenList.add(fenHistory.get(i));
+        switch(gameMode){ // Determine game mode
+            case "TwoPlayer":
+                playerTwo = new Player("Human", false); // Player two is human
+            break;
+            case "AiEasy":
+                playerTwo = new Player("AI", false);
+                thinkTime = 1; // AI ThinkTime 1ms
+                thinkDepth = 1; // Thinks only one move
+                level = 0; // Minimum level
+            break;
+            case "AiMedium":
+                playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+                thinkTime = 3; // AI ThinkTime 3ms
+                thinkDepth = 3; // Thinks only three moves ahead
+                level = 0; // Minimum level
+            break;
+            case "AiHard":
+                playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+                thinkTime = 5; // AI ThinkTime 1ms
+                thinkDepth = 5; // Thinks only one move
+                level = 5; // Level 5
+            break;
+            case "AiInsane":
+                playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
+                thinkTime = 1000; // AI ThinkTime 1s
+                thinkDepth = 20; // Think plenty of moves ahead
+                level = 20; // Maximum level
+            break;
+
+        }
         board = new Board(); // Initialized board with these two players
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
-        updateTextureIdToPiece(); // TODO: Test without this line
+        updateTextureIdToPiece(); // TODO: Test without this line with different starting fens
         fenList.add(startingFenString); // Add starting board layout to fenList
+        // TODO: Add enPassSquare parsing from FEN when new game started (fenParser.getEnPassSquare(fenString) -> String squareId
+        // TODO: Add turn parsing from FEN when new game started (fenParser.getTurn(fenString) -> boolean turn / char turn
     }
 
     public static GameController getInstance() {
-        if (instance == null) // Only one instance should exist
-            instance = new GameController();
+        /** ERROR LOG **/ if(instance==null) Log.e("GameController", "getInstance null");
         return instance;
     }
 
