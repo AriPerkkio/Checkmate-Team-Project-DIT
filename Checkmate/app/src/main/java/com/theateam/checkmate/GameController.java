@@ -27,8 +27,6 @@ public class GameController {
     private boolean testsDone = false; // Tester
     public boolean learningTool = true; // Used in OpenGLRenderer.highlight()
     private String fenString = ""; // Board layout using FEN
-    private int halfMoves = 0;
-    private int fullMoves = 0;
 
     //References for other classes
     private Board board;
@@ -58,7 +56,6 @@ public class GameController {
     private Map<Integer, Piece> textureIdToPiece; // Holds Texture IDs to each piece
     private String startingFenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
-    private boolean undoMoveStatus = false; // Indicates if undoMove is going on
 
     private GameController() {
         OpenGLRenderer.gameController = this;
@@ -79,7 +76,7 @@ public class GameController {
     // Refresh textureId&Piece pairs using current FEN-string of board
     public void updateTextureIdToPiece(){
         textureIdToPiece.clear();
-        fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo);
+        fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare());
         textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
     }
 
@@ -145,18 +142,18 @@ public class GameController {
 
     // Called when board layout has changed in game logic
     private void updateFen(){
-        if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo)))
+        if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare())))
             fenList.add(fenString); // Add latest FEN-String
-        Log.d("updateFen, size: " + fenList.size(), fenString);
+        Log.i("updateFen, size: " + fenList.size(), "All FENs below");
         for(int i=0;i<fenList.size();i++)
-            Log.d("fenList "+i, fenList.get(i));
+            Log.i("fenList "+i, fenList.get(i));
     }
 
     public void aiMove(){
         // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
         highlightsOff();
         String clickedSquareOne;
-        String clickedSquareTwo = null;
+        String clickedSquareTwo;
         char pawnPromoteClick = 0;
         boolean movementMade = false;
         int _thinkTime = thinkTime; // Use default think time first, increase if needed
@@ -164,7 +161,7 @@ public class GameController {
             if (!playerTwo.isHuman() && !turn) { // AI's turn
                 highlights.clear();
                 selectedPiece = null;
-                fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo); // Get fresh FEN-string
+                fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare()); // Get fresh FEN-string
                 Log.d("FEN-String", " \n"+fenString);
                 if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
                 String bestMove = aiEngine.getAiMove(fenString, level, _thinkTime, thinkDepth); // Get best move from AI calculations
@@ -210,38 +207,27 @@ public class GameController {
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
-        // TODO: Bug, crashed here once.
-        // TODO: It may be tests() that causes crash here
-        /** ERROR LOG **/
-        if(target==null || from == null || _piece == null){
-            if(target==null) Log.e("movePiece", "target null");
-            else Log.e("movePiece", "target "+target.getId());
-            if(from==null) Log.e("movePiece", "from null");
-            else Log.e("movePiece", "from "+from.getId());
-            if(_piece==null) Log.e("movePiece", "piece null");
-            else Log.e("movePiece", "Piece: "+_piece.getPieceType()+ " at "+_piece.getSquare().getId());
-        }
-        //test code for enPassant activation on piece, will clean up when working
-        if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='2' && target.getId().charAt(1)=='4') )){
-            ((Pawn) _piece).setEnPassPiece();
-            board.getSquare(from.getId().charAt(0) + "" + 3).setEnPassSquare();
-            Log.i("enPassant:", "Pawn at "+target.getId()+", enPassant is: "+((Pawn) _piece).isEnPassPiece());
-            Log.i("enPassant:", "Square at" + board.getSquare(from.getId().charAt(0) + "" + 3).getId() + ", enPassant is: " + board.getSquare(from.getId().charAt(0) + "" + 3).isEnPassSquare());
-        } else if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='7' && target.getId().charAt(1)=='5') )){
-            ((Pawn) _piece).setEnPassPiece();
-            board.getSquare(from.getId().charAt(0) + "" + 6).setEnPassSquare();
-            Log.i("enPassant:", "Pawn at " + target.getId() + ", enPassant is: " + ((Pawn) _piece).isEnPassPiece());
-            Log.i("enPassant:", "Square at" + board.getSquare(from.getId().charAt(0) + "" + 6).getId() + ", enPassant is: " + board.getSquare(from.getId().charAt(0) + "" + 6).isEnPassSquare());
+
+        // Reset enPassSquare and piece every time a movement is done
+        if(board.getEnPassPiece()!=null && !target.isEnPassSquare()) { // Except when target is actual enPassSquare
+            board.getEnPassSquare().setEnPassSquare();
+            board.getEnPassPiece().setEnPassPiece();
         }
 
-        //|| (from.getId().charAt(1)=='7' && target.getId().charAt(1)=='5')
+        // When piece to be moved is pawn, and it does double step activate it as enPassPiece
+        if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='2' && target.getId().charAt(1)=='4') )){ // Row 2 to 4
+            ((Pawn) _piece).setEnPassPiece();
+            board.getSquare(from.getId().charAt(0) + "" + 3).setEnPassSquare(); // And square behind it as enPassSquare - Row 3
+        } else if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='7' && target.getId().charAt(1)=='5') )){ // Row 7 to 5
+            ((Pawn) _piece).setEnPassPiece();
+            board.getSquare(from.getId().charAt(0) + "" + 6).setEnPassSquare(); // Row 6
+        }
+
         graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
         from.setPiece(null); // Set old square empty
         _piece.setSquare(target); // Place piece to the new square
-        if(_piece.getPieceType().equals("Rook")) ((Rook) _piece).cantCastle();
-        if(_piece.getPieceType().equals("King")) ((King) _piece).cantCastle();
-
-
+        if(_piece.getPieceType().equals("Rook")) ((Rook) _piece).cantCastle(); // When Rook is moved once, it cannot castle anymore
+        if(_piece.getPieceType().equals("King")) ((King) _piece).cantCastle(); // Applies to kings also
     }
 
     // Check if new click was made to make selected piece to move or to eliminate a piece
@@ -253,7 +239,7 @@ public class GameController {
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
                 turn = !turn;
-                updateFen(); // Update FEN before changing board layout // TODO: Check how castling affects
+                updateFen(); // Update FEN before changing board layout
                 if(selectedPiece.getPieceType().equals("King")) // Check castling for kings
                     if(castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
                         movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
@@ -263,27 +249,25 @@ public class GameController {
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
-                int tempPieceId;    //temporarily stores id for texture
-                Square enPassSquare;    //replaces square when enPassant is active
-                if(board.getSquare(clickedSquare).isEnPassSquare()){    //check if the square clicked is an enPassant move
-
-                    if(selectedPiece.getPlayer().isFirst()) {   //checks if player one
-                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 5);   //show piece on doubled move
-                    } else {    //else if player 2
-                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 4);   //show piece on doubled move (other side of board)
-                    }
+                int tempPieceId; // Temporarily stores id for texture
+                Square enPassSquare; // Replaces square when enPassant is active
+                if(board.getSquare(clickedSquare).isEnPassSquare() && // Check if the square clicked is an enPassant move
+                    selectedPiece.getPieceType().equals("Pawn")){ // And selected piece is pawn
+                    if(selectedPiece.getPlayer().isFirst()) // Checks if player one
+                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 5); // Show piece on doubled move
+                     else   // Or player 2
+                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 4); // Show piece on doubled move (other side of board)
                     tempPieceId = enPassSquare.getPiece().getTextureId();   //set texture id to the square with the piece on it
-                    board.getSquare(enPassSquare.getId()).getPiece().remove(false); // Eliminate old piece from game
+                    board.getEnPassPiece().getSquare().setPiece(null); // Eliminate piece from en pass square
                     movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
                     graphics.eliminatePiece(tempPieceId, enPassSquare.getId()); // Eliminate old piece from graphics
-                } else {
+                }
+                else { // Normal capture move - not enPassantCapture
                     tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
                     board.getSquare(clickedSquare).getPiece().remove(false); // Eliminate old piece from game logic
                     movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
                     graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId()); // Eliminate old piece from graphics
                 }
-
-
                 highlightsOff(); // Turn off all the highlights
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
@@ -315,7 +299,6 @@ public class GameController {
             preventExposeMove(selectedPiece, squareList, true); // Check if valid moves expose king
             preventExposeMove(selectedPiece, squareListTwo, true); // Check if valid capture moves expose king
         }
-
 
         // When king is in check use list of allowed squares when picking valid moves and capture moves
         if(( kingInCheck(playerOne) || kingInCheck(playerTwo) )&& !selectedPiece.getPieceType().equals("King")){ // Don't apply it to king
@@ -686,7 +669,7 @@ public class GameController {
         if(kingInCheck(playerOne))
             if (turn && kingInCheckmate(playerOne)){
                 Log.d("checkClickMovement1", "Player One CHECKMATE");
-                GameActivity.textField.setText("Player One Checkmate");
+                GameActivity.textField.setText("Player One Checkmate"); // TODO: Replace with proper GUI element
                 return true;
             }
         if(kingInCheck(playerTwo))
@@ -752,7 +735,7 @@ public class GameController {
             3. his destination square
          - if an enemy is looking at those squares, he cannot castle that side
         **/
-        castlingSquares.clear(); // TODO: BugFix for movePiece()
+        castlingSquares.clear(); // BugFix for movePiece(), OK.
 
         Player enemy = playerTwo;
         if(selectedPiece.getPlayer().equals(enemy))
@@ -868,7 +851,7 @@ public class GameController {
     }
 
     // Called from GameActivity ONLY
-    // Undo previous move
+    // Undo previous move and setup board with previous FEN
     public boolean undoMove(){
         if(fenList.size()==1 || fenList.get(fenList.size()-1).equals(startingFenString)) // No moves has been made
             return false; // Unable to undo move
@@ -878,8 +861,11 @@ public class GameController {
             turn = !turn; // Revert turn
         highlights.clear(); // Clear old highlights
         fenString = fenList.get(fenList.size()-1); // Get old FEN-string
+        String enPassSquareId = ""; // Holds enPassSquare's ID from previous FEN temporary
+        if(fenString.charAt(fenString.length()-5) != '-')
+            enPassSquareId = board.getSquare(Character.toUpperCase(fenString.charAt(fenString.length()-6))+""+Integer.parseInt(fenString.charAt(fenString.length() - 5) + "")).getId(); // Character index for enPassSquare in FEN
         textureIdToPiece.clear(); // Clear old textureId&Piece pairs
-        board.clearBoard(); // Clear board from pieces
+        board.clearBoard(); // Clear board from pieces and squares - after this whole board is empty!
         textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs using new FEN-string
         graphics.refresh(); // Refresh graphics
         if(!turn && !playerTwo.isHuman()) // Opponent is AI
@@ -894,6 +880,15 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn =! turn; // And flip turn
             }
+        if(!enPassSquareId.equals("")) { // Previous FEN had enPassSquare - Set it aga enPassSquare
+            board.getSquare(enPassSquareId).setEnPassSquare(); // Set enPassSquare
+            Log.d("crash here sometimes", "EnPassSquareId: "+enPassSquareId);
+            Log.d("crash here sometimes", "fenString: "+fenString);
+            if(enPassSquareId.charAt(1)=='3') // PlayerOne Pawn
+                ((Pawn) board.getSquare(enPassSquareId.charAt(0)+""+'4').getPiece()).setEnPassPiece(); // Pawn at row 4
+            else // PlayerTwo Pawn
+                ((Pawn) board.getSquare(enPassSquareId.charAt(0)+""+'5').getPiece()).setEnPassPiece(); // Pawn at Row 5
+        }
         updateFen(); // Add latest FEN
         return true; // Move was undone
     }
