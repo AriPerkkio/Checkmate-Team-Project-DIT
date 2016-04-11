@@ -59,7 +59,7 @@ public class GameActivity extends Activity implements View.OnClickListener{
         /** Get values for these from settings menu **/
         gameModeSelect = "AiMedium"; //getIntent().getExtras().getString("gameMode");
         learningToolSwitch = true; //getIntent().getExtras().getBoolean("learningTool");
-        gameStartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; //getIntent().getExtras().getString("startingFen");
+        gameStartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; //getIntent().getExtras().getString("startingFen");
         gameFenHistory = new ArrayList<>(); // getIntent().getExtras().getStringArrayList() ???
         /*********************************************/
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
