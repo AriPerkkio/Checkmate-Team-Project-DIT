@@ -915,7 +915,8 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn =! turn; // And flip turn
             }
-        if(!enPassSquareId.equals("")) { // Previous FEN had enPassSquare - Set it aga enPassSquare
+        if(!enPassSquareId.equals("") &&  // Previous FEN had enPassSquare - Set it aga enPassSquare
+           !fenString.equals(startingFenString)) {
             board.getSquare(enPassSquareId).setEnPassSquare(); // Set enPassSquare
             Log.d("crash here sometimes", "EnPassSquareId: "+enPassSquareId);
             Log.d("crash here sometimes", "fenString: "+fenString);
