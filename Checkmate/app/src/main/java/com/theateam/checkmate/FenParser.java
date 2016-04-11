@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class FenParser {
 
-    public String refreshFen(Board board, boolean turn, Player playerOne, Player playerTwo){
+    public String refreshFen(Board board, boolean turn, Player playerOne, Player playerTwo, Square enPassSquare){
         /**
          https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
          A FEN "record" defines a particular game position, all in one text line and using only the ASCII character set. A text file with only FEN data records should have the file extension ".fen".[1]
@@ -87,8 +87,10 @@ public class FenParser {
         else fenString+="-";
 
         // Construct en passant target square
-        // TODO
-        fenString+= " - "; // Atm no en passants, waiting for Jamal's implementation
+        if(enPassSquare!=null)
+            fenString += " "+enPassSquare.getId().toLowerCase()+" ";
+        else
+            fenString += " - ";
 
         // Construct halfMoves
         fenString+= "0";
