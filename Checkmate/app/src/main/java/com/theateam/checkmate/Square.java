@@ -12,10 +12,12 @@ public class Square {
     // References to other clases
     private Piece piece = null; // Initialize as null - it's always first thing to check
     private String id;
+    private boolean enPassSquare;
 
     // Id as in "A1", "A2", etc.
     public Square(String _id){
         id = _id;
+        enPassSquare = false;
     }
 
     public Piece getPiece(){
@@ -28,6 +30,14 @@ public class Square {
 
     public void setPiece(Piece _piece){
         this.piece = _piece;
+    }
+
+    public void setEnPassSquare(){
+        enPassSquare = !enPassSquare;
+    }
+
+    public boolean isEnPassSquare(){
+        return enPassSquare;
     }
 
     public String getId(){

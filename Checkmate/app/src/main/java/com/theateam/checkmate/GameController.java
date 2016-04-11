@@ -147,7 +147,7 @@ public class GameController {
     private void updateFen(){
         if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo)))
             fenList.add(fenString); // Add latest FEN-String
-        Log.d("updateFen, size: "+fenList.size(), fenString);
+        Log.d("updateFen, size: " + fenList.size(), fenString);
         for(int i=0;i<fenList.size();i++)
             Log.d("fenList "+i, fenList.get(i));
     }
@@ -221,11 +221,27 @@ public class GameController {
             if(_piece==null) Log.e("movePiece", "piece null");
             else Log.e("movePiece", "Piece: "+_piece.getPieceType()+ " at "+_piece.getSquare().getId());
         }
+        //test code for enPassant activation on piece, will clean up when working
+        if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='2' && target.getId().charAt(1)=='4') )){
+            ((Pawn) _piece).setEnPassPiece();
+            board.getSquare(from.getId().charAt(0) + "" + 3).setEnPassSquare();
+            Log.i("enPassant:", "Pawn at "+target.getId()+", enPassant is: "+((Pawn) _piece).isEnPassPiece());
+            Log.i("enPassant:", "Square at" + board.getSquare(from.getId().charAt(0) + "" + 3).getId() + ", enPassant is: " + board.getSquare(from.getId().charAt(0) + "" + 3).isEnPassSquare());
+        } else if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='7' && target.getId().charAt(1)=='5') )){
+            ((Pawn) _piece).setEnPassPiece();
+            board.getSquare(from.getId().charAt(0) + "" + 6).setEnPassSquare();
+            Log.i("enPassant:", "Pawn at " + target.getId() + ", enPassant is: " + ((Pawn) _piece).isEnPassPiece());
+            Log.i("enPassant:", "Square at" + board.getSquare(from.getId().charAt(0) + "" + 6).getId() + ", enPassant is: " + board.getSquare(from.getId().charAt(0) + "" + 6).isEnPassSquare());
+        }
+
+        //|| (from.getId().charAt(1)=='7' && target.getId().charAt(1)=='5')
         graphics.movePiece(_piece.getTextureId(), target.getId(), from.getId()); // Move piece in graphics
         from.setPiece(null); // Set old square empty
         _piece.setSquare(target); // Place piece to the new square
         if(_piece.getPieceType().equals("Rook")) ((Rook) _piece).cantCastle();
         if(_piece.getPieceType().equals("King")) ((King) _piece).cantCastle();
+
+
     }
 
     // Check if new click was made to make selected piece to move or to eliminate a piece
@@ -247,10 +263,27 @@ public class GameController {
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
             } else if (squareListTwo.contains(board.getSquare(clickedSquare))) { // Check if clicked square was valid capture movement
-                int tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
-                board.getSquare(clickedSquare).getPiece().remove(false); // Eliminate old piece from game logic
-                movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
-                graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId()); // Eliminate old piece from graphics
+                int tempPieceId;    //temporarily stores id for texture
+                Square enPassSquare;    //replaces square when enPassant is active
+                if(board.getSquare(clickedSquare).isEnPassSquare()){    //check if the square clicked is an enPassant move
+
+                    if(selectedPiece.getPlayer().isFirst()) {   //checks if player one
+                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 5);   //show piece on doubled move
+                    } else {    //else if player 2
+                        enPassSquare = board.getSquare(clickedSquare.charAt(0) + "" + 4);   //show piece on doubled move (other side of board)
+                    }
+                    tempPieceId = enPassSquare.getPiece().getTextureId();   //set texture id to the square with the piece on it
+                    board.getSquare(enPassSquare.getId()).getPiece().remove(false); // Eliminate old piece from game
+                    movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
+                    graphics.eliminatePiece(tempPieceId, enPassSquare.getId()); // Eliminate old piece from graphics
+                } else {
+                    tempPieceId = board.getSquare(clickedSquare).getPiece().getTextureId(); // Catch old piece id safe temporary
+                    board.getSquare(clickedSquare).getPiece().remove(false); // Eliminate old piece from game logic
+                    movePiece(selectedPiece, board.getSquare(clickedSquare), selectedPiece.getSquare());  // Move piece to chosen square
+                    graphics.eliminatePiece(tempPieceId, board.getSquare(clickedSquare).getId()); // Eliminate old piece from graphics
+                }
+
+
                 highlightsOff(); // Turn off all the highlights
                 if(callForPromote()) // Check if made move allows pawn promoting
                     return false;
@@ -283,6 +316,7 @@ public class GameController {
             preventExposeMove(selectedPiece, squareListTwo, true); // Check if valid capture moves expose king
         }
 
+
         // When king is in check use list of allowed squares when picking valid moves and capture moves
         if(( kingInCheck(playerOne) || kingInCheck(playerTwo) )&& !selectedPiece.getPieceType().equals("King")){ // Don't apply it to king
             for(int i=0;i<squareList.size();i++)
@@ -293,7 +327,7 @@ public class GameController {
             for(int i=0;i<squareListTwo.size();i++)
                 if(!allowedSquares.contains(squareListTwo.get(i))) {
                     squareListTwo.remove(i);
-                    i = -1; // Reset counter;
+                    i = -1; // Reset counter
                 }
         }
         highlights.add(new String[]{clickedSquare, "square", "green"}); // Highlight clicked square

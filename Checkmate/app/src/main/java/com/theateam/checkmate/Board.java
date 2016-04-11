@@ -128,10 +128,34 @@ public class Board {
                 if ((int) column >= (int) 'A' && (int) column <= (int) 'H' && row > 0 && row < 9) { // Check that square is valid
                     // Check that square has enemy piece in it
                     if (getSquare(column + "" + row).getPiece() != null &&
-                            !getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer()))
+                            !getSquare(column + "" + row).getPiece().getPlayer().equals(_piece.getPlayer())) {
                         returnListTwo.add(getSquare(column + "" + row)); // Add enemy piece's square to list
+                        Log.i("Capture:", "attackable square: " + getSquare(column + "" + row).getId());
+                    }
+                    //checks for enPassant activity
+                    /*
+                           1. checks if player's piece is on 4th or 5th row
+                           2. checks if attackable square's enPassant bool is active
+                           3. checks if enemy piece is next to it
+                    */
+
+                    if(_piece.getSquare().getId().charAt(1) == '5' &&
+                            getSquare(column + "" + row).isEnPassSquare() &&
+                            ((Pawn)getSquare(column + "" + 5).getPiece()).isEnPassPiece()){
+                        returnListTwo.add(getSquare(column + "" + row));
+                        Log.i("enPassCapture:", "attackable square: " + getSquare(column + "" + row).getId());
+
+                    }
+                    else if(_piece.getSquare().getId().charAt(1) == '4' &&
+                            getSquare(column + "" + row).isEnPassSquare() &&
+                            ((Pawn)getSquare(column + "" + 4).getPiece()).isEnPassPiece()){
+                        returnListTwo.add(getSquare(column + "" + row));
+                        Log.i("enPassCapture:", "attackable square: " + getSquare(column + "" + row).getId());
+
+                    }
                 }
             }
+
         }
 
         List<Square> returnListFour = new Vector<>();
