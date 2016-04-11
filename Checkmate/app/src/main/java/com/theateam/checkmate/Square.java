@@ -1,5 +1,7 @@
 package com.theateam.checkmate;
 
+import android.util.Log;
+
 /**
  * Created by AriPerkkio on 21/02/16.
  *
@@ -25,7 +27,7 @@ public class Square {
     }
 
     public boolean hasPiece(){
-        return true; // TODO
+        return (piece!=null);
     }
 
     public void setPiece(Piece _piece){
@@ -33,6 +35,7 @@ public class Square {
     }
 
     public void setEnPassSquare(){
+        //Log.d("Square", "1st: "+this.id+" enPass: "+enPassSquare+"->"+!enPassSquare);
         enPassSquare = !enPassSquare;
     }
 
