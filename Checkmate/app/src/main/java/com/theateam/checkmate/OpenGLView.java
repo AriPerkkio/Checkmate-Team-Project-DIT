@@ -30,7 +30,7 @@ public class OpenGLView extends GLSurfaceView {
 
     // Captures users clicks
     public boolean onTouchEvent(final MotionEvent e) {
-        if(PreviousFenlist.getStatus())
+        if(PreviousFenlist.getStatus()) // If in preview game, disable clicking
             return true;
 
         if(e.getAction() == MotionEvent.ACTION_UP) { // Launch action only when touch ends
