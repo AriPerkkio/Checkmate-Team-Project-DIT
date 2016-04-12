@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="00"
+        android:id="@+id/prevgamerowId"
+        android:textColor="#000000"
+        android:paddingRight="5dp"
+        android:textSize="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="GameMode"
+        android:id="@+id/prevgamerowGamemode"
+        android:textColor="#000000"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:layout_alignBottom="@+id/prevgamerowId"
+        android:layout_alignEnd="@+id/prevgamerowDate" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="OFF"
+        android:id="@+id/prevgamerowLearnTool"
+        android:textColor="#000000"
+        android:paddingRight="5dp"
+        android:layout_alignTop="@+id/prevgamerowGamemode"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="00-00-2016"
+        android:id="@+id/prevgamerowDate"
+        android:textColor="#000000"
+        android:paddingRight="5dp"
+        android:layout_below="@+id/prevgamerowGamemode"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>
