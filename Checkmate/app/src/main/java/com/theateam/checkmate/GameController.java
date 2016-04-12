@@ -90,7 +90,7 @@ public class GameController {
             break;
             case "AiInsane":
                 playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
-                thinkTime = 1000; // AI ThinkTime 1s
+                thinkTime = 100; // AI ThinkTime 0.1s
                 thinkDepth = 20; // Think plenty of moves ahead
                 level = 20; // Maximum level
             break;
@@ -260,7 +260,7 @@ public class GameController {
     public void movePiece(Piece _piece, Square target, Square from) {
 
         // Reset enPassSquare and piece every time a movement is done
-        if(board.getEnPassPiece()!=null && !target.isEnPassSquare()) { // Except when target is actual enPassSquare
+        if(board.getEnPassPiece()!=null && board.getEnPassSquare()!=null && !target.isEnPassSquare()) { // Except when target is actual enPassSquare
             board.getEnPassSquare().setEnPassSquare();
             board.getEnPassPiece().setEnPassPiece();
         }
@@ -919,6 +919,16 @@ public class GameController {
         board.clearBoard(); // Clear board from pieces and squares - after this whole board is empty!
         textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs using new FEN-string
         graphics.refresh(); // Refresh graphics
+        if(!enPassSquareId.equals("") &&  // Previous FEN had enPassSquare - Set it aga enPassSquare
+                !fenString.equals(startingFenString)) {
+            board.getSquare(enPassSquareId).setEnPassSquare(); // Set enPassSquare
+            Log.d("crash here sometimes", "EnPassSquareId: "+enPassSquareId);
+            Log.d("crash here sometimes", "fenString: "+fenString);
+            if(enPassSquareId.charAt(1)=='3')  // PlayerOne Pawn
+                ((Pawn) board.getSquare(enPassSquareId.charAt(0) + "" + '4').getPiece()).setEnPassPiece(); // Pawn at row 4
+            else  // PlayerTwo Pawn
+                ((Pawn) board.getSquare(enPassSquareId.charAt(0) + "" + '5').getPiece()).setEnPassPiece(); // Pawn at Row 5
+        }
         if(!turn && !playerTwo.isHuman()) // Opponent is AI
             undoMove(); // When playing against AI, undo 1st AI's latest move, then players own move
         highlightsOff();
@@ -931,16 +941,6 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn =! turn; // And flip turn
             }
-        if(!enPassSquareId.equals("") &&  // Previous FEN had enPassSquare - Set it aga enPassSquare
-           !fenString.equals(startingFenString)) {
-            board.getSquare(enPassSquareId).setEnPassSquare(); // Set enPassSquare
-            Log.d("crash here sometimes", "EnPassSquareId: "+enPassSquareId);
-            Log.d("crash here sometimes", "fenString: "+fenString);
-            if(enPassSquareId.charAt(1)=='3') // PlayerOne Pawn
-                ((Pawn) board.getSquare(enPassSquareId.charAt(0)+""+'4').getPiece()).setEnPassPiece(); // Pawn at row 4
-            else // PlayerTwo Pawn
-                ((Pawn) board.getSquare(enPassSquareId.charAt(0)+""+'5').getPiece()).setEnPassPiece(); // Pawn at Row 5
-        }
         updateFen(); // Add latest FEN
         return true; // Move was undone
     }
