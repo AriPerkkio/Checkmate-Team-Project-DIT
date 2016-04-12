@@ -14,6 +14,13 @@
     tools:context=".LaunchPageActivity"
     tools:showIn="@layout/activity_launch_page">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TEMP BUTTON\nPrevious games"
+        android:id="@+id/btnPrevGames"
+        android:layout_gravity="right" />
+
     <ImageView
         android:id="@+id/appLogo"
         android:layout_width="match_parent"
