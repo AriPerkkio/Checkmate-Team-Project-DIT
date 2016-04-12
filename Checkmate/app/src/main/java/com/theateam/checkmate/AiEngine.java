@@ -60,7 +60,7 @@ public class AiEngine {
         } catch (IOException e) { // Read/Write errors
             e.printStackTrace();
         }
-        Log.i("Engine", text); // Remove later
+        if(text!=null) Log.i("Engine", text); // Remove later
         Log.i("Ponder", ponderMove);
         Log.i("Returning AiMove", move);
         return move;
