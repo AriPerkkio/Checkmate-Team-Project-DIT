@@ -38,15 +38,12 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private boolean learningToolSwitch;
     private String gameStartingFen;
     private List<String> gameFenHistory;
-    private DatabaseManager databaseManager;
+    private DatabaseManager databaseManager = new DatabaseManager(this);
     private int gameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //Set full screen
         // Hide navigation bar and keep it hidden when pressing
-        /** Chris work here **/
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -60,23 +57,13 @@ public class GameActivity extends Activity implements View.OnClickListener{
 
         // TODO: Read values from previous activity - i.e. getIntent().getExtras().
         /** Get values for these from settings menu **/
-        gameModeSelect = "AiMedium"; //getIntent().getExtras().getString("gameMode");
+        gameModeSelect = "AiInsane"; //getIntent().getExtras().getString("gameMode");
         learningToolSwitch = true; //getIntent().getExtras().getBoolean("learningTool");
         gameStartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; //getIntent().getExtras().getString("startingFen");
         gameFenHistory = new ArrayList<>(); // getIntent().getExtras().getStringArrayList() ???
         /*********************************************/
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
         setContentView(R.layout.activity_game);
-
-        databaseManager = new DatabaseManager(this);
-        try {
-            databaseManager.open(); // Open DB
-            databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
-            gameId = databaseManager.getHighestId();
-            databaseManager.close(); // Close DB
-        }catch (SQLException e){ // Sql error
-            Log.e("GameActivity", "insrtGame, e: "+e.toString()); // Print error
-        }
         textField = (TextView) findViewById(R.id.textField);
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
         btnUndoMove.setOnClickListener(this);
@@ -103,6 +90,8 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 Log.d("GameActivity", "gameFenHistGet, Size: "+gameFenHistory.size());
                 try{
                     databaseManager.open();
+                    databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
+                    gameId = databaseManager.getHighestId();
                     for(int i=0;i<gameFenHistory.size();i++)
                         databaseManager.insertIntoFenList(gameId, gameFenHistory.get(i));
                     databaseManager.close();
