@@ -108,19 +108,6 @@ public class GameController {
         return instance;
     }
 
-    // Refresh textureId&Piece pairs using current FEN-string of board
-    public void updateTextureIdToPiece(){
-        textureIdToPiece.clear();
-        fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare());
-        textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
-    }
-
-    public Map<Integer, Piece> getTextureIdToPiece(){
-        return textureIdToPiece;
-    }
-
-    public boolean getTurn(){ return turn; }
-
     // Boolean so that method can be broke if needed - see "return false" -statements
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
@@ -182,6 +169,24 @@ public class GameController {
         Log.i("updateFen, size: " + fenList.size(), "All FENs below");
         for(int i=0;i<fenList.size();i++)
             Log.i("fenList "+i, fenList.get(i));
+    }
+
+
+    // Refresh textureId&Piece pairs using current FEN-string of board
+    public void updateTextureIdToPiece(){
+        textureIdToPiece.clear();
+        fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare());
+        textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
+    }
+
+    public Map<Integer, Piece> getTextureIdToPiece(){
+        return textureIdToPiece;
+    }
+
+    public boolean getTurn(){ return turn; }
+
+    public List<String> getFenList(){
+        return fenList;
     }
 
     public void aiMove(){
