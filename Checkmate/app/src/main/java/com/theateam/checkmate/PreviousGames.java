@@ -64,6 +64,9 @@ public class PreviousGames extends AppCompatActivity implements View.OnClickList
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long arg){
         Cursor selectedObject = (Cursor) (listGames.getItemAtPosition(position));
         Toast.makeText(this, "Clicked row "+position, Toast.LENGTH_SHORT).show();
+        Intent prevFenIntent = new Intent(PreviousGames.this, PreviousFenlist.class);
+        prevFenIntent.putExtra("GameId", selectedObject.getInt(0));
+        this.startActivity(prevFenIntent);
     }
 
     // Cursor adapter for Games

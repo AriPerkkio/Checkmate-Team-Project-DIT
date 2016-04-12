@@ -10,13 +10,11 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".GameActivity"
-            android:label="GameActivity">
-        </activity>
+            android:label="GameActivity"></activity>
         <activity
             android:name=".MenuActivity"
             android:label="@string/title_activity_menu"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".LaunchPageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PreviousGames"></activity>
+        <activity android:name=".PreviousGames" />
+        <activity android:name=".PreviousFenlist"></activity>
     </application>
 
 </manifest>
