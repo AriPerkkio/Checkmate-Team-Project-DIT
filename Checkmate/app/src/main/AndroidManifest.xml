@@ -11,22 +11,11 @@
         <activity
             android:name=".GameActivity"
             android:label="GameActivity">
-
-            <!-- Remove comments here to make default activity open on game (highlight lines and press ctrl + / -->
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".MenuActivity"
             android:label="@string/title_activity_menu"
             android:theme="@style/AppTheme.NoActionBar">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
         <activity android:name=".LaunchPageActivity">
             <intent-filter>
@@ -35,17 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".PreviousGames"></activity>
     </application>
 
-</manifest><!--
-When testing, add following:
-
-        <activity android:name=".testActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-And comment out the current launcher activity's intent-filters.
--->
+</manifest>
