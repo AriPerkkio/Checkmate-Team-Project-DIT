@@ -23,7 +23,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TEMP BUTTON\nSAVE GAME"
+            android:text="TEMP BUTTON\nSAVE &amp; EXIT"
             android:id="@+id/btnSave"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true" />
