@@ -3,6 +3,7 @@ package com.theateam.checkmate;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.database.SQLException;
 import android.graphics.Point;
 import android.view.Display;
 import android.os.Bundle;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +33,13 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private static String directory;
     public static TextView textField;
     private Button btnUndoMove;
+    private Button btnSave;
     private String gameModeSelect;
     private boolean learningToolSwitch;
     private String gameStartingFen;
     private List<String> gameFenHistory;
+    private DatabaseManager databaseManager;
+    private int gameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +68,24 @@ public class GameActivity extends Activity implements View.OnClickListener{
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
         setContentView(R.layout.activity_game);
 
+        databaseManager = new DatabaseManager(this);
+        try {
+            databaseManager.open(); // Open DB
+            databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
+            gameId = databaseManager.getHighestId();
+            databaseManager.close(); // Close DB
+        }catch (SQLException e){ // Sql error
+            Log.e("GameActivity", "insrtGame, e: "+e.toString()); // Print error
+        }
         textField = (TextView) findViewById(R.id.textField);
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
         btnUndoMove.setOnClickListener(this);
+        btnSave = (Button) findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(this);
         instance = this;
         writeEngineToDevice();
         directory = getFilesDir().toString()+"/engines/";
+
     }
     public static GameActivity getInstance(){
         if(instance==null) Log.e("Instance", "null");
@@ -82,6 +97,20 @@ public class GameActivity extends Activity implements View.OnClickListener{
             case R.id.btnRedo:
                 if(!gameController.undoMove())
                     Toast.makeText(this, "Board still at starting positions", Toast.LENGTH_LONG).show();
+            break;
+            case R.id.btnSave:
+                gameFenHistory = gameController.getFenList();
+                Log.d("GameActivity", "gameFenHistGet, Size: "+gameFenHistory.size());
+                try{
+                    databaseManager.open();
+                    for(int i=0;i<gameFenHistory.size();i++)
+                        databaseManager.insertIntoFenList(gameId, gameFenHistory.get(i));
+                    databaseManager.close();
+                }catch(SQLException e){
+                    Log.e("GameActivity", "insrtFen, e: "+e.toString()); // Print error
+                }
+                Toast.makeText(this, "Game saved, shutting down...", Toast.LENGTH_SHORT).show();
+                finish();
             break;
         }
     }
