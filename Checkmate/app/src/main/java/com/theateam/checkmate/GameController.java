@@ -60,6 +60,7 @@ public class GameController {
         // Instances
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
+        instance = this;
         // Game options
         learningTool = _learningTool;
         startingFenString = _startingFenString;
@@ -177,6 +178,16 @@ public class GameController {
         textureIdToPiece.clear();
         fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare());
         textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
+    }
+
+    // This is only called by PreviousFenlist.java activity
+    // Used to refresh board into given FEN-String board layout
+    public void previewFen(String _fenString){
+        textureIdToPiece.clear();
+        board.clearBoard();
+        fenString = _fenString;
+        textureIdToPiece =  fenParser.setupFromFen(fenString, playerOne, playerTwo, board);
+        graphics.refresh(); // Refresh graphics
     }
 
     public Map<Integer, Piece> getTextureIdToPiece(){
