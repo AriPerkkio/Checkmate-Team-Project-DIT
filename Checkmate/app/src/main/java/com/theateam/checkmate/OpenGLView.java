@@ -30,6 +30,8 @@ public class OpenGLView extends GLSurfaceView {
 
     // Captures users clicks
     public boolean onTouchEvent(final MotionEvent e) {
+        if(PreviousFenlist.getStatus())
+            return true;
 
         if(e.getAction() == MotionEvent.ACTION_UP) { // Launch action only when touch ends
             renderer.processTouchEvent(e); // Pass touch event to renderer
