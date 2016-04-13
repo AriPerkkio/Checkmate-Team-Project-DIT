@@ -99,6 +99,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         if(promotingOn) // Check if pawn promoting was called previously (Before OpenGL Surface was finished last time)
             pawnPromoteOn(promotingPlayer); // Set up promoting window for chosen player
+
+        if(gameController.initialRotate()) // Game started with rotated board
+            rotate();
     }
 
     public void setupCoordinates(){

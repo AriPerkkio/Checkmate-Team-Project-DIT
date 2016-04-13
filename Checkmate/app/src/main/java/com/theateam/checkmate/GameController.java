@@ -205,6 +205,11 @@ public class GameController {
         return fenList;
     }
 
+    // When starting from FEN that has 'b' as turn board will be rotated in two player games
+    public boolean initialRotate(){
+        return playerTwo.isHuman() && !turn;
+    }
+
     public void aiMove(){
         // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
         highlightsOff();
@@ -267,7 +272,7 @@ public class GameController {
         // Reset enPassSquare and piece every time a movement is done
         if(board.getEnPassPiece()!=null) board.getEnPassPiece().setEnPassPiece();
         if(board.getEnPassSquare()!=null) board.getEnPassSquare().setEnPassSquare();
-         
+
         // When piece to be moved is pawn, and it does double step activate it as enPassPiece
         if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='2' && target.getId().charAt(1)=='4') )){ // Row 2 to 4
             ((Pawn) _piece).setEnPassPiece();
