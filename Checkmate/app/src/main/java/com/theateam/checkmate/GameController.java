@@ -265,11 +265,9 @@ public class GameController {
     public void movePiece(Piece _piece, Square target, Square from) {
 
         // Reset enPassSquare and piece every time a movement is done
-        if(board.getEnPassPiece()!=null && board.getEnPassSquare()!=null && !target.isEnPassSquare()) { // Except when target is actual enPassSquare
-            board.getEnPassSquare().setEnPassSquare();
-            board.getEnPassPiece().setEnPassPiece();
-        }
-
+        if(board.getEnPassPiece()!=null) board.getEnPassPiece().setEnPassPiece();
+        if(board.getEnPassSquare()!=null) board.getEnPassSquare().setEnPassSquare();
+         
         // When piece to be moved is pawn, and it does double step activate it as enPassPiece
         if(_piece.getPieceType().equals("Pawn") && ( (from.getId().charAt(1)=='2' && target.getId().charAt(1)=='4') )){ // Row 2 to 4
             ((Pawn) _piece).setEnPassPiece();
