@@ -233,6 +233,23 @@ public class FenParser {
         for(int i=0;i<playerTwo.getPieceList().size();i++)
             textureIdToPiece.put(playerTwo.getPieceList().get(i).getTextureId(), playerTwo.getPieceList().get(i));
 
+        // Set castling
+        String castlingChars = _fenString.split(" ")[2];
+        // Rooks
+        if(castlingChars.charAt(0)!='K' && board.getSquare("H1").getPiece()!=null && board.getSquare("H1").getPiece().getPieceType().equals("Rook"))
+            ((Rook) board.getSquare("H1").getPiece()).cantCastle();
+        if(castlingChars.charAt(1)!='Q' && board.getSquare("A1").getPiece()!=null && board.getSquare("A1").getPiece().getPieceType().equals("Rook"))
+            ((Rook) board.getSquare("A1").getPiece()).cantCastle();
+        if(castlingChars.charAt(2)!='k' && board.getSquare("H8").getPiece()!=null && board.getSquare("H8").getPiece().getPieceType().equals("Rook"))
+            ((Rook) board.getSquare("H8").getPiece()).cantCastle();
+        if(castlingChars.charAt(3)!='q' && board.getSquare("A8").getPiece()!=null && board.getSquare("A8").getPiece().getPieceType().equals("Rook"))
+            ((Rook) board.getSquare("A8").getPiece()).cantCastle();
+        // Kings
+        if(castlingChars.charAt(0)!='K' && castlingChars.charAt(1)!='Q')
+            ((King) playerOne.getPieceByType("King")).cantCastle();
+        if(castlingChars.charAt(2)!='k' && castlingChars.charAt(3)!='q')
+            ((King) playerTwo.getPieceByType("King")).cantCastle();
+
         return textureIdToPiece; // Map<Integer, Piece>
     }
 
@@ -261,5 +278,26 @@ public class FenParser {
             default:
                 /** ERROR LOG **/ Log.e("reverseFen", "Char: "+_char); // Error - not a FEN-string character
         }
+    }
+
+    public String getEnPassSquare(String _fenString){
+        String returnString = null;
+        if(_fenString.charAt(_fenString.length()-5) != '-')
+            returnString = Character.toUpperCase(_fenString.charAt(_fenString.length()-6))
+                    +""+
+                    Integer.parseInt(_fenString.charAt(_fenString.length() - 5) + ""); // Character index for enPassSquare in FEN
+
+        if(returnString!=null)
+            Log.d("fenParser", "getEnPassSquare: "+returnString);
+        else
+            Log.d("fenParser", "getEnPassSquare: null");
+        return returnString;
+    }
+
+    public boolean getTurn(String _fenString){
+        String playerChar = _fenString.split(" ")[1];
+
+        Log.d("fenParser", "getTurn: "+playerChar);
+        return playerChar.equals("w");
     }
 }
