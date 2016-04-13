@@ -61,6 +61,11 @@ public class GameController {
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
         instance = this;
+
+        // If OpenGLRenderer was previously left as rotated, rotate it back
+        if(OpenGLRenderer.rotated)
+            graphics.rotate();
+
         // Game options
         learningTool = _learningTool;
         startingFenString = _startingFenString;
