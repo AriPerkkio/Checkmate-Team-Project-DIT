@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 public class PreviousFenlist extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener{
 
     private Button btnBack;
+    private ImageButton btnNext;
+    private ImageButton btnPrev;
     private ListView listFenlist;
     private DatabaseManager databaseManager;
     private Cursor cursorFenlist;
@@ -32,6 +35,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private String learningTool;
     private GameController gameController;
     private static boolean status;
+    private String selectedFen;
 
 
     @Override
@@ -72,11 +76,16 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
 
         btnBack = (Button) findViewById(R.id.btnPrevfenlistBack);
         btnBack.setOnClickListener(this);
+        btnNext = (ImageButton) findViewById(R.id.btnPrevfenNext);
+        btnNext.setOnClickListener(this);
+        btnPrev = (ImageButton) findViewById(R.id.btnPrevfenPrev);
+        btnPrev.setOnClickListener(this);
         listFenlist = (ListView) findViewById(R.id.prevfenlistList);
         listFenlist.setOnItemClickListener(this);
 
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.fenstringrow, fenList);
         listFenlist.setAdapter(arrayAdapter);
+        selectedFen = fenList.get(0);
     }
 
     // Indicates if this activity is on
@@ -91,10 +100,23 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 status = false;
                 finish();
             break;
+            case R.id.btnPrevfenNext:
+                if(fenList.indexOf(selectedFen)==fenList.size()-1)
+                    break;
+                selectedFen = fenList.get(fenList.indexOf(selectedFen)+1);
+                gameController.previewFen(selectedFen);
+            break;
+            case R.id.btnPrevfenPrev:
+                if(fenList.indexOf(selectedFen)==0)
+                    break;
+                selectedFen = fenList.get(fenList.indexOf(selectedFen)-1);
+                gameController.previewFen(selectedFen);
+            break;
         }
     }
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long arg){
         gameController.previewFen(fenList.get(position));
+        selectedFen = fenList.get(position);
     }
 
 
