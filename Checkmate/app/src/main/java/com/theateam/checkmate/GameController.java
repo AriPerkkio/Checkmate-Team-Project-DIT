@@ -27,6 +27,7 @@ public class GameController {
     private boolean testsDone = false; // Tester
     public boolean learningTool; // Used in OpenGLRenderer.highlight()
     private String fenString = ""; // Board layout using FEN
+    private int[] drawCounter= new int[2];   //counter for fifty move rule draw
 
     //References for other classes
     private Board board;
@@ -130,41 +131,13 @@ public class GameController {
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
 
-        int total = 0;  //total number of valid moves left for player
-
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
-        if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
+        if(checkKingsForCheckmate()) // Check if either of kings  are in checkmate
             return true; // One king in checkmate, break here
 
-        //TODO: add stalemate check here
-        /*
-         * Stalemate occurs when these conditions are met:
-         * 1. King is not in check
-         * 2. No legal moves remain for current player
-         *
-         * @author: Jamal Mahmoud
-         */
-        if(turn){   //player 1
-            total = checkTotalMoves(playerOne); //checks remaining legal moves
-            if(total < 1){
-                //stalemate reached!
-                Log.i("GameState:" ,"Stalemate reached by P1! Total Moves Left: " + total);
-                GameActivity.textField.setText("Stalemate!");
-            }
-        } else {    //player 2
-            total = checkTotalMoves(playerTwo); //checks remaining legal moves
-            if(total < 1){
-                //stalemate reached!
-                Log.i("GameState:" ,"Stalemate reached by P2! Total Moves left: " + total);
-                GameActivity.textField.setText("Stalemate!");
-            }
-        }
-
-        Log.i("Stalemate Check:", "Legal Moves left: " + total);    //checking total moves left for player
-
-
-
+        if(checkKingsForStalemate())    //check if either player is in stalemate
+            return true;    //if player cannot move, stalemate
 
         if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
             aiMove();
@@ -218,15 +191,14 @@ public class GameController {
      * totals up moves for each player on their turn
      *
      */
-    private int checkTotalMoves(Player player) {
-        int total = 0;
-        List[] squareList;
+    private boolean stalemate(Player player) {
+
+        int total = 0;  //total moves
+
         for(int x=0;x<8;x++) {
             for (int y = 0; y < 8; y++) {
-               // Log.i("PieceCheck:", "square: " + (char) ((int) 'A' + x));
-                Log.i("PieceCheck:", "square: " + board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getId());
-                if (board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece() != null ) {
-                    if(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece().getPieceType().equals("King")){
+                if (board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece() != null ) {  //if square has a piece
+                    if(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece().getPieceType().equals("King")){    //if piece is a king
                         // Check if king has any moves
                         List<Square> kingMovements = board.getValidMoves(player.getPieceByType("King"))[0];
                         List<Square> kingCaptureMoves = board.getValidMoves(player.getPieceByType("King"))[1];
@@ -234,20 +206,25 @@ public class GameController {
                         preventExposeMove(player.getPieceByType("King"), kingMovements, false); // Process king's movements
                         preventExposeMove(player.getPieceByType("King"), kingCaptureMoves, false);
 
+                        //add up remaining moves for king
                         total += kingMovements.size();
                         total += kingCaptureMoves.size();
                     }
-                    else if(board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece().getPlayer().equals(player)) {
-                        bothSquareLists = board.getValidMoves(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());
-                        board.checkPinningMoves(bothSquareLists, board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());
+                    else if(board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece().getPlayer().equals(player)) {    //else if piece is not king
+                        bothSquareLists = board.getValidMoves(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());   //get movements
+                        board.checkPinningMoves(bothSquareLists, board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());    //check if pinned
 
+                        //add up remaining moves
                         total += bothSquareLists[0].size();
                         total += bothSquareLists[1].size();
                     }
                 }
             }
         }
-        return total;
+        Log.i("Stalemate", "Legal Moves left: " + total);
+        if(total < 1)//if 0 moves exist, stalemate is true
+            return true;
+        else return false;
     }
 
     // Called when board layout has changed in game logic
@@ -257,6 +234,50 @@ public class GameController {
         Log.i("updateFen, size: " + fenList.size(), "All FENs below");
         for(int i=0;i<fenList.size();i++)
             Log.i("fenList "+i, fenList.get(i));
+    }
+
+
+    /*
+     * Method to check for 50 move rule
+     * 1. if each player has made 50 moves each
+     * 2. no pieces have been captured
+     * 3. no pawns have been advanced
+     *
+     * Game results in stalemate
+     *
+     * NOTE: if boolean captureReset is true, auto reset counter, else check for pawn moves
+     */
+    private void checkDraw(Piece _piece, Square _square, boolean captureReset){
+        if(captureReset){
+            drawCounter[0] = 0;
+            drawCounter[1] = 0;
+        } else {
+            //check if piece moved is a pawn
+            if(_piece.getPieceType().equals("Pawn")) {
+                drawCounter[0] = 0;
+                drawCounter[1] = 0;
+            }
+            //then check if move was a capture movement
+            else if(squareListTwo.contains(board.getSquare(_square.getId()))){
+                drawCounter[0] = 0;
+                drawCounter[1] = 0;
+            }
+            else{
+                if(turn){
+                    drawCounter[0] += 1;
+                }
+                else{
+                    drawCounter[1] += 1;
+                }
+
+                if(drawCounter[0] == 50 && drawCounter[1] == 50){
+                    GameActivity.textField.setText("Draw by 50 Move Rule");
+                }
+            }
+        }
+
+        Log.i("50MoveCheck", "drawCounter1: " + drawCounter[0] + "drawCounter2: " + drawCounter[1]);
+
     }
 
 
@@ -381,6 +402,7 @@ public class GameController {
                     return false;
                 turn = !turn;
                 updateFen(); // Update FEN before changing board layout
+                checkDraw(selectedPiece, board.getSquare(clickedSquare), false); //checks for 50 move rule
                 if(selectedPiece.getPieceType().equals("King")) // Check castling for kings
                     if(castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
                         movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
@@ -414,6 +436,7 @@ public class GameController {
                     return false;
                 turn = !turn;
                 updateFen(); // Update FEN before changing board layout
+                checkDraw(null, null, true); //checks for 50 move rule
                 // Check if the move caused check
                 if(checkKingsForCheckmate())
                     return false; // One king in checkmate, break here
@@ -821,6 +844,21 @@ public class GameController {
             }
         GameActivity.textField.setText("");
         return false;
+    }
+
+    public boolean checkKingsForStalemate(){
+        if(turn && stalemate(playerOne)){
+            Log.i("GameState:", "Stalemate reached by P1!");
+            GameActivity.textField.setText("Stalemate!");
+            return true;
+        }
+        if(!turn && stalemate(playerTwo)){
+            Log.i("GameState:", "Stalemate reached by P2!");
+            GameActivity.textField.setText("Stalemate!");
+            return true;
+        }
+        return false;
+
     }
 
     // Check if king's valid moves are exposed
