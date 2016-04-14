@@ -124,6 +124,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 play.putExtra("learningTool", (learningTool.equals("ON")));
                 play.putExtra("startingFen", fenList.get(fenList.size()-1)); // Last FEN from the fenList
                 play.putExtra("fenList", fenList);
+                play.putExtra("gameId", gameId);
                 startActivity(play);
                 this.finish();
             break;
