@@ -24,15 +24,14 @@ public class FenParser {
 
          Examples
          Here is the FEN for the starting position:
-         rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (WIKIPEDIA)
+         rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
          Here is the FEN after the move 1. e4:
-         rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1 (WIKIPEDIA)
+         rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
          And then after 1. ... c5:
-         rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2 (WIKIPEDIA)
+         rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2
          And then after 2. Nf3:
-         rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2 (WIKIPEDIA)
+         rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2
          */
-        // TODO: Fix 1rb1kr22/1p1p3p/2n3p1/2bpp3/p7/4B1K1/PPP3PP/RN3BNR b ---- - 0 0
 
         String fenString = ""; // Clear old board layout
         int emptyCounter=0;
@@ -142,6 +141,7 @@ public class FenParser {
     }
 
     // Reads FEN-string and adds piece's to player with correct square from board. Returns map with pairs of (textureId & piece)
+    // Pieces are recreated here so en pass square and other unique behaviours have to be set again
     public Map<Integer, Piece> setupFromFen(String _fenString, Player playerOne, Player playerTwo, Board board){
 
         String[] allRows = _fenString.split("/"); // Split FEN-string into each row
@@ -222,9 +222,8 @@ public class FenParser {
                                 reverseFen(checkChar, TextureGL.count+pieceCount, playerTwo, square);
                         break;
                     }
-
                 }
-                charPick++;
+                charPick++; // Move to next character
             }
 
         // Construct textureId&Piece pairs from both players' pieceLists
@@ -249,6 +248,15 @@ public class FenParser {
             ((King) playerOne.getPieceByType("King")).cantCastle();
         if(castlingChars.charAt(2)!='k' && castlingChars.charAt(3)!='q')
             ((King) playerTwo.getPieceByType("King")).cantCastle();
+
+        // Set en pass piece
+        if(board.getEnPassSquare()!=null){
+            String enPassSquare = board.getEnPassSquare().getId();
+            if(enPassSquare.charAt(1)=='3') // Player one pawn
+                ((Pawn) board.getSquare(enPassSquare.charAt(0)+""+'4').getPiece()).setEnPassPiece();
+            else // Player two pawn
+                ((Pawn) board.getSquare(enPassSquare.charAt(0)+""+'5').getPiece()).setEnPassPiece();
+        }
 
         return textureIdToPiece; // Map<Integer, Piece>
     }

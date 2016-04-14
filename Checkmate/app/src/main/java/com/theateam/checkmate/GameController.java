@@ -103,10 +103,21 @@ public class GameController {
         }
         board = new Board(); // Initialized board with these two players
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
-        updateTextureIdToPiece(); // TODO: Test without this line with different starting fens
-        fenList.add(startingFenString); // Add starting board layout to fenList
-        // TODO: Add enPassSquare parsing from FEN when new game started (fenParser.getEnPassSquare(fenString) -> String squareId
-        // TODO: Add turn parsing from FEN when new game started (fenParser.getTurn(fenString) -> boolean turn / char turn
+        //updateTextureIdToPiece(); // TODO: Testing. Delete later - or if textures are not properly set when new game is started, uncomment this.
+        if(!fenList.contains(startingFenString))
+            fenList.add(startingFenString); // Add starting board layout to fenList
+
+        // Set enPassSquare from startingFen
+        String enPassSquare = fenParser.getEnPassSquare(startingFenString);
+        if (enPassSquare != null) {
+            board.getSquare(enPassSquare).setEnPassSquare();
+            if (enPassSquare.charAt(1) == '3')// Pawn on row 4
+                ((Pawn) board.getSquare(enPassSquare.charAt(0) + "" + '4').getPiece()).setEnPassPiece();
+            else // Pawn on row 5
+                ((Pawn) board.getSquare(enPassSquare.charAt(0) + "" + '5').getPiece()).setEnPassPiece();
+        }
+        // Set turn from startingFen
+        turn = fenParser.getTurn(_startingFenString);
     }
 
     public static GameController getInstance() {
@@ -912,7 +923,7 @@ public class GameController {
     // Called from GameActivity ONLY
     // Undo previous move and setup board with previous FEN
     public boolean undoMove(){
-        if(fenList.size()==1 || fenList.get(fenList.size()-1).equals(startingFenString)) // No moves has been made
+        if(fenList.size()==1) // No moves has been made
             return false; // Unable to undo move
         fenList.remove(fenList.size()-1); // Remove current layout
         graphics.pawnPromoteOff(); // Remove pawn promoting window if it's visible
