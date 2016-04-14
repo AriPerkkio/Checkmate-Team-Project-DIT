@@ -145,4 +145,9 @@ public class DatabaseManager {
         db.delete(DATABASE_TABLE_GAMES, "_id=" + gameId, null);
         db.delete(DATABASE_TABLE_FENLIST, "_id=" + gameId, null);
     }
+
+    // Delete all FEN-String by ID
+    public void clearFenById(int gameId) throws SQLException {
+        db.delete(DATABASE_TABLE_FENLIST, "_id=" + gameId, null);
+    }
 }
