@@ -57,10 +57,10 @@ public class GameActivity extends Activity implements View.OnClickListener{
 
         // TODO: Read values from previous activity - i.e. getIntent().getExtras().
         /** Get values for these from settings menu **/
-        gameModeSelect = "AiInsane"; //getIntent().getExtras().getString("gameMode");
-        learningToolSwitch = true; //getIntent().getExtras().getBoolean("learningTool");
-        gameStartingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; //getIntent().getExtras().getString("startingFen");
-        gameFenHistory = new ArrayList<>(); // getIntent().getExtras().getStringArrayList() ???
+        gameModeSelect = getIntent().getExtras().getString("gameMode");
+        learningToolSwitch = getIntent().getExtras().getBoolean("learningTool");
+        gameStartingFen = getIntent().getExtras().getString("startingFen");
+        gameFenHistory = getIntent().getExtras().getStringArrayList("fenList");
         /*********************************************/
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
         setContentView(R.layout.activity_game);
