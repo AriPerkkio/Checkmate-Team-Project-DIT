@@ -54,15 +54,16 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
-
-        // TODO: Read values from previous activity - i.e. getIntent().getExtras().
-        /** Get values for these from settings menu **/
         gameModeSelect = getIntent().getExtras().getString("gameMode");
         learningToolSwitch = getIntent().getExtras().getBoolean("learningTool");
         gameStartingFen = getIntent().getExtras().getString("startingFen");
         gameFenHistory = getIntent().getExtras().getStringArrayList("fenList");
-        /*********************************************/
+        if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
+        else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
+        Log.d("GameAcrtivity", "GameID: "+gameId);
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
+        if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
+            Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
         textField = (TextView) findViewById(R.id.textField);
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
@@ -74,10 +75,6 @@ public class GameActivity extends Activity implements View.OnClickListener{
         directory = getFilesDir().toString()+"/engines/";
 
     }
-    public static GameActivity getInstance(){
-        if(instance==null) Log.e("Instance", "null");
-        return instance;
-    }
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -87,18 +84,21 @@ public class GameActivity extends Activity implements View.OnClickListener{
             break;
             case R.id.btnSave:
                 gameFenHistory = gameController.getFenList();
-                Log.d("GameActivity", "gameFenHistGet, Size: "+gameFenHistory.size());
                 try{
                     databaseManager.open();
-                    databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
-                    gameId = databaseManager.getHighestId();
-                    for(int i=0;i<gameFenHistory.size();i++)
+                    if(gameId==0){ // New game
+                        databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
+                        gameId = databaseManager.getHighestId(); // Get its id
+                    }
+                    else // Saved game was continued
+                        databaseManager.clearFenById(gameId); // Clear old game rows
+                    for(int i=0;i<gameFenHistory.size();i++) // Insert all FEN-Strings
                         databaseManager.insertIntoFenList(gameId, gameFenHistory.get(i));
                     databaseManager.close();
                 }catch(SQLException e){
-                    Log.e("GameActivity", "insrtFen, e: "+e.toString()); // Print error
+                    Log.e("GameActivity", "insertFen, e: "+e.toString()); // Print error
                 }
-                Toast.makeText(this, "Game saved, shutting down...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Game saved.", Toast.LENGTH_SHORT).show();
                 finish();
             break;
         }
