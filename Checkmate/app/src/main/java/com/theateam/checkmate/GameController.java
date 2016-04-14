@@ -1,6 +1,7 @@
 package com.theateam.checkmate;
 
 import android.os.SystemClock;
+import android.support.annotation.IntegerRes;
 import android.util.Log;
 import android.view.View;
 
@@ -129,10 +130,41 @@ public class GameController {
     // Graphics are calling this method for every square click that is made
     public boolean selectSquare(String _square) {
 
+        int total = 0;  //total number of valid moves left for player
+
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
 
         if(checkKingsForCheckmate()) // Check if either of kings are in checkmate
             return true; // One king in checkmate, break here
+
+        //TODO: add stalemate check here
+        /*
+         * Stalemate occurs when these conditions are met:
+         * 1. King is not in check
+         * 2. No legal moves remain for current player
+         *
+         * @author: Jamal Mahmoud
+         */
+        if(turn){   //player 1
+            total = checkTotalMoves(playerOne); //checks remaining legal moves
+            if(total < 1){
+                //stalemate reached!
+                Log.i("GameState:" ,"Stalemate reached by P1! Total Moves Left: " + total);
+                GameActivity.textField.setText("Stalemate!");
+            }
+        } else {    //player 2
+            total = checkTotalMoves(playerTwo); //checks remaining legal moves
+            if(total < 1){
+                //stalemate reached!
+                Log.i("GameState:" ,"Stalemate reached by P2! Total Moves left: " + total);
+                GameActivity.textField.setText("Stalemate!");
+            }
+        }
+
+        Log.i("Stalemate Check:", "Legal Moves left: " + total);    //checking total moves left for player
+
+
+
 
         if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
             aiMove();
@@ -177,6 +209,45 @@ public class GameController {
         //tests(); // See function
 
         return true;
+    }
+
+
+    /*
+     * Makes checks for stalemate
+     * checks if king or other pieces can move
+     * totals up moves for each player on their turn
+     *
+     */
+    private int checkTotalMoves(Player player) {
+        int total = 0;
+        List[] squareList;
+        for(int x=0;x<8;x++) {
+            for (int y = 0; y < 8; y++) {
+               // Log.i("PieceCheck:", "square: " + (char) ((int) 'A' + x));
+                Log.i("PieceCheck:", "square: " + board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getId());
+                if (board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece() != null ) {
+                    if(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece().getPieceType().equals("King")){
+                        // Check if king has any moves
+                        List<Square> kingMovements = board.getValidMoves(player.getPieceByType("King"))[0];
+                        List<Square> kingCaptureMoves = board.getValidMoves(player.getPieceByType("King"))[1];
+
+                        preventExposeMove(player.getPieceByType("King"), kingMovements, false); // Process king's movements
+                        preventExposeMove(player.getPieceByType("King"), kingCaptureMoves, false);
+
+                        total += kingMovements.size();
+                        total += kingCaptureMoves.size();
+                    }
+                    else if(board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece().getPlayer().equals(player)) {
+                        bothSquareLists = board.getValidMoves(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());
+                        board.checkPinningMoves(bothSquareLists, board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());
+
+                        total += bothSquareLists[0].size();
+                        total += bothSquareLists[1].size();
+                    }
+                }
+            }
+        }
+        return total;
     }
 
     // Called when board layout has changed in game logic
