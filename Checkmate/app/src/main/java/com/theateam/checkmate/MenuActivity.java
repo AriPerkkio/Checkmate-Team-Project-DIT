@@ -52,7 +52,10 @@ public class MenuActivity extends Activity {
             public void onClick(View v) {
                 Intent intent = new Intent(MenuActivity.this, GameActivity.class);
                 //use putExtra to send values through after starting gameActivity
-                //intent.putExtra();
+                intent.putExtra("gameMode", "AiEasy"); // Value from setting
+                intent.putExtra("learningTool", true); // (learningTool.equals("ON"))); // Value from setting
+                intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
+                intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
                 MenuActivity.this.startActivity(intent);
             }
         });
