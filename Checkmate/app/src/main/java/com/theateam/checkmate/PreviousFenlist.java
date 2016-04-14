@@ -1,5 +1,6 @@
 package com.theateam.checkmate;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.provider.ContactsContract;
@@ -25,6 +26,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private Button btnBack;
     private ImageButton btnNext;
     private ImageButton btnPrev;
+    private ImageButton btnPlay;
     private ListView listFenlist;
     private DatabaseManager databaseManager;
     private Cursor cursorFenlist;
@@ -80,6 +82,8 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         btnNext.setOnClickListener(this);
         btnPrev = (ImageButton) findViewById(R.id.btnPrevfenPrev);
         btnPrev.setOnClickListener(this);
+        btnPlay = (ImageButton) findViewById(R.id.btnPrevfenPlay);
+        btnPlay.setOnClickListener(this);
         listFenlist = (ListView) findViewById(R.id.prevfenlistList);
         listFenlist.setOnItemClickListener(this);
 
@@ -111,6 +115,17 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                     break;
                 selectedFen = fenList.get(fenList.indexOf(selectedFen)-1);
                 gameController.previewFen(selectedFen);
+            break;
+            case R.id.btnPrevfenPlay:
+                gameController = null;
+                status = false;
+                Intent play =  new Intent(PreviousFenlist.this, GameActivity.class);
+                play.putExtra("gameMode", gameMode);
+                play.putExtra("learningTool", (learningTool.equals("ON")));
+                play.putExtra("startingFen", fenList.get(fenList.size()-1)); // Last FEN from the fenList
+                play.putExtra("fenList", fenList);
+                startActivity(play);
+                this.finish();
             break;
         }
     }

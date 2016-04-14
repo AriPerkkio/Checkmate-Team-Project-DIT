@@ -48,15 +48,23 @@
             android:id="@+id/btnPrevfenNext"
             android:src="@android:drawable/ic_media_next"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_toStartOf="@+id/btnPrevfenPlay" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btnPrevfenPrev"
             android:src="@android:drawable/ic_media_previous"
-            android:layout_alignTop="@+id/btnPrevfenNext"
+            android:layout_alignParentBottom="true"
             android:layout_toStartOf="@+id/btnPrevfenNext" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnPrevfenPlay"
+            android:src="@android:drawable/ic_media_play"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
 </LinearLayout>
