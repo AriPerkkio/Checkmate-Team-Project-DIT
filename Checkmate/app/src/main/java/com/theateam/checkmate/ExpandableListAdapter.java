@@ -2,6 +2,7 @@ package com.theateam.checkmate;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,8 +78,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             LayoutInflater infalInflater = (LayoutInflater) this._context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             //Possible messup
             convertView = infalInflater.inflate(R.layout.list_group, null);
+            TextView settingTextView = (TextView) convertView.findViewById(R.id.groupSecText);
+            String settingText;
+            if(groupPosition==0) // Theme
+                settingText = ": Blue & Red"; // Default theme
+            else // Game mode
+                settingText = ": Normal"; // Default game mode
+            settingTextView.setText(settingText); // Display text
         }
-
         TextView lblListHeader = (TextView) convertView.findViewById(R.id.lblListHeader);
         lblListHeader.setTypeface(null, Typeface.BOLD);
         lblListHeader.setText(headerTitle);
