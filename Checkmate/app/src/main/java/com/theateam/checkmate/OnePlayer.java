@@ -13,11 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,53 +94,51 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
         expListView.setAdapter(listAdapter);
         expListView.setOnChildClickListener(this);
+
+        // Initialize default settings
+        themeId = R.mipmap.defaulttheme;
+        // Game Mode = normal
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + ": " + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition), Toast.LENGTH_SHORT).show();
+        int increase = 0;
+        if(expListView.getChildCount()==8) // Number of themes + game modes
+            increase = 3; // Number of themes
         switch(listDataHeader.get(groupPosition)){
-            case "Textures":
+            case "Theme":
                 switch (listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
-                    case "Wooden":
+                    // Manually change colors of each childPosition row
+                    case "Wooden": // Group 0, Child 0, Id 0
                         themeId = R.mipmap.wooden;
-                        Log.d("Textures", ""+childPosition);
-                        highlightSelect(childPosition);
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
                     break;
-                    case "Metallic":
-                        //Log.d("Textures", "Metallic");
-                        Log.d("Textures", ""+childPosition);
-                        highlightSelect(childPosition);
+                    case "Metallic": // Group 0, Child 1, Id 1
+                        //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
+                        Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
                     break;
-                    case "Blue & Red":
+                    case "Blue & Red": // Group 0, Child 2, Id 2
                         themeId = R.mipmap.defaulttheme;
-                        Log.d("Textures", ""+childPosition);
-                        highlightSelect(childPosition);
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
                     break;
                 }
-            case "Game Modes":
+            case "Game Mode":
                 switch(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
-                    case "Normal":
-                        Log.d("Game Modes", "Normal");
+                    case "Normal": // Group 1, Child 0, Id 0
+                        ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Normal");
                     break;
-                    case "King of the hill":
+                    case "King of the hill": // Group 1, Child 1, Id 1
                         Log.d("Game Modes", "King of the hill");
+                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
+                        Toast.makeText(this, "King of the hill is not supported yet", Toast.LENGTH_LONG).show();
                     break;
-                    case "Blitz":
-                        Log.d("Game Modes", "Blitz");
+                    case "Blitz": // Group 1, Child 2, Id 2
+                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
+                        Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
                     break;
                 }
         }
         return false;
-    }
-
-    private void highlightSelect(int id){
-        for(int i=1;i<4;i++){
-            if(i==id) /** This part won't reset colors back just yet **/
-                expListView.getChildAt(id+1).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-            else
-                expListView.getChildAt(id+1).setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
-        }
     }
 
     public void StartOnePlayer_intent(View view) {
@@ -149,6 +150,7 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
         int difficulty_status = difficulty.getProgress();
+        Log.d("Difficult", "Int: "+difficulty_status);
 
         if(learning_tool.isChecked())
             intent.putExtra("learningTool", true);
@@ -172,8 +174,8 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         //Set up items in expandableList
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
-        listDataHeader.add("Textures");
-        listDataHeader.add("Game Modes");
+        listDataHeader.add("Theme");
+        listDataHeader.add("Game Mode");
         List<String> textures = new ArrayList<String>();
         textures.add("Wooden");
         textures.add("Metallic");
