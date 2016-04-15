@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <!-- Content Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true"
+        android:weightSum="1"
+        android:background="@color/material_blue_grey_800">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#607D8B"
+            android:elevation="4dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            android:layout_margin="10dp"
+            android:layout_marginRight="1dp"
+
+            android:text="Texture"
+            android:id="@+id/button2"
+            android:layout_below="@+id/toolbar"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#fe65b7"
+            android:textSize="20dp"
+            android:onClick="OnePlayer_intent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:textSize="20dp"
+            android:layout_marginLeft="10dp"
+            android:text="Difficulty"
+            android:id="@+id/textView" />
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/difficulty_bar" />
+
+        <Switch
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Learning tool"
+            android:id="@+id/learning_tool_switch"
+            android:layout_gravity="right"
+            android:textSize="20dp"
+            android:checked="false"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:text="Start"
+            android:id="@+id/button"
+            android:layout_alignParentBottom="true"
+            android:background="#fe65b7"
+            android:layout_alignRight="@+id/button3"
+            android:layout_alignEnd="@+id/button3"
+            android:textSize="20dp"
+            android:onClick="StartOnePlayer_intent"/>
+
+
+
+
+
+        <!-- Main Content -->
+
+    </LinearLayout>
+
+
+
+    <!-- Drawer Section -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/drawer_recyclerView"
+        android:layout_width="304dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:scrollbars="vertical"
+        android:background="#FFFFFF"/>
+
+</android.support.v4.widget.DrawerLayout>
