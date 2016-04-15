@@ -41,6 +41,8 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private DatabaseManager databaseManager = new DatabaseManager(this);
     private int gameId;
     private int themeId;
+    private static boolean gameInCheckmate = false; // These will only be accessed from GameController
+    private static boolean gameInStalemate = false; // Used to control GUI elements for checkmate and stalemate
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,46 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 }
                 Toast.makeText(this, "Game saved.", Toast.LENGTH_SHORT).show();
                 finish();
+            break;
+        }
+    }
+
+    public static void setCheckmate(int status){
+        switch(status) {
+            case 0: // No checkmate
+                gameInCheckmate = false;
+                Log.d("GameActivity", "setCheckmate: "+status);
+                textField.setText("");
+                break;
+            case 1: // Player One checkmate
+                gameInCheckmate = true;
+                Log.d("GameActivity", "setCheckmate playerOne: "+status);
+                textField.setText("PlayerOne checkmate");
+            break;
+            case 2: // Player Two checkmate
+                gameInCheckmate = true;
+                Log.d("GameActivity", "setCheckmate playerTwo: "+status);
+                textField.setText("PlayerTwo checkmate");
+            break;
+        }
+    }
+
+    public static void setStalemate(int status){
+        switch(status) {
+            case 0: // No checkmate
+                gameInStalemate = false;
+                Log.d("GameActivity", "setStalemate: "+status);
+                textField.setText("");
+            break;
+            case 1: // Player One stalemate
+                gameInStalemate = true;
+                Log.d("GameActivity", "setStalemate playerOne: "+status);
+                textField.setText("PlayerOne stalemate");
+            break;
+            case 2: // Player Two stalemate
+                gameInStalemate = true;
+                Log.d("GameActivity", "setStalemate playerTwo: "+status);
+                textField.setText("PlayerTwo stalemate");
             break;
         }
     }

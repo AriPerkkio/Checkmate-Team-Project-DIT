@@ -311,7 +311,6 @@ public class GameController {
     }
 
     public int getThemeId(){
-        Log.d("GameActivity", "ThemeID: "+themeId);
         return themeId;
     }
 
@@ -839,33 +838,29 @@ public class GameController {
     public boolean checkKingsForCheckmate(){
         if(kingInCheck(playerOne))
             if (turn && kingInCheckmate(playerOne)){
-                Log.d("checkClickMovement1", "Player One CHECKMATE");
-                GameActivity.textField.setText("Player One Checkmate"); // TODO: Replace with proper GUI element
+                GameActivity.setCheckmate(1);
                 return true;
             }
         if(kingInCheck(playerTwo))
             if (!turn && kingInCheckmate(playerTwo)){
-                Log.d("checkClickMovement2", "Player Two CHECKMATE");
-                GameActivity.textField.setText("Player Two Checkmate");
+                GameActivity.setCheckmate(2);
                 return true;
             }
-        GameActivity.textField.setText("");
+        GameActivity.setCheckmate(0); // No checkmate
         return false;
     }
 
     public boolean checkKingsForStalemate(){
         if(turn && stalemate(playerOne)){
-            Log.i("GameState:", "Stalemate reached by P1!");
-            GameActivity.textField.setText("Stalemate!");
+            GameActivity.setStalemate(1);
             return true;
         }
         if(!turn && stalemate(playerTwo)){
-            Log.i("GameState:", "Stalemate reached by P2!");
-            GameActivity.textField.setText("Stalemate!");
+            GameActivity.setStalemate(2);
             return true;
         }
+        GameActivity.setStalemate(0); // No stalemate
         return false;
-
     }
 
     // Check if king's valid moves are exposed
