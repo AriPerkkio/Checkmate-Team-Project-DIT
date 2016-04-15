@@ -40,6 +40,7 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private List<String> gameFenHistory;
     private DatabaseManager databaseManager = new DatabaseManager(this);
     private int gameId;
+    private int themeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +59,11 @@ public class GameActivity extends Activity implements View.OnClickListener{
         learningToolSwitch = getIntent().getExtras().getBoolean("learningTool");
         gameStartingFen = getIntent().getExtras().getString("startingFen");
         gameFenHistory = getIntent().getExtras().getStringArrayList("fenList");
+        themeId = getIntent().getExtras().getInt("themeId");
         if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
         else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
         Log.d("GameAcrtivity", "GameID: "+gameId);
-        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory);
+        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
@@ -87,7 +89,7 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 try{
                     databaseManager.open();
                     if(gameId==0){ // New game
-                        databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch); // Insert new game into table
+                        databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch, themeId); // Insert new game into table
                         gameId = databaseManager.getHighestId(); // Get its id
                     }
                     else // Saved game was continued

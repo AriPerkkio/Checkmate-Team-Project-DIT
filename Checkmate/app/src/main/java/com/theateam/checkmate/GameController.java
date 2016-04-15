@@ -26,6 +26,7 @@ public class GameController {
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
     private boolean testsDone = false; // Tester
     public boolean learningTool; // Used in OpenGLRenderer.highlight()
+    private int themeId;
     private String fenString = ""; // Board layout using FEN
     private int[] drawCounter= new int[2];   //counter for fifty move rule draw
 
@@ -58,7 +59,7 @@ public class GameController {
     private String startingFenString; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
 
-    public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory) {
+    public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory, int _themeId) {
         // Instances
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
@@ -73,6 +74,7 @@ public class GameController {
         startingFenString = _startingFenString;
         for(int i=0;i<fenHistory.size();i++) // Add FEN history to list
             fenList.add(fenHistory.get(i));
+        themeId = _themeId;
         switch(gameMode){ // Determine game mode
             case "TwoPlayer":
                 playerTwo = new Player("Human", false); // Player two is human
@@ -306,6 +308,11 @@ public class GameController {
 
     public List<String> getFenList(){
         return fenList;
+    }
+
+    public int getThemeId(){
+        Log.d("GameActivity", "ThemeID: "+themeId);
+        return themeId;
     }
 
     // When starting from FEN that has 'b' as turn board will be rotated in two player games

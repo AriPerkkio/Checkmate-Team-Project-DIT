@@ -56,6 +56,7 @@ public class MenuActivity extends Activity {
                 intent.putExtra("learningTool", true); // (learningTool.equals("ON"))); // Value from setting
                 intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
                 intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
+                intent.putExtra("themeId", R.mipmap.defaulttheme); // Value from setting
                 MenuActivity.this.startActivity(intent);
             }
         });

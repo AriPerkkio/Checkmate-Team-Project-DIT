@@ -66,6 +66,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
 
         if(gameController==null) gameController= GameController.getInstance();
 
+        theme = gameController.getThemeId();
         promotingOn = gameController.getPawnPromoting(); // Update promoting attribute from gameController
         if(gameController.getTurn())
             promotingPlayer = "PlayerOne"; // PlayerOne's turn
