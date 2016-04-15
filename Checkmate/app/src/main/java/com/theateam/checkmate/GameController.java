@@ -232,6 +232,50 @@ public class GameController {
         return (total < 1); //if 0 moves exist, stalemate is true
     }
 
+    private boolean insufficientMaterial(Player player){
+        //temporary storage of pieceLists
+        List<Piece>[] pieces = new List[2];
+        pieces[0] = playerOne.getPieceList();   //player 1 pieces
+        pieces[1] = playerTwo.getPieceList();   //player 2 pieces
+
+        //check if only kings left on the board
+        if(pieces[0].size() ==1 && pieces[1].size() ==1){
+            Log.i("Insufficient Material", "Kings only left");
+            return true;
+        }
+
+        //other default draws
+        if(player.getPieceList().size() == 1){  //if player has only king, check who he is
+            if(player.isFirst()){   //if its player 1
+                if(pieces[1].size() == 2)   //check if player two has only 2 pieces left
+                     for(int i=0;i<pieces[1].size();i++){
+                         if(pieces[1].get(i).getPieceType().equals("Bishop")) { //if one of the pieces is a bishop
+                             Log.i("Insufficient Material", "King and Bishop left");
+                             return true;
+                         }
+                         if(pieces[1].get(i).getPieceType().equals("Knight")) { //if one of the pieces is a knight
+                             Log.i("Insufficient Material", "King and Knight left");
+                             return true;
+                         }
+                     }
+            } else {    //if its player 2
+                if(pieces[0].size() == 2)   //check if player one has only 2 pieces left
+                    for(int i=0;i<pieces[0].size();i++){
+                        if(pieces[0].get(i).getPieceType().equals("Bishop")) {//if one of the pieces is a bishop
+                            Log.i("Insufficient Material", "King and Bishop left");
+                            return true;
+                        }
+                        if(pieces[0].get(i).getPieceType().equals("Knight")) {//if one of the pieces is a knight
+                            Log.i("Insufficient Material", "King and Knight left");
+                            return true;
+                        }
+                    }
+
+            }
+        }
+        return false;
+    }
+
     // Called when board layout has changed in game logic
     private void updateFen(){
         if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare())))
@@ -848,14 +892,15 @@ public class GameController {
     }
 
     public boolean checkForStalemate(){
-        if(turn && stalemate(playerOne)){
+        if(turn && stalemate(playerOne) || turn && insufficientMaterial(playerOne)){
             GameActivity.setStalemate(1);
             return true;
         }
-        if(!turn && stalemate(playerTwo)){
+        if(!turn && stalemate(playerTwo) || !turn && insufficientMaterial(playerTwo)){
             GameActivity.setStalemate(2);
             return true;
         }
+
         GameActivity.setStalemate(0); // No stalemate
         return false;
     }
