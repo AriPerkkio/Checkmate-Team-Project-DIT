@@ -138,7 +138,7 @@ public class GameController {
         if(checkKingsForCheckmate()) // Check if either of kings  are in checkmate
             return true; // One king in checkmate, break here
 
-        if(checkKingsForStalemate())    //check if either player is in stalemate
+        if(checkForStalemate())    //check if either player is in stalemate
             return true;    //if player cannot move, stalemate
 
         if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
@@ -196,11 +196,15 @@ public class GameController {
     private boolean stalemate(Player player) {
 
         int total = 0;  //total moves
-
+        Piece tempPiece;
         for(int x=0;x<8;x++) {
             for (int y = 0; y < 8; y++) {
                 if (board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece() != null ) {  //if square has a piece
-                    if(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece().getPieceType().equals("King")){    //if piece is a king
+
+                    //storing current square's piece into tempPiece
+                    tempPiece = board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece();
+
+                    if(tempPiece.getPieceType().equals("King") && tempPiece.getPlayer().equals(player)){    //if piece is a king
                         // Check if king has any moves
                         List<Square> kingMovements = board.getValidMoves(player.getPieceByType("King"))[0];
                         List<Square> kingCaptureMoves = board.getValidMoves(player.getPieceByType("King"))[1];
@@ -211,10 +215,10 @@ public class GameController {
                         //add up remaining moves for king
                         total += kingMovements.size();
                         total += kingCaptureMoves.size();
-                    }
-                    else if(board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece().getPlayer().equals(player)) {    //else if piece is not king
-                        bothSquareLists = board.getValidMoves(board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());   //get movements
-                        board.checkPinningMoves(bothSquareLists, board.getSquare((char) ((int) 'A' + x) + "" + (y + 1)).getPiece());    //check if pinned
+
+                    } else if(!tempPiece.getPieceType().equals("King") && tempPiece.getPlayer().equals(player)) {    //else if piece is not king
+                        bothSquareLists = board.getValidMoves(tempPiece);   //get movements
+                        board.checkPinningMoves(bothSquareLists, tempPiece);    //check if pinned
 
                         //add up remaining moves
                         total += bothSquareLists[0].size();
@@ -223,10 +227,9 @@ public class GameController {
                 }
             }
         }
-        Log.i("Stalemate", "Legal Moves left: " + total);
-        if(total < 1)//if 0 moves exist, stalemate is true
-            return true;
-        else return false;
+        Log.i("Stalemate Check", "Legal Moves left: " + total);
+
+        return (total < 1); //if 0 moves exist, stalemate is true
     }
 
     // Called when board layout has changed in game logic
@@ -850,7 +853,7 @@ public class GameController {
         return false;
     }
 
-    public boolean checkKingsForStalemate(){
+    public boolean checkForStalemate(){
         if(turn && stalemate(playerOne)){
             GameActivity.setStalemate(1);
             return true;
