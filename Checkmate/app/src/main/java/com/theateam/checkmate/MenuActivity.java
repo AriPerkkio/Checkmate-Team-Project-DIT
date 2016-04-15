@@ -45,21 +45,6 @@ public class MenuActivity extends Activity {
             }
         });
 
-        startGameButton = (Button) findViewById(R.id.startGame);
-        startGameButton.setText("START");
-        startGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MenuActivity.this, GameActivity.class);
-                //use putExtra to send values through after starting gameActivity
-                intent.putExtra("gameMode", "AiEasy"); // Value from setting
-                intent.putExtra("learningTool", true); // (learningTool.equals("ON"))); // Value from setting
-                intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
-                intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
-                intent.putExtra("themeId", R.mipmap.defaulttheme); // Value from setting
-                MenuActivity.this.startActivity(intent);
-            }
-        });
     }
 
     private void prepareListData() {

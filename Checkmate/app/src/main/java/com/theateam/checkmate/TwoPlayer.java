@@ -39,6 +39,16 @@ public class TwoPlayer extends AppCompatActivity
 
 
     public void onCreate(Bundle savedInstanceState) {
+        // Hide navigation bar and keep it hidden when pressing
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_two_player);
         ButterKnife.inject(this);
@@ -101,9 +111,9 @@ public class TwoPlayer extends AppCompatActivity
 
         Intent intent = new Intent(TwoPlayer.this, GameActivity.class);
         intent.putExtra("gameMode", "TwoPlayer"); // Value from setting
-        intent.putExtra("learningTool", true); // (learningTool.equals("ON"))); // Value from setting
         intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
+        intent.putExtra("themeId", R.mipmap.defaulttheme);
         //int difficulty_status = difficulty.getProgress();
 
         if(learning_tool.isChecked()){

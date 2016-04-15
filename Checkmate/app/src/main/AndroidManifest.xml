@@ -27,8 +27,10 @@
             android:label="@string/title_activity_menu"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <activity android:name=".PreviousGames" />
-        <activity android:name=".PreviousFenlist"></activity>
+        <activity android:name=".PreviousGames"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".PreviousFenlist"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".OnePlayer"
             android:label="One Player"

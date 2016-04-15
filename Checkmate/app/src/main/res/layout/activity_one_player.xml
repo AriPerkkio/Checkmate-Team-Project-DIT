@@ -23,20 +23,10 @@
             android:background="#607D8B"
             android:elevation="4dp" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="125dp"
-            android:layout_margin="10dp"
-            android:layout_marginRight="1dp"
-
-            android:text="Texture"
-            android:id="@+id/button2"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:background="#fe65b7"
-            android:textSize="20dp"
-            android:onClick="OnePlayer_intent" />
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/content_menu" />
 
         <TextView
             android:layout_width="wrap_content"
