@@ -15,7 +15,8 @@ import android.database.sqlite.SQLiteStatement;
  * Table Games:
  * Column 1: GameID, Integer, AutoIncrement, i.e. 4
  * Column 2: GameMode, String, i.e. "AiEasy"
- * Column 3: Date, Datetime, Default as current date, I.e. 1-1-2016
+ * Column 3: ThemeId, Integer
+ * Column 4: Date, Datetime, Default as current date, I.e. 1-1-2016
  *
  * Table FenList:
  * Column 1: GameID, Integer, Reference as foreign key to Games-table
@@ -29,6 +30,7 @@ public class DatabaseManager {
     public static final String games_GameId = "_id"; // Game ID, Integer
     public static final String games_GameMode = "GameMode"; // Game mode, String
     public static final String games_LearningTool = "LearningTool"; // Learning Tool On/Off, String
+    public static final String games_ThemeId = "ThemeId"; // ThemeId, Integer
     public static final String games_date = "Date";
 
     // Table FenList and its columns
@@ -43,6 +45,7 @@ public class DatabaseManager {
             "CREATE TABLE Games(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "GameMode TEXT, " +
                     "LearningTool TEXT, " +
+                    "ThemeId INTEGER, "+
                     "Date DATETIME DEFAULT CURRENT_DATE)";
 
     // SQL-command to create Fenlist table with its columns
@@ -95,7 +98,7 @@ public class DatabaseManager {
     }
 
     // Insert new row to Games table
-    public long insertIntoGames(String GameMode, boolean learningTool) {
+    public long insertIntoGames(String GameMode, boolean learningTool, int themeId) {
         // GameId is Auto incremented, Time is CURRENT_DATE by default
         ContentValues initialValues = new ContentValues();
         initialValues.put(games_GameMode, GameMode);
@@ -103,6 +106,7 @@ public class DatabaseManager {
             initialValues.put(games_LearningTool, "ON");
         else // Learning tool off
             initialValues.put(games_LearningTool, "OFF");
+        initialValues.put(games_ThemeId, themeId);
         return db.insert(DATABASE_TABLE_GAMES, null, initialValues);
     }
 
@@ -117,7 +121,7 @@ public class DatabaseManager {
     // Get all rows from Games table
     public Cursor getGames() throws SQLException {
         Cursor mCursor = db.query(true, DATABASE_TABLE_GAMES, new String[]{
-                games_GameId, games_GameMode, games_LearningTool, games_date}, null, null, null, null, null, null);
+                games_GameId, games_GameMode, games_LearningTool, games_ThemeId, games_date}, null, null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
