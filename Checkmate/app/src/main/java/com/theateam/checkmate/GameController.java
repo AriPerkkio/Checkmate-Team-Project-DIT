@@ -24,7 +24,6 @@ public class GameController {
     List<String[]> highlights = new Vector<>();
     private boolean turn = true; // True indicates that it's playerOne's turn
     private boolean pawnPromoting = false; // Checks if waiting for user input to pawn promote window
-    private boolean testsDone = false; // Tester
     public boolean learningTool; // Used in OpenGLRenderer.highlight()
     private int themeId;
     private String fenString = ""; // Board layout using FEN
@@ -105,12 +104,10 @@ public class GameController {
             break;
 
         }
-        board = new Board(); // Initialized board with these two players
+        board = new Board(); // Initialized board
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
-        //updateTextureIdToPiece(); // TODO: Testing. Delete later - or if textures are not properly set when new game is started, uncomment this.
         if(!fenList.contains(startingFenString))
             fenList.add(startingFenString); // Add starting board layout to fenList
-
         // Set enPassSquare from startingFen
         String enPassSquare = fenParser.getEnPassSquare(startingFenString);
         if (enPassSquare != null) {
@@ -162,7 +159,7 @@ public class GameController {
 
         // When in check, only allowed pieces are allowed to be selected
         if( (kingInCheck(playerOne) || kingInCheck(playerTwo)) && !allowedPieces.contains(board.getSquare(clickedSquare).getPiece())){
-            Log.e("CheckAllowedPiece", board.getSquare(clickedSquare).getPiece().getPieceType()+" not allowed");
+            /** ERROR LOG **/ Log.e("CheckAllowedPiece", board.getSquare(clickedSquare).getPiece().getPieceType()+" not allowed");
             return false;
         }
 
@@ -172,7 +169,6 @@ public class GameController {
         // Check if clicked piece belongs to other player and break here
         if (turn && selectedPiece.getPlayer().equals(playerTwo) ||
            !turn && selectedPiece.getPlayer().equals(playerOne)) {
-            Log.e("selectedPiece nulling", "#1");
             selectedPiece = null; // Reset selectedPiece back to null
             return false; // Break this function
         }
@@ -181,54 +177,37 @@ public class GameController {
         processMovements();
 
         highlightsOff(); // Reset all the highlights
-        //tests(); // See function
-
         return true;
     }
 
-
-    /*
-     * Makes checks for stalemate
-     * checks if king or other pieces can move
-     * totals up moves for each player on their turn
-     *
-     */
+    // Makes checks for stalemate. Checks if king or other pieces can move
+    // totals up moves for each player on their turn
     private boolean stalemate(Player player) {
 
         int total = 0;  //total moves
         Piece tempPiece;
-        for(int x=0;x<8;x++) {
-            for (int y = 0; y < 8; y++) {
+        for(int x=0;x<8;x++)
+            for (int y = 0; y < 8; y++)
                 if (board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece() != null ) {  //if square has a piece
-
                     //storing current square's piece into tempPiece
                     tempPiece = board.getSquare((char) ((int) 'A' +x) + "" + (y+1)).getPiece();
-
                     if(tempPiece.getPieceType().equals("King") && tempPiece.getPlayer().equals(player)){    //if piece is a king
                         // Check if king has any moves
                         List<Square> kingMovements = board.getValidMoves(player.getPieceByType("King"))[0];
                         List<Square> kingCaptureMoves = board.getValidMoves(player.getPieceByType("King"))[1];
-
                         preventExposeMove(player.getPieceByType("King"), kingMovements, false); // Process king's movements
                         preventExposeMove(player.getPieceByType("King"), kingCaptureMoves, false);
-
                         //add up remaining moves for king
                         total += kingMovements.size();
                         total += kingCaptureMoves.size();
-
                     } else if(!tempPiece.getPieceType().equals("King") && tempPiece.getPlayer().equals(player)) {    //else if piece is not king
                         bothSquareLists = board.getValidMoves(tempPiece);   //get movements
                         board.checkPinningMoves(bothSquareLists, tempPiece);    //check if pinned
-
                         //add up remaining moves
                         total += bothSquareLists[0].size();
                         total += bothSquareLists[1].size();
                     }
                 }
-            }
-        }
-        Log.i("Stalemate Check", "Legal Moves left: " + total);
-
         return (total < 1); //if 0 moves exist, stalemate is true
     }
 
@@ -239,39 +218,27 @@ public class GameController {
         pieces[1] = playerTwo.getPieceList();   //player 2 pieces
 
         //check if only kings left on the board
-        if(pieces[0].size() ==1 && pieces[1].size() ==1){
-            Log.i("Insufficient Material", "Kings only left");
+        if(pieces[0].size() ==1 && pieces[1].size() ==1)
             return true;
-        }
 
         //other default draws
         if(player.getPieceList().size() == 1){  //if player has only king, check who he is
-            if(player.isFirst()){   //if its player 1
+            if(player.isFirst())   //if its player 1
                 if(pieces[1].size() == 2)   //check if player two has only 2 pieces left
                      for(int i=0;i<pieces[1].size();i++){
-                         if(pieces[1].get(i).getPieceType().equals("Bishop")) { //if one of the pieces is a bishop
-                             Log.i("Insufficient Material", "King and Bishop left");
+                         if(pieces[1].get(i).getPieceType().equals("Bishop"))  //if one of the pieces is a bishop
                              return true;
-                         }
-                         if(pieces[1].get(i).getPieceType().equals("Knight")) { //if one of the pieces is a knight
-                             Log.i("Insufficient Material", "King and Knight left");
+                         if(pieces[1].get(i).getPieceType().equals("Knight"))  //if one of the pieces is a knight
                              return true;
-                         }
                      }
-            } else {    //if its player 2
+            else //if its player 2
                 if(pieces[0].size() == 2)   //check if player one has only 2 pieces left
                     for(int i=0;i<pieces[0].size();i++){
-                        if(pieces[0].get(i).getPieceType().equals("Bishop")) {//if one of the pieces is a bishop
-                            Log.i("Insufficient Material", "King and Bishop left");
+                        if(pieces[0].get(i).getPieceType().equals("Bishop")) //if one of the pieces is a bishop
                             return true;
-                        }
-                        if(pieces[0].get(i).getPieceType().equals("Knight")) {//if one of the pieces is a knight
-                            Log.i("Insufficient Material", "King and Knight left");
+                        if(pieces[0].get(i).getPieceType().equals("Knight")) //if one of the pieces is a knight
                             return true;
-                        }
                     }
-
-            }
         }
         return false;
     }
@@ -280,47 +247,31 @@ public class GameController {
     private void updateFen(){
         if(!fenList.contains(fenString = fenParser.refreshFen(board, turn, playerOne, playerTwo, board.getEnPassSquare())))
             fenList.add(fenString); // Add latest FEN-String
-        Log.i("updateFen, size: " + fenList.size(), "All FENs below");
-        for(int i=0;i<fenList.size();i++)
-            Log.i("fenList "+i, fenList.get(i));
     }
 
-
-    /*
-     * Method to check for 50 move rule
+    /* Method to check for 50 move rule
      * 1. if each player has made 50 moves each
      * 2. no pieces have been captured
      * 3. no pawns have been advanced
-     *
      * Game results in stalemate
-     *
-     * NOTE: if boolean captureReset is true, auto reset counter, else check for pawn moves
-     */
+     * NOTE: if boolean captureReset is true, auto reset counter, else check for pawn moves */
     private void checkDraw(Piece _piece, Square _square, boolean captureReset){
         //if movement was a capture movement, immediately reset
-        if(captureReset){
+        if(captureReset)
             drawCounter = 0;
-        } else {
-            //check if piece moved is a pawn
-            if(_piece.getPieceType().equals("Pawn")) {
+        else {
+            if(_piece.getPieceType().equals("Pawn")) //check if piece moved is a pawn
                 drawCounter = 0;
-            }
-            //then check if move was a capture movement(just in case)
-            else if(squareListTwo.contains(board.getSquare(_square.getId()))){
+            else if(squareListTwo.contains(board.getSquare(_square.getId())))//then check if move was a capture movement(just in case)
                 drawCounter = 0;
-            }
-            //if neither, increase counter
-            else{
+            else{ //if neither, increase counter
                 drawCounter++;
-
-                if(drawCounter == 100){
-                    GameActivity.textField.setText("Draw by 50 Move Rule");
-                }
+                if(drawCounter == 100)
+                    GameActivity.setEnding(3); // Draw
+                else
+                    GameActivity.setEnding(0); // Not draw
             }
         }
-
-        Log.i("50MoveCheck", "drawCounter: " + drawCounter);
-
     }
 
 
@@ -380,25 +331,15 @@ public class GameController {
                 clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
                 if(bestMove.length()==5) pawnPromoteClick = bestMove.charAt(4);
                 selectSquare(clickedSquareOne); // AI makes "click" to select piece
-                if(selectedPiece!=null &&
-                   !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) &&
-                   !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))))
-                    Log.e("aiMove", selectedPiece.getPieceType()+" at "+selectedPiece.getSquare().getId()+" has no moves");
-                if(selectedPiece!=null)
-                    Log.i("aiMove", "Piece has "+board.getValidMoves(selectedPiece)[0].size()+" valid moves, "+board.getValidMoves(selectedPiece)[1].size()+" capture moves");
                 if (selectedPiece == null || // Invalid pieceSelect
                     !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) && // Piece with no moves
                     !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo))) ){
                     thinkTime++; // Give AI more time to think for a proper move
                     selectedPiece = null; // Search for new piece
-                    Log.i("ThinkTime", "Increased to "+thinkTime);
                 }
-                if(selectedPiece!=null) {
+                if(selectedPiece!=null)
                     movementMade = (selectSquare(clickedSquareTwo) || checkKingsForCheckmate()); // AI makes "click" to move the piece
-                    // Movement made is boolean when selectSquare() return true (when valid move was made) or when checkmate
-                    if(!movementMade) Log.e("aiMove", "Invalid second click to "+clickedSquareTwo);
-                }
-            }
+            }// Movement made is boolean when selectSquare() return true (when valid move was made) or when checkmate
         } while (!movementMade); // Exit when AI got a proper move calculated
 
         if(pawnPromoteClick!=0){ //Convert AI's pawn promoting to square
@@ -423,13 +364,12 @@ public class GameController {
         if( !((int) 'A' <= _clickedSquare.charAt(0) && _clickedSquare.charAt(0) >= (int) 'H') && // First char A-H
                 !((int) '1' <= _clickedSquare.charAt(1) && _clickedSquare.charAt(1) >= (int) '8') && // Second char 1-8
                 clickedSquare.length() != 2) { // And it has only two characters
-            Log.e("checkAiClick", "AI Clicks " + _clickedSquare);
+            /** ERROR LOG **/ Log.e("checkAiClick", "AI Clicks " + _clickedSquare);
             aiMove(); // Not a match -> ask new move
         }
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
-
         // Reset enPassSquare and piece every time a movement is done
         if(board.getEnPassPiece()!=null) board.getEnPassPiece().setEnPassPiece();
         if(board.getEnPassSquare()!=null) board.getEnPassSquare().setEnPassSquare();
@@ -465,7 +405,7 @@ public class GameController {
                     if(castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
                         movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
                  // Check if the move caused check
-                if(checkKingsForCheckmate())
+                if(checkKingsForCheckmate() || checkForStalemate())
                     return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
@@ -496,7 +436,7 @@ public class GameController {
                 updateFen(); // Update FEN before changing board layout
                 checkDraw(null, null, true); //checks for 50 move rule
                 // Check if the move caused check
-                if(checkKingsForCheckmate())
+                if(checkKingsForCheckmate() || checkForStalemate())
                     return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
@@ -552,7 +492,6 @@ public class GameController {
     public boolean checkSquare(String _square) {
         if (_square.equals("OutOfBoard")) {
             selectedPiece = null; // Set as null, so that third press re-enables it again.
-            Log.e("selectedPiece nulling", "#2");
             highlightsOff();
             return false;
         }
@@ -560,7 +499,6 @@ public class GameController {
         // Check if there is a piece on the clicked square and enable it
         if (board.getSquare(_square).getPiece() == null) {
             selectedPiece = null; // Set as null, so that third press re-enables it again.
-            Log.e("selectedPiece nulling", "#3");
             highlightsOff();
             return false;
         }
@@ -568,15 +506,12 @@ public class GameController {
         // Check if previously clicked piece is the same one and disable it
         if (selectedPiece != null && selectedPiece.equals(board.getSquare(_square).getPiece()) && !pawnPromoting) {
             selectedPiece = null;
-            Log.e("selectedPiece nulling", "#4");
             highlightsOff();
             return false;
         }
 
         // Check if previous click was on own piece, and new click on enemy piece that can't be captured
         if (selectedPiece != null && !selectedPiece.getPlayer().equals(board.getSquare(clickedSquare).getPiece().getPlayer())) {
-            //highlights.clear();
-            Log.e("selectedPiece nulling", "#5");
             selectedPiece = null;
             highlightsOff();
             return false;
@@ -602,7 +537,6 @@ public class GameController {
             graphics.rotate(); // Rotate board and pieces
             selectedPiece = null;
             highlightsOff();
-            Log.e("selectedPiece nulling", "#8");
             return true;
         }
         return false;
@@ -610,7 +544,7 @@ public class GameController {
 
     // Check if pawn promoting is possible
     public boolean callForPromote(){
-        if(selectedPiece != null && selectedPiece.getPieceType().equals("Pawn")){
+        if(selectedPiece != null && selectedPiece.getPieceType().equals("Pawn"))
             if(selectedPiece.getSquare().getId().charAt(1)=='1' ||
                selectedPiece.getSquare().getId().charAt(1)=='8'){
                 pawnPromoting = true;
@@ -620,14 +554,12 @@ public class GameController {
                     graphics.pawnPromoteOn("PlayerTwo");
                 return true; // Pawn promoting is possible
             }
-        }
         return false; // Pawn promoting not possible
     }
 
     public boolean getPawnPromoting(){
         return pawnPromoting;
     }
-
 
     // This is only called when user has to pick specific piece for pawn promoting
     public boolean processPromoting(String _square){
@@ -675,7 +607,7 @@ public class GameController {
 
             // Click out of the window
             default:
-                Log.e("processPawnPromote", "Invalid click");
+                /** ERROR LOG **/Log.e("processPawnPromote", "Invalid click");
                 return false; // Break here and check next click as before
         }
 
@@ -704,7 +636,6 @@ public class GameController {
         graphics.pawnPromoteOff(); // New piece type has been chosen - close pawn promoting window
         graphics.eliminatePiece(selectedPiece.getTextureId(), tempSquare.getId()); // Vanish old piece from graphics
         tempSquare.getPiece().setListId(selectedPiece.getListId()); // Set listId from old piece to new one
-
         selectedPiece.remove(true); // Get rid of current pawn
         graphics.movePiece(tempSquare.getPiece().getTextureId(), tempSquare.getId(), tempSquare.getId()); // Place new piece to the square
         graphics.promotePawn(tempTextureId, textureName); // Change texture to match chosen piece
@@ -712,8 +643,6 @@ public class GameController {
         checkRotating();
         highlightsOff();
         selectedPiece = null;
-        Log.e("selectedPiece nulling", "#6");
-        Log.d("Promote", "Complete");
         pawnPromoting = false; // Turn off promoting for pawn
         updateFen(); // Update FEN since new piece on board
         return true;
@@ -736,7 +665,6 @@ public class GameController {
                     kingCapturePieces.add(enemy.getPieceList().get(i)); // Add piece to capturing pieces
                     highlights.add(new String[]{checkMoves.get(ii).getId(),"square", "red"}); // Highlight king
                     graphics.highlight(highlights); // Paint king red
-                    Log.d("Player "+_player.toString(), "Check");
                     return true; // Player's king is in check
                 }
         }
@@ -753,9 +681,7 @@ public class GameController {
          4. King has no valid moves
 
          This function should be called when kingInCheck() returns true.
-
          ***/
-
         boolean canCaptureEnemy = false; // Indicates if it's possible to capture enemy piece which is capturing king
         boolean canMoveBetween = false; // Indicates if it's possible to move between king and enemy capturing piece
         boolean kingHasMoves = false; // Indicates if king has any valid move to avoid check
@@ -883,7 +809,6 @@ public class GameController {
         if(kingMovements.size() != 0 || kingCaptureMoves.size() != 0)
             kingHasMoves = true;
 
-        Log.d("checkMateChecker","canCaptureEnemy "+canCaptureEnemy+". canMoveBetween "+canMoveBetween+". kingHasMoves "+kingHasMoves+".");
         return !canCaptureEnemy && !canMoveBetween && !kingHasMoves || // If any of these is true it's not checkmate
                 capturePieces.size()>1 && !kingHasMoves; // Or if king has no movements and it's exposed by more than one piece
     }
@@ -904,16 +829,15 @@ public class GameController {
     }
 
     public boolean checkForStalemate(){
-        if(turn && stalemate(playerOne) || turn && insufficientMaterial(playerOne)){
-            GameActivity.setStalemate(1);
+        if(turn && stalemate(playerOne) || !turn && stalemate(playerTwo) ){
+            GameActivity.setEnding(1);
             return true;
         }
-        if(!turn && stalemate(playerTwo) || !turn && insufficientMaterial(playerTwo)){
-            GameActivity.setStalemate(2);
+        if( turn && insufficientMaterial(playerOne) || !turn && insufficientMaterial(playerTwo)){
+            GameActivity.setEnding(3);
             return true;
         }
-
-        GameActivity.setStalemate(0); // No stalemate
+        GameActivity.setEnding(0); // No stalemate
         return false;
     }
 
@@ -1028,29 +952,19 @@ public class GameController {
             List<Square> movementList = board.getValidMoves(enemy.getPieceList().get(i))[0]; // EnemyPiece's movements
             List<Square> captureList = board.getValidMoves(enemy.getPieceList().get(i))[1];  //              captures
             if(enemy.equals(playerTwo)) {
-                if (movementList.contains(board.getSquare("B1")) ||
-                    movementList.contains(board.getSquare("C1")) ||
+                if (movementList.contains(board.getSquare("C1")) ||
                     movementList.contains(board.getSquare("D1")))
                     castleSquareOne = null;
                 if (movementList.contains(board.getSquare("F1")) ||
                     movementList.contains(board.getSquare("G1")))
                     castleSquareTwo = null;
-                if(captureList.contains(rookOneSquare)) // TODO: Remove This + Test
-                    castleSquareOne = null;
-                if(captureList.contains(rookTwoSquare)) // And this
-                    castleSquareTwo = null;
             }
             else {
-                if (movementList.contains(board.getSquare("B8")) ||
-                    movementList.contains(board.getSquare("C8")) ||
+                if (movementList.contains(board.getSquare("C8")) ||
                     movementList.contains(board.getSquare("D8")))
                     castleSquareOne = null;
                 if (movementList.contains(board.getSquare("F8")) ||
                     movementList.contains(board.getSquare("G8")))
-                    castleSquareTwo = null;
-                if(captureList.contains(rookOneSquare))
-                    castleSquareOne = null;
-                if(captureList.contains(rookTwoSquare))
                     castleSquareTwo = null;
             }
         }
@@ -1107,8 +1021,6 @@ public class GameController {
         if(!enPassSquareId.equals("") &&  // Previous FEN had enPassSquare - Set it aga enPassSquare
                 !fenString.equals(startingFenString)) {
             board.getSquare(enPassSquareId).setEnPassSquare(); // Set enPassSquare
-            Log.d("crash here sometimes", "EnPassSquareId: "+enPassSquareId);
-            Log.d("crash here sometimes", "fenString: "+fenString);
             if(enPassSquareId.charAt(1)=='3')  // PlayerOne Pawn
                 ((Pawn) board.getSquare(enPassSquareId.charAt(0) + "" + '4').getPiece()).setEnPassPiece(); // Pawn at row 4
             else  // PlayerTwo Pawn
@@ -1133,27 +1045,5 @@ public class GameController {
             checkKingsForCheckmate();
         updateFen(); // Add latest FEN
         return true; // Move was undone
-    }
-
-
-    public void tests(){
-
-        if(selectedPiece==null)
-            Log.e("tester", "selectedPiece null");
-
-        if(!testsDone){
-            movePiece(board.getSquare("A7").getPiece(), board.getSquare("A3"), board.getSquare("A7"));
-            movePiece(board.getSquare("A2").getPiece(), board.getSquare("A7"), board.getSquare("A2"));
-            movePiece(board.getSquare("A3").getPiece(), board.getSquare("A2"), board.getSquare("A3"));
-            movePiece(board.getSquare("B7").getPiece(), board.getSquare("B3"), board.getSquare("B7"));
-            movePiece(board.getSquare("B2").getPiece(), board.getSquare("B7"), board.getSquare("B2"));
-            movePiece(board.getSquare("B3").getPiece(), board.getSquare("B2"), board.getSquare("B3"));
-            movePiece(board.getSquare("C7").getPiece(), board.getSquare("C3"), board.getSquare("C7"));
-            movePiece(board.getSquare("C2").getPiece(), board.getSquare("C7"), board.getSquare("C2"));
-            movePiece(board.getSquare("C3").getPiece(), board.getSquare("C2"), board.getSquare("C3"));
-
-            selectedPiece = board.getSquare("D1").getPiece(); //Avoids null pointter for selected piece
-            testsDone = true;
-        }
     }
 }

@@ -33,7 +33,6 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private GameController gameController;
     private static GameActivity instance;
     private static String directory;
-    public static TextView textField;
     private Button btnUndoMove;
     private Button btnSave;
     private String gameModeSelect;
@@ -44,7 +43,7 @@ public class GameActivity extends Activity implements View.OnClickListener{
     private int gameId;
     private int themeId;
     private static boolean gameInCheckmate = false; // These will only be accessed from GameController
-    private static boolean gameInStalemate = false; // Used to control GUI elements for checkmate and stalemate
+    private static boolean gameEnd = false; // Used to control GUI elements for checkmate and stalemate
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +65,10 @@ public class GameActivity extends Activity implements View.OnClickListener{
         themeId = getIntent().getExtras().getInt("themeId");
         if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
         else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
-        Log.d("GameAcrtivity", "GameID: "+gameId);
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
-        textField = (TextView) findViewById(R.id.textField);
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
         btnUndoMove.setOnClickListener(this);
         btnSave = (Button) findViewById(R.id.btnSave);
@@ -114,44 +111,34 @@ public class GameActivity extends Activity implements View.OnClickListener{
         switch(status) {
             case 0: // No checkmate
                 gameInCheckmate = false;
-                Log.d("GameActivity", "setCheckmate: "+status);
-                textField.setText("");
                 break;
             case 1: // Player One checkmate
                 gameInCheckmate = true;
-                Log.d("GameActivity", "setCheckmate playerOne: "+status);
-                textField.setText("PlayerOne checkmate");
                 instance.setupDialog("Player One Checkmate", "Checkmate");
             break;
             case 2: // Player Two checkmate
                 gameInCheckmate = true;
-                Log.d("GameActivity", "setCheckmate playerTwo: "+status);
-                textField.setText("PlayerTwo checkmate");
                 instance.setupDialog("Player Two Checkmate", "Checkmate");
             break;
         }
     }
 
-    public static boolean getCheckmateStatus(){
-        return gameInCheckmate;
-    }
-
-    public static void setStalemate(int status){
+    public static void setEnding(int status){
         switch(status) {
-            case 0: // No checkmate
-                gameInStalemate = false;
-                Log.d("GameActivity", "setStalemate: "+status);
-                textField.setText("");
+            case 0: // Not ended by draw
+                gameEnd = false;
             break;
-            case 1: // Player One stalemate
-                gameInStalemate = true;
-                Log.d("GameActivity", "setStalemate playerOne: "+status);
-                textField.setText("PlayerOne stalemate");
+            case 1: // Stalemate
+                gameEnd = true;
+                instance.setupDialog("Stalemate", "Game over");
             break;
-            case 2: // Player Two stalemate
-                gameInStalemate = true;
-                Log.d("GameActivity", "setStalemate playerTwo: "+status);
-                textField.setText("PlayerTwo stalemate");
+            case 2: // Draw
+                gameEnd = true;
+                instance.setupDialog("Players draw", "Game over");
+            break;
+            case 3: // Insufficient material
+                gameEnd = true;
+                instance.setupDialog("Insufficient material", "Game over");
             break;
         }
     }
@@ -177,7 +164,6 @@ public class GameActivity extends Activity implements View.OnClickListener{
     public static String getDirectory(){
         return directory;
     }
-
 
     private void writeEngineToDevice() {
         directory = getApplicationContext().getFilesDir().toString()+"/engines/";
