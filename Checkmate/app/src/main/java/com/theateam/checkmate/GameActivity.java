@@ -1,7 +1,9 @@
 package com.theateam.checkmate;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.database.SQLException;
 import android.graphics.Point;
@@ -119,13 +121,19 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 gameInCheckmate = true;
                 Log.d("GameActivity", "setCheckmate playerOne: "+status);
                 textField.setText("PlayerOne checkmate");
+                instance.setupDialog("Player One Checkmate", "Checkmate");
             break;
             case 2: // Player Two checkmate
                 gameInCheckmate = true;
                 Log.d("GameActivity", "setCheckmate playerTwo: "+status);
                 textField.setText("PlayerTwo checkmate");
+                instance.setupDialog("Player Two Checkmate", "Checkmate");
             break;
         }
+    }
+
+    public static boolean getCheckmateStatus(){
+        return gameInCheckmate;
     }
 
     public static void setStalemate(int status){
@@ -146,6 +154,24 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 textField.setText("PlayerTwo stalemate");
             break;
         }
+    }
+
+    private void setupDialog(String _message, String _title){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(_message).setTitle(_title); // Add message and title for dialog
+        builder.setPositiveButton("Save & exit", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                btnSave.callOnClick(); // Make click for save button
+            }
+        });
+        builder.setNegativeButton("UndoMove", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id){
+                btnUndoMove.callOnClick(); // Click undoMove button
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     public static String getDirectory(){

@@ -371,7 +371,7 @@ public class GameController {
                 selectSquare("G4");
         }
         selectedPiece = null; // Move has been made, null the piece
-        if(kingInCheck(playerOne)) // Highlight possible checked king
+        if(kingInCheck(playerOne) || kingInCheck(playerTwo)) // Highlight possible checked king
             checkKingsForCheckmate(); // Check for checkmate
         highlightsOff(); // Highlight
     }
@@ -1036,6 +1036,7 @@ public class GameController {
     public boolean undoMove(){
         if(fenList.size()==1) // No moves has been made
             return false; // Unable to undo move
+
         fenList.remove(fenList.size()-1); // Remove current layout
         graphics.pawnPromoteOff(); // Remove pawn promoting window if it's visible
         if(!pawnPromoting) // Don't change turn when pawn promoting was going on
@@ -1071,6 +1072,10 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn =! turn; // And flip turn
             }
+
+        if(OpenGLRenderer.rotated && turn)
+            graphics.rotate();
+
         updateFen(); // Add latest FEN
         return true; // Move was undone
     }
