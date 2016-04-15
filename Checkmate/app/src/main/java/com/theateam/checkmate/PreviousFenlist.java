@@ -35,6 +35,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private int gameId;
     private String gameMode;
     private String learningTool;
+    private int themeId;
     private GameController gameController;
     private static boolean status;
     private String selectedFen;
@@ -58,6 +59,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         gameId = getIntent().getExtras().getInt("GameId");
         gameMode = getIntent().getExtras().getString("GameMode");
         learningTool = getIntent().getExtras().getString("LearningTool");
+        themeId = getIntent().getExtras().getInt("ThemeId");
 
         databaseManager = new DatabaseManager(this);
         try{
@@ -73,7 +75,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         }
         while(cursorFenlist.moveToNext());
 
-        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList);
+        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, themeId);
         setContentView(R.layout.activity_previous_fenlist);
 
         btnBack = (Button) findViewById(R.id.btnPrevfenlistBack);
@@ -125,6 +127,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 play.putExtra("startingFen", fenList.get(fenList.size()-1)); // Last FEN from the fenList
                 play.putExtra("fenList", fenList);
                 play.putExtra("gameId", gameId);
+                play.putExtra("themeId", themeId);
                 startActivity(play);
                 this.finish();
             break;

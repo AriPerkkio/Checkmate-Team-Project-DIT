@@ -67,6 +67,7 @@ public class PreviousGames extends AppCompatActivity implements View.OnClickList
         prevFenIntent.putExtra("GameId", selectedObject.getInt(0));
         prevFenIntent.putExtra("GameMode", selectedObject.getString(1));
         prevFenIntent.putExtra("LearningTool", selectedObject.getString(2));
+        prevFenIntent.putExtra("ThemeId", selectedObject.getInt(3));
         this.startActivity(prevFenIntent);
     }
 
@@ -88,7 +89,7 @@ public class PreviousGames extends AppCompatActivity implements View.OnClickList
             gameId.setText(""+cursor.getInt(0));
             gameMode.setText(cursor.getString(1));
             gameLearningTool.setText(cursor.getString(2));
-            gameDate.setText(cursor.getString(3));
+            gameDate.setText(cursor.getString(4));
         }
 
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
