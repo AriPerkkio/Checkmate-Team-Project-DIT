@@ -28,7 +28,7 @@ public class GameController {
     public boolean learningTool; // Used in OpenGLRenderer.highlight()
     private int themeId;
     private String fenString = ""; // Board layout using FEN
-    private int[] drawCounter= new int[2];   //counter for fifty move rule draw
+    private int drawCounter = 0;   //counter for fifty move rule draw
 
     //References for other classes
     private Board board;
@@ -253,35 +253,29 @@ public class GameController {
      * NOTE: if boolean captureReset is true, auto reset counter, else check for pawn moves
      */
     private void checkDraw(Piece _piece, Square _square, boolean captureReset){
+        //if movement was a capture movement, immediately reset
         if(captureReset){
-            drawCounter[0] = 0;
-            drawCounter[1] = 0;
+            drawCounter = 0;
         } else {
             //check if piece moved is a pawn
             if(_piece.getPieceType().equals("Pawn")) {
-                drawCounter[0] = 0;
-                drawCounter[1] = 0;
+                drawCounter = 0;
             }
-            //then check if move was a capture movement
+            //then check if move was a capture movement(just in case)
             else if(squareListTwo.contains(board.getSquare(_square.getId()))){
-                drawCounter[0] = 0;
-                drawCounter[1] = 0;
+                drawCounter = 0;
             }
+            //if neither, increase counter
             else{
-                if(turn){
-                    drawCounter[0] += 1;
-                }
-                else{
-                    drawCounter[1] += 1;
-                }
+                drawCounter++;
 
-                if(drawCounter[0] == 50 && drawCounter[1] == 50){
+                if(drawCounter == 100){
                     GameActivity.textField.setText("Draw by 50 Move Rule");
                 }
             }
         }
 
-        Log.i("50MoveCheck", "drawCounter1: " + drawCounter[0] + "drawCounter2: " + drawCounter[1]);
+        Log.i("50MoveCheck", "drawCounter: " + drawCounter);
 
     }
 
