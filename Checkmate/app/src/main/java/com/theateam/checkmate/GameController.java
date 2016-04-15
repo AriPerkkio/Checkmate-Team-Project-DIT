@@ -141,8 +141,8 @@ public class GameController {
         if(checkForStalemate())    //check if either player is in stalemate
             return true;    //if player cannot move, stalemate
 
-        if(clickedSquare.equals("(N")) // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
-            aiMove();
+        if(!turn && !playerTwo.isHuman()) // AI clicks
+            checkAiClick(clickedSquare);
 
         if(pawnPromoting) { // Check if pawn promote is on
             if(processPromoting(clickedSquare) && !turn && !playerTwo.isHuman()) // Process users piece choosing
@@ -412,9 +412,20 @@ public class GameController {
                 selectSquare("G4");
         }
         selectedPiece = null; // Move has been made, null the piece
-        if(kingInCheck(playerOne)) // Highlight possible checked king
+        if(kingInCheck(playerOne) || kingInCheck(playerTwo)) // Highlight possible checked king
             checkKingsForCheckmate(); // Check for checkmate
         highlightsOff(); // Highlight
+    }
+
+    public void checkAiClick(String _clickedSquare){
+        // AI can give move "(none)" - in that case check new move. / com.theateam.checkmate I/Engine: bestmove (none)
+        // Also when it's starting it can give odd messages - only allow it to give squares
+        if( !((int) 'A' <= _clickedSquare.charAt(0) && _clickedSquare.charAt(0) >= (int) 'H') && // First char A-H
+                !((int) '1' <= _clickedSquare.charAt(1) && _clickedSquare.charAt(1) >= (int) '8') && // Second char 1-8
+                clickedSquare.length() != 2) { // And it has only two characters
+            Log.e("checkAiClick", "AI Clicks " + _clickedSquare);
+            aiMove(); // Not a match -> ask new move
+        }
     }
 
     public void movePiece(Piece _piece, Square target, Square from) {
@@ -590,6 +601,7 @@ public class GameController {
             SystemClock.sleep(500); // Sleep 500ms to make rotating and highlightsOff smoother
             graphics.rotate(); // Rotate board and pieces
             selectedPiece = null;
+            highlightsOff();
             Log.e("selectedPiece nulling", "#8");
             return true;
         }
@@ -1078,6 +1090,7 @@ public class GameController {
     public boolean undoMove(){
         if(fenList.size()==1) // No moves has been made
             return false; // Unable to undo move
+
         fenList.remove(fenList.size()-1); // Remove current layout
         graphics.pawnPromoteOff(); // Remove pawn promoting window if it's visible
         if(!pawnPromoting) // Don't change turn when pawn promoting was going on
@@ -1113,6 +1126,11 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn =! turn; // And flip turn
             }
+
+        if(OpenGLRenderer.rotated && turn)
+            graphics.rotate();
+        if(checkForStalemate())
+            checkKingsForCheckmate();
         updateFen(); // Add latest FEN
         return true; // Move was undone
     }
