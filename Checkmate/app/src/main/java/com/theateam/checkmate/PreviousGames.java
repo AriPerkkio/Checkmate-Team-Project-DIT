@@ -24,7 +24,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -134,8 +136,14 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
                     Cursor gameSettings = databaseManager.getSettingsById(latestId);
                     databaseManager.close();
                     ArrayList<String> fenList = new ArrayList<>();
+                    long[] timerOne = new long[fenCursor.getCount()];
+                    long[] timerTwo = new long[fenCursor.getCount()];;
+                    int i=0;
                     do{
                         fenList.add(fenCursor.getString(1));
+                        timerOne[i] = (long) fenCursor.getInt(2);
+                        timerTwo[i] = (long) fenCursor.getInt(3);
+                        i++;
                     }
                     while(fenCursor.moveToNext());
                     intent = new Intent(this, GameActivity.class);
@@ -144,6 +152,8 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
                     intent.putExtra("themeId", gameSettings.getInt(2));
                     intent.putExtra("fenList", fenList);
                     intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    intent.putExtra("timerOne", timerOne);
+                    intent.putExtra("timerTwo", timerTwo);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

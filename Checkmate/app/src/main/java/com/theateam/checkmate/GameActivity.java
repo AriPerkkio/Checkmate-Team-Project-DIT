@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -53,14 +55,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private boolean learningToolSwitch;
     private String gameStartingFen;
     private List<String> gameFenHistory;
+    private Map<String, long[]> fenToTimers = new HashMap<String, long[]>();
     private DatabaseManager databaseManager = new DatabaseManager(this);
     private int gameId;
     private int themeId;
     private static boolean gameInCheckmate = false; // These will only be accessed from GameController
     private static boolean gameEnd = false; // Used to control GUI elements for checkmate and stalemate
     private static String directory;
-    private static TextView timerOne;
-    private static TextView timerTwo;
+    private static TextView timerOneText;
+    private static TextView timerTwoText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +82,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         learningToolSwitch = getIntent().getExtras().getBoolean("learningTool");
         gameStartingFen = getIntent().getExtras().getString("startingFen");
         gameFenHistory = getIntent().getExtras().getStringArrayList("fenList");
+        long[] timerOne = getIntent().getExtras().getLongArray("timerOne");
+        long[] timerTwo = getIntent().getExtras().getLongArray("timerTwo");
+        Log.d("GameActivity", "List: "+gameFenHistory.size()+". TimerOne: "+timerOne.length+". TimerTwo: "+timerTwo.length);
+        for(int i=0;i<gameFenHistory.size();i++)
+            fenToTimers.put(gameFenHistory.get(i), new long[]{timerOne[i], timerTwo[i]});
         themeId = getIntent().getExtras().getInt("themeId");
         if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
         else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
-        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, themeId);
+        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, fenToTimers, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
@@ -108,8 +116,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         btnUndoMove.setOnClickListener(this);
         btnSave = (Button) findViewById(R.id.btnSave);
         btnSave.setOnClickListener(this);
-        timerOne = (TextView) findViewById(R.id.textTimerOne);
-        timerTwo = (TextView) findViewById(R.id.textTimerTwo);
+        // Timers are not used when in analyse mode / layout
+        if(!PreviousFenlist.getStatus()) timerOneText = (TextView) findViewById(R.id.textTimerOne);
+        if(!PreviousFenlist.getStatus()) timerTwoText = (TextView) findViewById(R.id.textTimerTwo);
+        if(!PreviousFenlist.getStatus()) updateTimer(gameController.getTimers()[0],1);
+        if(!PreviousFenlist.getStatus()) updateTimer(gameController.getTimers()[1],2);
         instance = this;
         directory = getApplicationContext().getFilesDir().toString()+"/engines/";
     }
@@ -122,6 +133,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             break;
             case R.id.btnSave:
                 gameFenHistory = gameController.getFenList();
+                fenToTimers = gameController.getMapFenToTimers();
                 try{
                     databaseManager.open();
                     if(gameId==0){ // New game
@@ -131,7 +143,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     else // Saved game was continued
                         databaseManager.clearFenById(gameId); // Clear old game rows
                     for(int i=0;i<gameFenHistory.size();i++) // Insert all FEN-Strings
-                        databaseManager.insertIntoFenList(gameId, gameFenHistory.get(i));
+                        databaseManager.insertIntoFenList(gameId, gameFenHistory.get(i), (int) fenToTimers.get(gameFenHistory.get(i))[0], (int) fenToTimers.get(gameFenHistory.get(i))[1]);
                     databaseManager.close();
                 }catch(SQLException e){
                     Log.e("GameActivity", "insertFen, e: "+e.toString()); // Print error
@@ -177,6 +189,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             case 2: // Player Two checkmate
                 gameInCheckmate = true;
                 instance.setupDialog("Player Two Checkmate", "Checkmate");
+            break;
+        }
+    }
+
+    public static void setTimeEnd(int playerSelect){
+        GameController.getInstance().pauseGame();
+        switch(playerSelect){
+            case 1: // Player one
+                instance.setupDialog("Player One ran out of time", "Time up");
+            break;
+            case 2: // Player two
+                instance.setupDialog("Player Two ran out of time", "Time up");
             break;
         }
     }
@@ -256,21 +280,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return directory;
     }
 
-    public static void updateTimer(long _seconds, int timerSelect){
-        String timeText = "";
-        int minutes = (int) (_seconds/60);
-        int seconds = (int) (_seconds - minutes*60);
-        if(minutes<10)
-            timeText+="0";
-        timeText+=minutes;
-        timeText+=":";
-        if(seconds<10)
-            timeText+="0";
-        timeText+=seconds;
-        if(timerSelect==1)
-            timerOne.setText(timeText);
-        if(timerSelect==2)
-            timerTwo.setText(timeText);
+    public static void updateTimer(long _seconds, int timerSelect) {
+        if (!PreviousFenlist.getStatus()) {
+            String timeText = "";
+            int minutes = (int) (_seconds / 60);
+            int seconds = (int) (_seconds - minutes * 60);
+            if (minutes < 10)
+                timeText += "0";
+            timeText += minutes;
+            timeText += ":";
+            if (seconds < 10)
+                timeText += "0";
+            timeText += seconds;
+            if (timerSelect == 1)
+                timerOneText.setText(timeText);
+            if (timerSelect == 2)
+                timerTwoText.setText(timeText);
+            if(minutes==1)
+                setTimeEnd(timerSelect);
+        }
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        gameController.pauseGame();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        // TODO: Filter out game continue situations
+        gameController.resumeGame();
     }
  }
 

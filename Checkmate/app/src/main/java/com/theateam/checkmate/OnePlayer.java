@@ -26,6 +26,8 @@ import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -183,8 +185,16 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     Cursor gameSettings = databaseManager.getSettingsById(latestId);
                     databaseManager.close();
                     ArrayList<String> fenList = new ArrayList<>();
+                    Map<String, long[]> fenToTimers = new HashMap<String, long[]>();
+                    long[] timerOne = new long[fenCursor.getCount()];
+                    long[] timerTwo = new long[fenCursor.getCount()];;
+                    int i=0;
                     do{
                         fenList.add(fenCursor.getString(1));
+                        fenToTimers.put(fenCursor.getString(1), new long[]{(long) fenCursor.getInt(2), (long) fenCursor.getInt(3)});
+                        timerOne[i] = (long) fenCursor.getInt(2);
+                        timerTwo[i] = (long) fenCursor.getInt(3);
+                        i++;
                     }
                     while(fenCursor.moveToNext());
                     intent = new Intent(this, GameActivity.class);
@@ -193,6 +203,8 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     intent.putExtra("themeId", gameSettings.getInt(2));
                     intent.putExtra("fenList", fenList);
                     intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    intent.putExtra("timerOne", timerOne);
+                    intent.putExtra("timerTwo", timerTwo);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

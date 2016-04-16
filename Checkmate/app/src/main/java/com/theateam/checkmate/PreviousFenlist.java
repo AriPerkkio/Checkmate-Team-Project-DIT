@@ -20,6 +20,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PreviousFenlist extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener{
 
@@ -31,6 +33,9 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private DatabaseManager databaseManager;
     private Cursor cursorFenlist;
     private ArrayList<String> fenList = new ArrayList<String>();
+    private Map<String, long[]> fenToTimers = new HashMap<String, long[]>();
+    private long[] timerOne;
+    private long[] timerTwo;
     private ArrayAdapter arrayAdapter;
     private int gameId;
     private String gameMode;
@@ -71,12 +76,19 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
             Log.e("previousFenlist", "Read DB, e: "+e);
         }
 
+        timerOne = new long[cursorFenlist.getCount()];
+        timerTwo = new long[cursorFenlist.getCount()];
+        int i=0;
         do{
             fenList.add(cursorFenlist.getString(1));
+            fenToTimers.put(cursorFenlist.getString(1), new long[]{(long) cursorFenlist.getInt(2), (long) cursorFenlist.getInt(3)});
+            timerOne[i] = (long) cursorFenlist.getInt(2);
+            timerTwo[i] = (long) cursorFenlist.getInt(3);
+            i++;
         }
         while(cursorFenlist.moveToNext());
 
-        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, themeId);
+        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, fenToTimers, themeId);
         setContentView(R.layout.activity_previous_fenlist);
 
         btnBack = (Button) findViewById(R.id.btnPrevfenlistBack);
@@ -130,6 +142,8 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 play.putExtra("fenList", fenList);
                 play.putExtra("gameId", gameId);
                 play.putExtra("themeId", themeId);
+                play.putExtra("timerOne", timerOne);
+                play.putExtra("timerTwo", timerTwo);
                 startActivity(play);
                 this.finish();
             break;

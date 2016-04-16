@@ -21,8 +21,11 @@ import android.database.sqlite.SQLiteStatement;
  * Table FenList:
  * Column 1: GameID, Integer, Reference as foreign key to Games-table
  * Column 2: FenString, String i.e. "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
+ * Column 3: TimerOne, Integer
+ * Column 4: TimerTwo, Integer
  *
  */
+
 public class DatabaseManager {
 
     // Table Options and its columns
@@ -37,6 +40,8 @@ public class DatabaseManager {
     private static final String DATABASE_TABLE_FENLIST = "FenList"; // Table FenList
     public static final String fenList_GameId = "_id"; // Game ID, Integer
     public static final String fenList_FenString = "FenString"; // FenString, String
+    public static final String fenList_timerOne = "TimerOne"; // TimerOne, Integer
+    public static final String fenList_timerTwo = "TimerTwo"; // TimerTwo, Integer
 
     private static final int DATABASE_VERSION = 1; // Database version, 1st release as v.1
 
@@ -51,7 +56,9 @@ public class DatabaseManager {
     // SQL-command to create Fenlist table with its columns
     private static final String CREATE_TABLE_FENLIST =
             "CREATE TABLE FenList(_id integer, " +
-                    "FenString TEXT, " +
+                    "FenString TEXT," +
+                    "TimerOne INTEGER," +
+                    "TimerTwo INTEGER," +
                     "FOREIGN KEY (_id) REFERENCES Games(_id))";
 
     private final Context context;
@@ -111,10 +118,12 @@ public class DatabaseManager {
     }
 
     // Insert new row to Fenlist table
-    public long insertIntoFenList(int gameId, String fenList) {
+    public long insertIntoFenList(int gameId, String fenList, int timerOne, int timerTwo) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(fenList_GameId, gameId);
         initialValues.put(fenList_FenString, fenList);
+        initialValues.put(fenList_timerOne, timerOne);
+        initialValues.put(fenList_timerTwo, timerTwo);
         return db.insert(DATABASE_TABLE_FENLIST, null, initialValues);
     }
 
@@ -137,7 +146,7 @@ public class DatabaseManager {
     // Get FenStrings from Fenlist table
     public Cursor getFenStringsById(int rowId) throws SQLException {
         Cursor mCursor = db.query(true, DATABASE_TABLE_FENLIST, new String[]{
-                fenList_GameId, fenList_FenString}, fenList_GameId + "=" + rowId, null, null, null, null, null);
+                fenList_GameId, fenList_FenString, fenList_timerOne, fenList_timerTwo}, fenList_GameId + "=" + rowId, null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }

@@ -129,17 +129,22 @@ public class Player {
     }
 
     public void startTimer(){
-        chessTimer.start();
+        if(!PreviousFenlist.getStatus())
+            chessTimer.start();
     }
 
     public void increaseTimer(){
         timer ++;
+        Log.d("increaseTimer", toString()+" time "+timer);
         if(this.isFirst())
             GameActivity.updateTimer(timer, 1);
         else
             GameActivity.updateTimer(timer, 2);
     }
 
+    public void setTimer(long _timer){
+        timer = _timer;
+    }
     public void pauseTimer(){
         chessTimer.pause();
     }
@@ -148,9 +153,15 @@ public class Player {
         chessTimer.resume();
     }
 
+    public long getTimer(){
+        return timer;
+    }
+
     // Used to print debug info about current player
     public String toString(){
-        return type+ "";
+        int playerNumber = 2;
+        if(isFirst())           playerNumber = 1;
+        return type+ " number "+playerNumber+": ";
     }
 
     /** DEBUG **/
