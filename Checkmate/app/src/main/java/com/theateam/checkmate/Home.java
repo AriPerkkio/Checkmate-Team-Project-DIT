@@ -2,7 +2,11 @@
 
 package com.theateam.checkmate;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -20,18 +24,19 @@ import java.util.ArrayList;
 import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 /**
  * Created by FionnMcguire on 31/03/2016.
  */
-public class Home extends AppCompatActivity
-{
+public class Home extends AppCompatActivity{
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
     @InjectView(R.id.drawer_recyclerView)
     RecyclerView drawerRecyclerView;
+    DatabaseManager db;
 
     public void onCreate(Bundle savedInstanceState) {
         // Hide navigation bar and keep it hidden when pressing
@@ -48,12 +53,12 @@ public class Home extends AppCompatActivity
         setContentView(R.layout.activity_layout);
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
+        db = new DatabaseManager(this);
 
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
-
 
         List<String> rows = new ArrayList<>();
         rows.add("Update");
@@ -79,6 +84,51 @@ public class Home extends AppCompatActivity
     public void Analysis_intent(View view) {
         Intent intent = new Intent(this, PreviousGames.class);
         startActivity(intent);
+    }
+
+    public void drawerClick(View v){
+        String clickedText = ((TextView) v).getText().toString();
+        switch(clickedText){
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+            break;
+            case "Home":
+                drawerLayout.closeDrawers();
+            break;
+            case "Analysis":
+                Analysis_intent(v);
+            break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+            break;
+            case "Resume":
+                try{
+                    db.open();
+                    int latestId = db.getHighestId();
+                    if(latestId==0){
+                        Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Cursor fenCursor = db.getFenStringsById(latestId);
+                    Cursor gameSettings = db.getSettingsById(latestId);
+                    db.close();
+                    ArrayList<String> fenList = new ArrayList<>();
+                    do{
+                        fenList.add(fenCursor.getString(1));
+                    }
+                    while(fenCursor.moveToNext());
+                    Intent intent = new Intent(this, GameActivity.class);
+                    intent.putExtra("gameMode", gameSettings.getString(0));
+                    intent.putExtra("learningTool", (gameSettings.getString(1).equals("ON")));
+                    intent.putExtra("themeId", gameSettings.getInt(2));
+                    intent.putExtra("fenList", fenList);
+                    intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    startActivity(intent);
+                }catch(SQLException e){
+                    Log.e("DrawerResume", "e: "+e.toString());
+                }
+            break;
+        }
     }
 }
 

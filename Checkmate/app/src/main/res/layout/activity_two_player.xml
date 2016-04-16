@@ -9,7 +9,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:fitsSystemWindows="true"
         android:weightSum="1"
         android:background="@color/colorPrimary">
 
@@ -18,7 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimaryDark"
-            android:elevation="4dp" />
+            android:elevation="4dp"
+            android:alpha="0.7" />
+
+        <Space
+            android:layout_width="fill_parent"
+            android:layout_height="5dp" />
 
         <include
             android:layout_width="fill_parent"

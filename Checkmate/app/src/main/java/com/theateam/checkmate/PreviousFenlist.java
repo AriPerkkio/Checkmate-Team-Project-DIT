@@ -99,6 +99,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     public static boolean getStatus(){
         return status;
     }
+    public static void setStatus(boolean _status){ status = _status; }
 
     public void onClick(View v){
         switch(v.getId()){

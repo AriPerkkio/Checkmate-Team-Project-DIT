@@ -2,6 +2,8 @@ package com.theateam.checkmate;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -47,6 +49,7 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
     ExpandableListView expListView;
     List<String> listDataHeader;
     int themeId = R.mipmap.defaulttheme;
+    DatabaseManager databaseManager;
 
     HashMap<String, List<String>> listDataChild;
 
@@ -65,7 +68,7 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         setContentView(R.layout.activity_one_player);
         ButterKnife.inject(this);
 
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
         learning_tool = (Switch)findViewById(R.id.learning_tool_switch);
         difficulty = (SeekBar)findViewById(R.id.difficulty_bar);
         int difficulty_status = difficulty.getProgress();
@@ -97,6 +100,7 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
 
         // Initialize default settings
         themeId = R.mipmap.defaulttheme;
+        databaseManager = new DatabaseManager(this);
     }
 
     @Override
@@ -146,7 +150,55 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
             intent.putExtra("gameMode", "AiInsane");
         else
             intent.putExtra("gameMode", "AiEasy");
+        PreviousFenlist.setStatus(false);
         startActivity(intent);
+    }
+
+    public void drawerClick(View v){
+        String clickedText = ((TextView) v).getText().toString();
+        switch(clickedText){
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+                break;
+            case "Home":
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                break;
+            case "Analysis":
+                intent = new Intent(this, PreviousGames.class);
+                startActivity(intent);
+                break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+                break;
+            case "Resume":
+                try{
+                    databaseManager.open();
+                    int latestId = databaseManager.getHighestId();
+                    if(latestId==0){
+                        Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Cursor fenCursor = databaseManager.getFenStringsById(latestId);
+                    Cursor gameSettings = databaseManager.getSettingsById(latestId);
+                    databaseManager.close();
+                    ArrayList<String> fenList = new ArrayList<>();
+                    do{
+                        fenList.add(fenCursor.getString(1));
+                    }
+                    while(fenCursor.moveToNext());
+                    intent = new Intent(this, GameActivity.class);
+                    intent.putExtra("gameMode", gameSettings.getString(0));
+                    intent.putExtra("learningTool", (gameSettings.getString(1).equals("ON")));
+                    intent.putExtra("themeId", gameSettings.getInt(2));
+                    intent.putExtra("fenList", fenList);
+                    intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    startActivity(intent);
+                }catch(SQLException e){
+                    Log.e("DrawerResume", "e: "+e.toString());
+                }
+                break;
+        }
     }
 
     private void prepareListData() {

@@ -16,7 +16,7 @@
         android:layout_below="@+id/linearLayout"
         android:layout_alignParentStart="true"
         android:paddingTop="10dp"
-        android:paddingLeft="5dp"
+        android:paddingLeft="10dp"
         android:textColor="@color/colorAccent" />
 
     <TextView
@@ -30,7 +30,8 @@
         android:paddingLeft="5dp"
         android:textStyle="bold"
         android:layout_below="@+id/linearLayout"
-        android:layout_alignEnd="@+id/prevgamerowDate" />
+        android:layout_alignEnd="@+id/prevgamerowDate"
+        android:textAlignment="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -39,12 +40,13 @@
         android:text="OFF"
         android:id="@+id/prevgamerowLearnTool"
         android:textColor="@color/colorAccent"
-        android:paddingRight="5dp"
+        android:paddingRight="10dp"
         android:layout_alignTop="@+id/prevgamerowGamemode"
         android:layout_alignParentEnd="true"
         android:textStyle="bold"
         android:paddingTop="10dp"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        android:textAlignment="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -56,7 +58,8 @@
         android:paddingRight="5dp"
         android:layout_below="@+id/prevgamerowGamemode"
         android:layout_centerHorizontal="true"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:orientation="vertical"

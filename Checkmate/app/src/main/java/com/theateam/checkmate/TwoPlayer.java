@@ -1,6 +1,8 @@
 package com.theateam.checkmate;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -39,6 +41,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     int themeId = R.mipmap.defaulttheme;
     Button startGameButton;
     HashMap<String, List<String>> listDataChild;
+    DatabaseManager databaseManager;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -56,8 +59,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         setContentView(R.layout.activity_two_player);
         ButterKnife.inject(this);
 
-        //setSupportActionBar(toolbar);
-
+        setSupportActionBar(toolbar);
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
@@ -85,6 +87,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         // Initialize default settings
         themeId = R.mipmap.defaulttheme;
         // Game Mode = normal
+        databaseManager = new DatabaseManager(this);
     }
 
     @Override
@@ -144,7 +147,55 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
         intent.putExtra("learningTool", (learning_tool.isChecked()));
+        PreviousFenlist.setStatus(false);
         startActivity(intent);
+    }
+
+    public void drawerClick(View v){
+        String clickedText = ((TextView) v).getText().toString();
+        switch(clickedText){
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+                break;
+            case "Home":
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                break;
+            case "Analysis":
+                intent = new Intent(this, PreviousGames.class);
+                startActivity(intent);
+                break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+                break;
+            case "Resume":
+                try{
+                    databaseManager.open();
+                    int latestId = databaseManager.getHighestId();
+                    if(latestId==0){
+                        Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Cursor fenCursor = databaseManager.getFenStringsById(latestId);
+                    Cursor gameSettings = databaseManager.getSettingsById(latestId);
+                    databaseManager.close();
+                    ArrayList<String> fenList = new ArrayList<>();
+                    do{
+                        fenList.add(fenCursor.getString(1));
+                    }
+                    while(fenCursor.moveToNext());
+                    intent = new Intent(this, GameActivity.class);
+                    intent.putExtra("gameMode", gameSettings.getString(0));
+                    intent.putExtra("learningTool", (gameSettings.getString(1).equals("ON")));
+                    intent.putExtra("themeId", gameSettings.getInt(2));
+                    intent.putExtra("fenList", fenList);
+                    intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    startActivity(intent);
+                }catch(SQLException e){
+                    Log.e("DrawerResume", "e: "+e.toString());
+                }
+                break;
+        }
     }
 
     private void prepareListData() {

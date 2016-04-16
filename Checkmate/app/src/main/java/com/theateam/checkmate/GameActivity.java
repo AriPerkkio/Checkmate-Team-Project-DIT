@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.SQLException;
 import android.graphics.Point;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -35,7 +37,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class GameActivity extends Activity implements View.OnClickListener{
+public class GameActivity extends AppCompatActivity implements View.OnClickListener{
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -83,10 +85,12 @@ public class GameActivity extends Activity implements View.OnClickListener{
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
         ButterKnife.inject(this);
+        setSupportActionBar(toolbar);
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
+
         List<String> rows = new ArrayList<>();
         rows.add("Update");
         rows.add("Home");
@@ -133,6 +137,29 @@ public class GameActivity extends Activity implements View.OnClickListener{
                 Toast.makeText(this, "Game saved.", Toast.LENGTH_SHORT).show();
                 finish();
             break;
+        }
+    }
+
+    public void drawerClick(View v){
+        String clickedText = ((TextView) v).getText().toString();
+        switch(clickedText){
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+                break;
+            case "Home":
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                break;
+            case "Analysis":
+                intent = new Intent(this, PreviousGames.class);
+                startActivity(intent);
+                break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+                break;
+            case "Resume":
+                drawerLayout.closeDrawers();
+                break;
         }
     }
 

@@ -4,8 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +23,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class PreviousGames extends AppCompatActivity implements ListView.OnItemClickListener {
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
+
+public class PreviousGames extends AppCompatActivity implements ListView.OnItemClickListener{
+
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+    @InjectView(R.id.drawer_recyclerView)
+    RecyclerView drawerRecyclerView;
     private ListView listGames;
     private Button btnBack;
     private Cursor cursorGames;
@@ -29,10 +46,37 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN); //Set full screen
+        // Hide navigation bar and keep it hidden when pressing
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_previous_games);
+        ButterKnife.inject(this);
+        setSupportActionBar(toolbar);
+
+        ActionBarDrawerToggle drawerToggle;
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        drawerLayout.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        List<String> rows = new ArrayList<>();
+        rows.add("Update");
+        rows.add("Home");
+        rows.add("Analysis");
+        rows.add("Settings");
+        rows.add("Resume");
+
+        DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
+        drawerRecyclerView.setAdapter(drawerAdapter);
+        drawerRecyclerView.setHasFixedSize(true);
+        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         listGames = (ListView) findViewById(R.id.listPrevGames);
         listGames.setOnItemClickListener(this);
@@ -60,6 +104,52 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
         prevFenIntent.putExtra("LearningTool", selectedObject.getString(2));
         prevFenIntent.putExtra("ThemeId", selectedObject.getInt(3));
         this.startActivity(prevFenIntent);
+    }
+
+    public void drawerClick(View v){
+        String clickedText = ((TextView) v).getText().toString();
+        switch(clickedText){
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+                break;
+            case "Home":
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                break;
+            case "Analysis":
+                drawerLayout.closeDrawers();
+                break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+                break;
+            case "Resume":
+                try{
+                    databaseManager.open();
+                    int latestId = databaseManager.getHighestId();
+                    if(latestId==0){
+                        Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Cursor fenCursor = databaseManager.getFenStringsById(latestId);
+                    Cursor gameSettings = databaseManager.getSettingsById(latestId);
+                    databaseManager.close();
+                    ArrayList<String> fenList = new ArrayList<>();
+                    do{
+                        fenList.add(fenCursor.getString(1));
+                    }
+                    while(fenCursor.moveToNext());
+                    intent = new Intent(this, GameActivity.class);
+                    intent.putExtra("gameMode", gameSettings.getString(0));
+                    intent.putExtra("learningTool", (gameSettings.getString(1).equals("ON")));
+                    intent.putExtra("themeId", gameSettings.getInt(2));
+                    intent.putExtra("fenList", fenList);
+                    intent.putExtra("startingFen", fenList.get(fenList.size()-1));
+                    startActivity(intent);
+                }catch(SQLException e){
+                    Log.e("DrawerResume", "e: "+e.toString());
+                }
+                break;
+        }
     }
 
     // Cursor adapter for Games
