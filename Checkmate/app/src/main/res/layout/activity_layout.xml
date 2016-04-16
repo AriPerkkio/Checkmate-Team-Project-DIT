@@ -20,7 +20,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#388E3c"
+            android:background="@color/colorPrimaryDark"
+            android:alpha="0.7"
+            android:textColor="@color/colorAccent"
             android:elevation="4dp" />
 
         <Button
@@ -35,7 +37,10 @@
             android:background="@color/colorPrimaryDark"
             android:layout_alignRight="@+id/button3"
             android:layout_alignEnd="@+id/button3"
-            android:textSize="20dp"
+
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textSize="25dp"
             android:onClick="Analysis_intent" />
 
         <Button
@@ -50,7 +55,10 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:background="@color/colorPrimaryDark"
-            android:textSize="20dp"
+
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textSize="25dp"
             android:onClick="OnePlayer_intent" />
 
         <Button
@@ -64,7 +72,10 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:background="@color/colorPrimaryDark"
-            android:textSize="20dp"
+
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textSize="25dp"
             android:onClick="TwoPlayer_intent"/>
 
         <!-- Main Content -->
@@ -80,6 +91,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:scrollbars="vertical"
-        android:background="#FFFFFF"/>
+        android:background="@color/colorPrimaryDark"/>
 
 </android.support.v4.widget.DrawerLayout>

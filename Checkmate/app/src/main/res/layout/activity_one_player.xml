@@ -14,14 +14,16 @@
         android:orientation="vertical"
         android:fitsSystemWindows="true"
         android:weightSum="1"
-        android:background="@color/material_blue_grey_800">
+        android:background="@color/colorPrimary">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#607D8B"
-            android:elevation="4dp" />
+
+            android:elevation="4dp"
+            android:background="@color/colorPrimaryDark"
+            android:alpha="0.7"/>
 
         <include
             android:layout_width="fill_parent"
@@ -34,6 +36,7 @@
             android:textSize="20dp"
             android:layout_marginLeft="10dp"
             android:text="Difficulty"
+            android:textColor="@color/colorAccent"
             android:id="@+id/textView" />
 
         <SeekBar
@@ -49,6 +52,7 @@
             android:id="@+id/learning_tool_switch"
             android:layout_gravity="right"
             android:textSize="20dp"
+            android:textColor="@color/colorAccent"
             android:checked="false"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
@@ -63,10 +67,13 @@
             android:text="Start"
             android:id="@+id/button"
             android:layout_alignParentBottom="true"
-            android:background="#fe65b7"
+            android:background="@color/colorPrimaryDark"
+
+            android:textStyle="bold"
             android:layout_alignRight="@+id/button3"
             android:layout_alignEnd="@+id/button3"
             android:textSize="20dp"
+            android:textColor="@color/colorAccent"
             android:onClick="StartOnePlayer_intent"/>
 
 
@@ -86,6 +93,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:scrollbars="vertical"
-        android:background="#FFFFFF"/>
+        android:background="@color/colorPrimaryDark"/>
 
 </android.support.v4.widget.DrawerLayout>

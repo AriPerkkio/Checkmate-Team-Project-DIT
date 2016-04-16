@@ -20,6 +20,6 @@
         android:textColor="#FF757575"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:singleLine="true"
-        android:id="@+id/drawer_row_text"/>
+        android:id="@+id/drawer_row_text" />
 
 </FrameLayout>
