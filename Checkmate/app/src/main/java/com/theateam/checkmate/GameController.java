@@ -28,6 +28,7 @@ public class GameController {
     private int themeId;
     private String fenString = ""; // Board layout using FEN
     private int drawCounter = 0;   //counter for fifty move rule draw
+    private boolean timerRunning = false;
 
     //References for other classes
     private Board board;
@@ -133,6 +134,7 @@ public class GameController {
 
         if (turn) playerOne.startTimer(); // Start player's timer
         else playerTwo.startTimer();
+        timerRunning = true;
 
     }
 
@@ -1104,13 +1106,16 @@ public class GameController {
         return true; // Move was undone
     }
 
-    public void pauseGame(){
+    public void pauseGame() {
         playerOne.pauseTimer();
         playerTwo.pauseTimer();
+        timerRunning = false;
     }
 
-    public void resumeGame(){
-    if(turn) playerOne.startTimer();
-    else playerTwo.startTimer();
+    public void resumeGame() {
+        if (!timerRunning) {
+            if (turn) playerOne.startTimer();
+            else playerTwo.startTimer();
+        }
     }
 }

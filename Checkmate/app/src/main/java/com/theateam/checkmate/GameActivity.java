@@ -309,7 +309,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onResume(){
         super.onResume();
-        // TODO: Filter out game continue situations
         gameController.resumeGame();
     }
  }
