@@ -119,6 +119,7 @@ public class GameController {
         }
         // Set turn from startingFen
         turn = fenParser.getTurn(_startingFenString);
+        playerOne.startTimer(); // Start playerOne timer
     }
 
     public static GameController getInstance() {
@@ -149,6 +150,14 @@ public class GameController {
         }
 
         if(checkClickMovement()) {  // Allow piece movement to highlighted squares
+            if(turn) {
+                playerOne.resumeTimer();
+                playerTwo.pauseTimer();
+            }
+            else {
+                playerOne.pauseTimer();
+                playerTwo.resumeTimer();
+            }
             if (!turn && !playerTwo.isHuman())
                 aiMove(); // PlayerOne made a movement, make AI make the next move
             return true;

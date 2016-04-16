@@ -20,6 +20,11 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import butterknife.ButterKnife;
@@ -36,7 +41,8 @@ public class Home extends AppCompatActivity{
     Toolbar toolbar;
     @InjectView(R.id.drawer_recyclerView)
     RecyclerView drawerRecyclerView;
-    DatabaseManager db;
+    private DatabaseManager db;
+    private static String directory;
 
     public void onCreate(Bundle savedInstanceState) {
         // Hide navigation bar and keep it hidden when pressing
@@ -54,6 +60,8 @@ public class Home extends AppCompatActivity{
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
         db = new DatabaseManager(this);
+        directory = getFilesDir().toString()+"/engines/";
+        writeEngineToDevice();
 
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
@@ -128,6 +136,49 @@ public class Home extends AppCompatActivity{
                     Log.e("DrawerResume", "e: "+e.toString());
                 }
             break;
+        }
+    }
+
+    private void writeEngineToDevice() {
+        directory = getApplicationContext().getFilesDir().toString()+"/engines/";
+
+        File engineDir = new File(directory);
+        if (!engineDir.exists()) {
+            Log.i("Writing", "Engine");
+            Log.i("Writing", "Directory"+directory);
+            engineDir.mkdirs();
+            copyEngineDir();
+        }
+        else
+            Log.d("writeEngineToDevice", "Directory exists");
+    }
+
+    // Write chess AI engine from /res/raw/ to applications directory
+    private void copyEngineDir() {
+        InputStream in;
+        OutputStream out;
+        try {
+            in = getResources().openRawResource(R.raw.stockfish); // Get stockfish raw binary file from /res/raw/
+            out = new FileOutputStream(directory + "stockfish"); // Create new file to applications directory
+            copyFile(in, out); // Copy file
+            in.close();
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            Log.e("copyEngineDir", e.toString());
+        }
+        try {
+            Runtime.getRuntime().exec("chmod 777 "+directory+"stockfish"); // Set executable
+        }catch(Exception e){
+            Log.e("Chmod777", e.toString());
+        }
+    }
+    // Reference: http://stackoverflow.com/a/5450828
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
         }
     }
 }

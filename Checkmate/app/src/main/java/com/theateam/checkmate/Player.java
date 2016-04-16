@@ -21,7 +21,8 @@ public class Player {
     private List<Piece> pieceList = new Vector<>();
 
     private boolean turn;
-    private double timer;
+    private long timer=0;
+    private ChessTimer chessTimer;
     private String color;
     private String type;
     private boolean first; // True if player is first to start / bottom one / white pieces
@@ -31,6 +32,7 @@ public class Player {
     public Player(String _type, boolean isFirst){
         type = _type;
         first = isFirst;
+        chessTimer = new ChessTimer(Long.MAX_VALUE, 1000, this);
 
         // Setup IDs for graphic drawing (TextureID)
         int startingId = (TextureGL.count+1); // This is dependent of the graphics coordinate order
@@ -126,6 +128,25 @@ public class Player {
         pieceList.remove(_piece);
     }
 
+    public void startTimer(){
+        chessTimer.start();
+    }
+
+    public void increaseTimer(){
+        timer ++;
+        if(this.isFirst())
+            GameActivity.updateTimer(timer, 1);
+        else
+            GameActivity.updateTimer(timer, 2);
+    }
+
+    public void pauseTimer(){
+        chessTimer.pause();
+    }
+
+    public void resumeTimer(){
+        chessTimer.resume();
+    }
 
     // Used to print debug info about current player
     public String toString(){

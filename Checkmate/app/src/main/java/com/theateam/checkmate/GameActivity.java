@@ -47,7 +47,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     RecyclerView drawerRecyclerView;
     private GameController gameController;
     private static GameActivity instance;
-    private static String directory;
     private Button btnUndoMove;
     private Button btnSave;
     private String gameModeSelect;
@@ -59,6 +58,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int themeId;
     private static boolean gameInCheckmate = false; // These will only be accessed from GameController
     private static boolean gameEnd = false; // Used to control GUI elements for checkmate and stalemate
+    private static String directory;
+    private static TextView timerOne;
+    private static TextView timerTwo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,10 +108,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         btnUndoMove.setOnClickListener(this);
         btnSave = (Button) findViewById(R.id.btnSave);
         btnSave.setOnClickListener(this);
+        timerOne = (TextView) findViewById(R.id.textTimerOne);
+        timerTwo = (TextView) findViewById(R.id.textTimerTwo);
         instance = this;
-        writeEngineToDevice();
-        directory = getFilesDir().toString()+"/engines/";
-
+        directory = getApplicationContext().getFilesDir().toString()+"/engines/";
     }
 
     public void onClick(View v) {
@@ -217,52 +219,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         dialog.show();
     }
 
-    public static String getDirectory(){
-        return directory;
-    }
-
-    private void writeEngineToDevice() {
-        directory = getApplicationContext().getFilesDir().toString()+"/engines/";
-
-        File engineDir = new File(directory);
-        if (!engineDir.exists()) {
-            Log.i("Writing", "Engine");
-            Log.i("Writing", "Directory"+directory);
-            engineDir.mkdirs();
-            copyEngineDir();
-        }
-        else
-            Log.d("writeEngineToDevice", "Directory exists");
-    }
-
-    // Write chess AI engine from /res/raw/ to applications directory
-    private void copyEngineDir() {
-        InputStream in;
-        OutputStream out;
-        try {
-            in = getResources().openRawResource(R.raw.stockfish); // Get stockfish raw binary file from /res/raw/
-            out = new FileOutputStream(directory + "stockfish"); // Create new file to applications directory
-            copyFile(in, out); // Copy file
-            in.close();
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            Log.e("copyEngineDir", e.toString());
-        }
-        try {
-            Runtime.getRuntime().exec("chmod 777 "+directory+"stockfish"); // Set executable
-        }catch(Exception e){
-            Log.e("Chmod777", e.toString());
-        }
-    }
-    // Reference: http://stackoverflow.com/a/5450828
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while((read = in.read(buffer)) != -1){
-            out.write(buffer, 0, read);
-        }
-    }
     public static int getscreenwidth()
     {
         Display display = instance.getWindowManager().getDefaultDisplay();
@@ -295,6 +251,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             orientation = "landscape";
         }
         return orientation;
+    }
+    public static String getDirectory(){
+        return directory;
+    }
+
+    public static void updateTimer(long _seconds, int timerSelect){
+        String timeText = "";
+        int minutes = (int) (_seconds/60);
+        int seconds = (int) (_seconds - minutes*60);
+        if(minutes<10)
+            timeText+="0";
+        timeText+=minutes;
+        timeText+=":";
+        if(seconds<10)
+            timeText+="0";
+        timeText+=seconds;
+        if(timerSelect==1)
+            timerOne.setText(timeText);
+        if(timerSelect==2)
+            timerTwo.setText(timeText);
     }
  }
 
