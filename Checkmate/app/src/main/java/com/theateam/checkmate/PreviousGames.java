@@ -105,9 +105,22 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
         prevFenIntent.putExtra("GameMode", selectedObject.getString(1));
         prevFenIntent.putExtra("LearningTool", selectedObject.getString(2));
         prevFenIntent.putExtra("ThemeId", selectedObject.getInt(3));
+        prevFenIntent.putExtra("TimeLimit", getTimitLimit(selectedObject.getInt(0)));
         this.startActivity(prevFenIntent);
     }
 
+    public int getTimitLimit(int _gameId){
+        int returnInteger = 1800; // Default initialize
+        try{
+            databaseManager.open();
+            Cursor timeCursor = databaseManager.getSettingsById(_gameId);
+            databaseManager.close();
+            returnInteger = timeCursor.getInt(3);
+        }catch(SQLException e){
+            Log.e("getTimiLimit", "e: "+e.toString());
+        }
+        return returnInteger;
+    }
     public void drawerClick(View v){
         String clickedText = ((TextView) v).getText().toString();
         switch(clickedText){
@@ -154,6 +167,8 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
                     intent.putExtra("startingFen", fenList.get(fenList.size()-1));
                     intent.putExtra("timerOne", timerOne);
                     intent.putExtra("timerTwo", timerTwo);
+                    intent.putExtra("gameId", latestId);
+                    intent.putExtra("timeLimit", gameSettings.getInt(3));
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

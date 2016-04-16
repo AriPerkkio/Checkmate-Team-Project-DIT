@@ -34,6 +34,7 @@ public class DatabaseManager {
     public static final String games_GameMode = "GameMode"; // Game mode, String
     public static final String games_LearningTool = "LearningTool"; // Learning Tool On/Off, String
     public static final String games_ThemeId = "ThemeId"; // ThemeId, Integer
+    public static final String games_TimeLimit = "TimeLimit"; // Timi Limit, Integer
     public static final String games_date = "Date";
 
     // Table FenList and its columns
@@ -51,6 +52,7 @@ public class DatabaseManager {
                     "GameMode TEXT, " +
                     "LearningTool TEXT, " +
                     "ThemeId INTEGER, "+
+                    "TimeLimit INTEGER, "+
                     "Date DATETIME DEFAULT CURRENT_DATE)";
 
     // SQL-command to create Fenlist table with its columns
@@ -105,7 +107,7 @@ public class DatabaseManager {
     }
 
     // Insert new row to Games table
-    public long insertIntoGames(String GameMode, boolean learningTool, int themeId) {
+    public long insertIntoGames(String GameMode, boolean learningTool, int themeId, int timeLimit) {
         // GameId is Auto incremented, Time is CURRENT_DATE by default
         ContentValues initialValues = new ContentValues();
         initialValues.put(games_GameMode, GameMode);
@@ -114,6 +116,7 @@ public class DatabaseManager {
         else // Learning tool off
             initialValues.put(games_LearningTool, "OFF");
         initialValues.put(games_ThemeId, themeId);
+        initialValues.put(games_TimeLimit, timeLimit);
         return db.insert(DATABASE_TABLE_GAMES, null, initialValues);
     }
 
@@ -130,7 +133,7 @@ public class DatabaseManager {
     // Get all rows from Games table
     public Cursor getGames() throws SQLException {
         Cursor mCursor = db.query(true, DATABASE_TABLE_GAMES, new String[]{
-                games_GameId, games_GameMode, games_LearningTool, games_ThemeId, games_date}, null, null, null, null, null, null);
+                games_GameId, games_GameMode, games_LearningTool, games_ThemeId, games_date, games_TimeLimit}, null, null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
@@ -155,7 +158,7 @@ public class DatabaseManager {
     // Get settings for specific game
     public Cursor getSettingsById(int rowId) throws SQLException {
         Cursor mCursor = db.query(true, DATABASE_TABLE_GAMES, new String[]{
-                games_GameMode, games_LearningTool, games_ThemeId}, games_GameId+ "=" + rowId, null, null, null, null, null);
+                games_GameMode, games_LearningTool, games_ThemeId, games_TimeLimit}, games_GameId+ "=" + rowId, null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }

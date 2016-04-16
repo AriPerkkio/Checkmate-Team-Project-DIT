@@ -140,6 +140,9 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
         intent.putExtra("learningTool", (learning_tool.isChecked()));
+        intent.putExtra("timerOne", new long[1]);
+        intent.putExtra("timerTwo", new long[1]);
+        intent.putExtra("timeLimit", 60); // Read from setting
 
         int difficulty_status = difficulty.getProgress();
         if(difficulty_status <25)
@@ -205,6 +208,8 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     intent.putExtra("startingFen", fenList.get(fenList.size()-1));
                     intent.putExtra("timerOne", timerOne);
                     intent.putExtra("timerTwo", timerTwo);
+                    intent.putExtra("timeLimit", gameSettings.getInt(3));
+                    intent.putExtra("gameId", latestId);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

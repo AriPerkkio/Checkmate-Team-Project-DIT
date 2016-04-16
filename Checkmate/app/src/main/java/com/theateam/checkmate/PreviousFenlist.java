@@ -41,6 +41,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private String gameMode;
     private String learningTool;
     private int themeId;
+    private int timeLimit;
     private GameController gameController;
     private static boolean status;
     private String selectedFen;
@@ -65,7 +66,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         gameMode = getIntent().getExtras().getString("GameMode");
         learningTool = getIntent().getExtras().getString("LearningTool");
         themeId = getIntent().getExtras().getInt("ThemeId");
-        Log.d("ThemeID: ", themeId+".");
+        timeLimit = getIntent().getExtras().getInt("TimeLimit");
 
         databaseManager = new DatabaseManager(this);
         try{
@@ -144,6 +145,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 play.putExtra("themeId", themeId);
                 play.putExtra("timerOne", timerOne);
                 play.putExtra("timerTwo", timerTwo);
+                play.putExtra("timeLimit", timeLimit);
                 startActivity(play);
                 this.finish();
             break;

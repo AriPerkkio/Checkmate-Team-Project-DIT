@@ -64,6 +64,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static String directory;
     private static TextView timerOneText;
     private static TextView timerTwoText;
+    private static int timeLimit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         gameFenHistory = getIntent().getExtras().getStringArrayList("fenList");
         long[] timerOne = getIntent().getExtras().getLongArray("timerOne");
         long[] timerTwo = getIntent().getExtras().getLongArray("timerTwo");
+        timeLimit = getIntent().getExtras().getInt("timeLimit");
+        Log.d("GameActivity", "getIntent() timelimit: "+timeLimit+" s");
+        Log.d("GameActivity", "GameMode: "+gameModeSelect);
         Log.d("GameActivity", "List: "+gameFenHistory.size()+". TimerOne: "+timerOne.length+". TimerTwo: "+timerTwo.length);
         for(int i=0;i<gameFenHistory.size();i++)
             fenToTimers.put(gameFenHistory.get(i), new long[]{timerOne[i], timerTwo[i]});
@@ -137,7 +141,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 try{
                     databaseManager.open();
                     if(gameId==0){ // New game
-                        databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch, themeId); // Insert new game into table
+                        databaseManager.insertIntoGames(gameModeSelect, learningToolSwitch, themeId, timeLimit); // Insert new game into table
                         gameId = databaseManager.getHighestId(); // Get its id
                     }
                     else // Saved game was continued
@@ -296,7 +300,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 timerOneText.setText(timeText);
             if (timerSelect == 2)
                 timerTwoText.setText(timeText);
-            if(minutes==1)
+            if(minutes==timeLimit)
                 setTimeEnd(timerSelect);
         }
     }

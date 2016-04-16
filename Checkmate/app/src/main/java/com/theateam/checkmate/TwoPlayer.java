@@ -151,6 +151,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("learningTool", (learning_tool.isChecked()));
         intent.putExtra("timerOne", new long[1]);
         intent.putExtra("timerTwo", new long[1]);
+        intent.putExtra("timeLimit", 1800); // Read from setting
         PreviousFenlist.setStatus(false);
         startActivity(intent);
     }
@@ -202,6 +203,8 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                     intent.putExtra("startingFen", fenList.get(fenList.size()-1));
                     intent.putExtra("timerOne", timerOne);
                     intent.putExtra("timerTwo", timerTwo);
+                    intent.putExtra("timeLimit", gameSettings.getInt(3));
+                    intent.putExtra("gameId", latestId);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());
