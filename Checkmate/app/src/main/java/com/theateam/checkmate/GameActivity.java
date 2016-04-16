@@ -7,6 +7,11 @@ import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.database.SQLException;
 import android.graphics.Point;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Display;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,10 +31,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 
 public class GameActivity extends Activity implements View.OnClickListener{
 
-    //public static TextView coordinates;
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+    @InjectView(R.id.drawer_recyclerView)
+    RecyclerView drawerRecyclerView;
     private GameController gameController;
     private static GameActivity instance;
     private static String directory;
@@ -69,6 +82,22 @@ public class GameActivity extends Activity implements View.OnClickListener{
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
+        ButterKnife.inject(this);
+        ActionBarDrawerToggle drawerToggle;
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        drawerLayout.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+        List<String> rows = new ArrayList<>();
+        rows.add("Update");
+        rows.add("Home");
+        rows.add("Analysis");
+        rows.add("Settings");
+        rows.add("Resume");
+        DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
+        drawerRecyclerView.setAdapter(drawerAdapter);
+        drawerRecyclerView.setHasFixedSize(true);
+        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         btnUndoMove = (Button) findViewById(R.id.btnRedo);
         btnUndoMove.setOnClickListener(this);
         btnSave = (Button) findViewById(R.id.btnSave);

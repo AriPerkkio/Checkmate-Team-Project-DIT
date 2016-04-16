@@ -5,9 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-
-    <!-- Content Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -56,7 +53,7 @@
             android:checked="false"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="10dp" />
 
         <Button
             android:layout_width="match_parent"
@@ -68,25 +65,14 @@
             android:id="@+id/button"
             android:layout_alignParentBottom="true"
             android:background="@color/colorPrimaryDark"
-
             android:textStyle="bold"
             android:layout_alignRight="@+id/button3"
             android:layout_alignEnd="@+id/button3"
             android:textSize="20dp"
             android:textColor="@color/colorAccent"
             android:onClick="StartOnePlayer_intent"/>
-
-
-
-
-
-        <!-- Main Content -->
-
     </LinearLayout>
 
-
-
-    <!-- Drawer Section -->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/drawer_recyclerView"
         android:layout_width="304dp"
@@ -94,5 +80,4 @@
         android:layout_gravity="start"
         android:scrollbars="vertical"
         android:background="@color/colorPrimaryDark"/>
-
 </android.support.v4.widget.DrawerLayout>

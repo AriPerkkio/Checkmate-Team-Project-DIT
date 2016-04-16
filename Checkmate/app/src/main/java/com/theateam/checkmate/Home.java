@@ -11,12 +11,16 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+
 /**
  * Created by FionnMcguire on 31/03/2016.
  */
@@ -43,7 +47,6 @@ public class Home extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_layout);
         ButterKnife.inject(this);
-
         setSupportActionBar(toolbar);
 
         ActionBarDrawerToggle drawerToggle;
@@ -58,7 +61,6 @@ public class Home extends AppCompatActivity
         rows.add("Analysis");
         rows.add("Settings");
         rows.add("Resume");
-
 
         DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
         drawerRecyclerView.setAdapter(drawerAdapter);

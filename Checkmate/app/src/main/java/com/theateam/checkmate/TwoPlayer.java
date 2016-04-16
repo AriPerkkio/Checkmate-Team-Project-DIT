@@ -84,25 +84,52 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         expListView.setOnChildClickListener(this);
         // Initialize default settings
         themeId = R.mipmap.defaulttheme;
+        // Game Mode = normal
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + ": " + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition), Toast.LENGTH_SHORT).show();
+        int increase = 0;
+        if(expListView.getChildCount()==8) // Number of themes + game modes
+            increase = 3; // Number of themes
+
         switch(listDataHeader.get(groupPosition)){
-            case "Textures":
+            case "Theme":
                 switch (listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
                     case "Wooden": // Group 0, Child 0, Id 0
                         themeId = R.mipmap.wooden;
+                        expListView.collapseGroup(0); // Hide list after click
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
                         break;
                     case "Metallic": // Group 0, Child 1, Id 1
+                        // Uncomment these once theme implemented
+                        //expListView.collapseGroup(0); // Hide list after click
                         //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
                         Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
                         break;
                     case "Blue & Red": // Group 0, Child 2, Id 2
                         themeId = R.mipmap.defaulttheme;
+                        expListView.collapseGroup(0); // Hide list after click
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
+                        break;
+                }
+            case "Game Mode":
+                switch(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
+                    case "Normal": // Group 1, Child 0, Id 0
+                        ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Normal");
+                        expListView.collapseGroup(1); // Hide list after click
+                        break;
+                    case "King of the hill": // Group 1, Child 1, Id 1
+                        // Uncomment these once game mode implemented
+                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
+                        //expListView.collapseGroup(1); // Hide list after click
+                        Toast.makeText(this, "King of the hill is not supported yet", Toast.LENGTH_LONG).show();
+                        break;
+                    case "Blitz": // Group 1, Child 2, Id 2
+                        // Uncomment these once game mode implemented
+                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
+                        //expListView.collapseGroup(1); // Hide list after click
+                        Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
                         break;
                 }
         }
@@ -116,12 +143,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
-
-        if(learning_tool.isChecked())
-            intent.putExtra("learningTool", true);
-        else
-            intent.putExtra("learningTool", false);
-
+        intent.putExtra("learningTool", (learning_tool.isChecked()));
         startActivity(intent);
     }
 
@@ -129,11 +151,17 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         //Set up items in expandableList
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
-        listDataHeader.add("Textures");
+        listDataHeader.add("Theme");
+        listDataHeader.add("Game Mode");
         List<String> textures = new ArrayList<String>();
         textures.add("Wooden");
         textures.add("Metallic");
         textures.add("Blue & Red");
+        List<String> gamemodes = new ArrayList<String>();
+        gamemodes.add("Normal");
+        gamemodes.add("King of the hill");
+        gamemodes.add("Blitz");
         listDataChild.put(listDataHeader.get(0), textures);
+        listDataChild.put(listDataHeader.get(1), gamemodes);
     }
 }

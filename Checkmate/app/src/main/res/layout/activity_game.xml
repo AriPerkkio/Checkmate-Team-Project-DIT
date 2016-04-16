@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="16">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    android:weightSum="16"
-    android:padding="5dp"> <!-- to show what the parent is -->
-    <RelativeLayout
-        android:background="#000000"
+    android:background="@color/colorPrimary"
+    android:padding="5dp">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:elevation="4dp"
+            android:background="@color/colorPrimaryDark"
+            android:alpha="0.7"/>
+
+        <RelativeLayout
+        android:background="@color/colorPrimary"
         android:layout_height="0dp"
         android:layout_width="match_parent"
         android:layout_weight="2" >
@@ -15,18 +30,24 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TEMP button \nundo move"
+            android:text="Undo\n move"
             android:id="@+id/btnRedo"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TEMP BUTTON\nSAVE &amp; EXIT"
+            android:text="Save &amp; Exit"
             android:id="@+id/btnSave"
             android:layout_centerVertical="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:background="@color/colorPrimaryDark" />
     </RelativeLayout>
 
     <LinearLayout
@@ -42,10 +63,10 @@
             android:id="@+id/fragment" />
     </LinearLayout>
     <LinearLayout
-        android:background="#000000"
+        android:background="@color/colorPrimary"
         android:layout_height="0dp"
         android:layout_width="match_parent"
-        android:layout_weight="5" >
+        android:layout_weight="4" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,4 +77,12 @@
             android:textSize="18dp" />
 
     </LinearLayout>
-</LinearLayout>
+    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+android:id="@+id/drawer_recyclerView"
+android:layout_width="fill_parent"
+android:layout_height="match_parent"
+android:layout_gravity="start"
+android:scrollbars="vertical"
+android:background="@color/colorPrimaryDark"/>
+    </android.support.v4.widget.DrawerLayout>

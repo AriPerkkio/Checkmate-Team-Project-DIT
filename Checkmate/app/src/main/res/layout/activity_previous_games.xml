@@ -7,23 +7,15 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.theateam.checkmate.PreviousGames">
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TEMP BUTTON\nBACK"
-        android:id="@+id/btnPrevGamesBack"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
+    tools:context="com.theateam.checkmate.PreviousGames"
+    android:background="@color/colorPrimary">
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listPrevGames"
         android:layout_alignParentEnd="true"
-        android:layout_above="@+id/btnPrevGamesBack"
-        android:layout_below="@+id/textView" />
+        android:layout_below="@+id/textView3" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,7 +26,9 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:textIsSelectable="false"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        android:textColor="@color/colorAccent"
+        android:paddingTop="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -42,17 +36,21 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Game Mode"
         android:id="@+id/textView2"
+        android:textSize="20dp"
+        android:textColor="@color/colorAccent"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textSize="20dp" />
+        android:paddingTop="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="LearningTool"
+        android:text="Learning\nTool"
         android:id="@+id/textView3"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:textSize="20dp" />
+        android:textSize="20dp"
+        android:textColor="@color/colorAccent"
+        android:textAlignment="center" />
 </RelativeLayout>

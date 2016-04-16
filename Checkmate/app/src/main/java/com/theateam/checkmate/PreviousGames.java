@@ -19,7 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class PreviousGames extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener {
+public class PreviousGames extends AppCompatActivity implements ListView.OnItemClickListener {
 
     private ListView listGames;
     private Button btnBack;
@@ -36,8 +36,6 @@ public class PreviousGames extends AppCompatActivity implements View.OnClickList
 
         listGames = (ListView) findViewById(R.id.listPrevGames);
         listGames.setOnItemClickListener(this);
-        btnBack = (Button) findViewById(R.id.btnPrevGamesBack);
-        btnBack.setOnClickListener(this);
 
         databaseManager = new DatabaseManager(this);
         try{
@@ -53,13 +51,6 @@ public class PreviousGames extends AppCompatActivity implements View.OnClickList
 
     }
 
-    public void onClick(View v){
-        switch (v.getId()){
-            case R.id.btnPrevGamesBack:
-                finish();
-            break;
-        }
-    }
 
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long arg){
         Cursor selectedObject = (Cursor) (listGames.getItemAtPosition(position));

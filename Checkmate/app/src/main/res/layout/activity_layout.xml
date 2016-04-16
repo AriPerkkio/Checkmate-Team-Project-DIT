@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
 
 
 
@@ -25,58 +26,83 @@
             android:textColor="@color/colorAccent"
             android:elevation="4dp" />
 
-        <Button
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:text="Analysis"
-            android:id="@+id/button"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorPrimaryDark"
-            android:layout_alignRight="@+id/button3"
-            android:layout_alignEnd="@+id/button3"
-
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:textSize="25dp"
-            android:onClick="Analysis_intent" />
-
-        <Button
-            android:layout_width="165dp"
-            android:layout_height="250dp"
-            android:layout_margin="10dp"
-            android:layout_marginRight="1dp"
-
-            android:text="One Player"
-            android:id="@+id/button2"
+            android:layout_height="match_parent"
             android:layout_below="@+id/toolbar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary">
 
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:textSize="25dp"
-            android:onClick="OnePlayer_intent" />
+            <RelativeLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="305dp">
 
-        <Button
-            android:layout_width="165dp"
-            android:layout_height="250dp"
-            android:layout_margin="10dp"
-            android:layout_marginLeft="1dp"
-            android:text="Two Player"
-            android:id="@+id/button3"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:background="@color/colorPrimaryDark"
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
 
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:textSize="25dp"
-            android:onClick="TwoPlayer_intent"/>
+                    android:text="One Player"
+                    android:id="@+id/button2"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:background="@color/colorPrimaryDark"
+
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold"
+                    android:textSize="25dp"
+                    android:onClick="OnePlayer_intent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toStartOf="@+id/space"
+                    android:layout_alignBottom="@+id/button3" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:text="Two Player"
+                    android:id="@+id/button3"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/colorPrimaryDark"
+
+                    android:textColor="@color/colorAccent"
+                    android:textStyle="bold"
+                    android:textSize="25dp"
+                    android:onClick="TwoPlayer_intent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_toEndOf="@+id/space" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_alignTop="@+id/button2"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/space" />
+            </RelativeLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Analysis"
+                android:id="@+id/button"
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorPrimaryDark"
+                android:layout_alignRight="@+id/button3"
+                android:layout_alignEnd="@+id/button3"
+
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:textSize="25dp"
+                android:onClick="Analysis_intent"
+                android:layout_margin="10dp" />
+
+        </LinearLayout>
 
         <!-- Main Content -->
 

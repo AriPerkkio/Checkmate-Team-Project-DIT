@@ -60,6 +60,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         gameMode = getIntent().getExtras().getString("GameMode");
         learningTool = getIntent().getExtras().getString("LearningTool");
         themeId = getIntent().getExtras().getInt("ThemeId");
+        Log.d("ThemeID: ", themeId+".");
 
         databaseManager = new DatabaseManager(this);
         try{

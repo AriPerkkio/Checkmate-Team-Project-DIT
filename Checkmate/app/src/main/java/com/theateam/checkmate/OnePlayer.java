@@ -97,14 +97,11 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
 
         // Initialize default settings
         themeId = R.mipmap.defaulttheme;
-        // Game Mode = normal
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        int increase = 0;
-        if(expListView.getChildCount()==8) // Number of themes + game modes
-            increase = 3; // Number of themes
+
         switch(listDataHeader.get(groupPosition)){
             case "Theme":
                 switch (listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
@@ -112,29 +109,18 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     case "Wooden": // Group 0, Child 0, Id 0
                         themeId = R.mipmap.wooden;
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
+                        expListView.collapseGroup(0); // Hide list after click
                     break;
                     case "Metallic": // Group 0, Child 1, Id 1
+                        // Uncomment these once theme implemented
                         //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
+                        //expListView.collapseGroup(0); // Hide list after click
                         Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
                     break;
                     case "Blue & Red": // Group 0, Child 2, Id 2
                         themeId = R.mipmap.defaulttheme;
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
-                    break;
-                }
-            case "Game Mode":
-                switch(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
-                    case "Normal": // Group 1, Child 0, Id 0
-                        ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Normal");
-                    break;
-                    case "King of the hill": // Group 1, Child 1, Id 1
-                        Log.d("Game Modes", "King of the hill");
-                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
-                        Toast.makeText(this, "King of the hill is not supported yet", Toast.LENGTH_LONG).show();
-                    break;
-                    case "Blitz": // Group 1, Child 2, Id 2
-                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
-                        Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
+                        expListView.collapseGroup(0); // Hide list after click
                     break;
                 }
         }
@@ -144,18 +130,12 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
     public void StartOnePlayer_intent(View view) {
 
         Intent intent = new Intent(OnePlayer.this, GameActivity.class);
-        //intent.putExtra("gameMode", "AiEasy"); // Value from setting
-        //intent.putExtra("learningTool", true); // (learningTool.equals("ON"))); // Value from setting
         intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
-        int difficulty_status = difficulty.getProgress();
-        Log.d("Difficult", "Int: "+difficulty_status);
+        intent.putExtra("learningTool", (learning_tool.isChecked()));
 
-        if(learning_tool.isChecked())
-            intent.putExtra("learningTool", true);
-        else
-            intent.putExtra("learningTool", false);
+        int difficulty_status = difficulty.getProgress();
         if(difficulty_status <25)
             intent.putExtra("gameMode", "AiEasy");
         else if(difficulty_status >25 && difficulty_status <50)
@@ -166,7 +146,6 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
             intent.putExtra("gameMode", "AiInsane");
         else
             intent.putExtra("gameMode", "AiEasy");
-        intent.putExtra("Difficulty", difficulty_status); //Setting Difficulty
         startActivity(intent);
     }
 
@@ -175,16 +154,10 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
         listDataHeader.add("Theme");
-        listDataHeader.add("Game Mode");
         List<String> textures = new ArrayList<String>();
         textures.add("Wooden");
         textures.add("Metallic");
         textures.add("Blue & Red");
-        List<String> gamemodes = new ArrayList<String>();
-        gamemodes.add("Normal");
-        gamemodes.add("King of the hill");
-        gamemodes.add("Blitz");
         listDataChild.put(listDataHeader.get(0), textures);
-        listDataChild.put(listDataHeader.get(1), gamemodes);
     }
 }
