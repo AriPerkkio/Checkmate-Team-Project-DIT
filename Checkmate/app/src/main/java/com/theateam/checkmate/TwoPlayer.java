@@ -9,10 +9,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ import butterknife.InjectView;
 /**
  * Created by FionnMcguire on 31/03/2016.
  */
-public class TwoPlayer extends AppCompatActivity
+public class TwoPlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener
 {
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -34,6 +36,7 @@ public class TwoPlayer extends AppCompatActivity
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
     List<String> listDataHeader;
+    int themeId = R.mipmap.defaulttheme;
     Button startGameButton;
     HashMap<String, List<String>> listDataChild;
 
@@ -52,21 +55,6 @@ public class TwoPlayer extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_two_player);
         ButterKnife.inject(this);
-
-        expListView = (ExpandableListView) findViewById(R.id.lvExp);
-        //Set up the list with headers and items
-        prepareListData();
-        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
-        expListView.setAdapter(listAdapter);
-        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                //Show which list element was clicked
-                Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + ": " + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition), Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
 
         //setSupportActionBar(toolbar);
 
@@ -87,60 +75,65 @@ public class TwoPlayer extends AppCompatActivity
         drawerRecyclerView.setAdapter(drawerAdapter);
         drawerRecyclerView.setHasFixedSize(true);
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        expListView = (ExpandableListView) findViewById(R.id.lvExp);
+        //Set up the list with headers and items
+        prepareListData();
+        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
+        expListView.setAdapter(listAdapter);
+        expListView.setOnChildClickListener(this);
+        // Initialize default settings
+        themeId = R.mipmap.defaulttheme;
+    }
+
+    @Override
+    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+        Toast.makeText(getApplicationContext(), listDataHeader.get(groupPosition) + ": " + listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition), Toast.LENGTH_SHORT).show();
+        switch(listDataHeader.get(groupPosition)){
+            case "Textures":
+                switch (listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
+                    case "Wooden": // Group 0, Child 0, Id 0
+                        themeId = R.mipmap.wooden;
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
+                        break;
+                    case "Metallic": // Group 0, Child 1, Id 1
+                        //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
+                        Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
+                        break;
+                    case "Blue & Red": // Group 0, Child 2, Id 2
+                        themeId = R.mipmap.defaulttheme;
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
+                        break;
+                }
+        }
+        return false;
+    }
+
+    public void StartTwoPlayer_intent(View view) {
+
+        Intent intent = new Intent(TwoPlayer.this, GameActivity.class);
+        intent.putExtra("gameMode", "TwoPlayer"); // Always TwoPlayer
+        intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
+        intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
+        intent.putExtra("themeId", themeId);
+
+        if(learning_tool.isChecked())
+            intent.putExtra("learningTool", true);
+        else
+            intent.putExtra("learningTool", false);
+
+        startActivity(intent);
     }
 
     private void prepareListData() {
         //Set up items in expandableList
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
-
-        listDataHeader.add("Wooden");
-        listDataHeader.add("Metalic");
-        listDataHeader.add("Blue and Red");
-
-        List<String> menu1 = new ArrayList<String>();
-        menu1.add("Menu1 Item1");
-        menu1.add("Menu1 Item2");
-        menu1.add("Menu1 Item3");
-
-
-        listDataChild.put(listDataHeader.get(0), menu1);
-    }
-    public void StartTwoPlayer_intent(View view) {
-
-
-        Intent intent = new Intent(TwoPlayer.this, GameActivity.class);
-        intent.putExtra("gameMode", "TwoPlayer"); // Value from setting
-        intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
-        intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
-        intent.putExtra("themeId", R.mipmap.defaulttheme);
-        //int difficulty_status = difficulty.getProgress();
-
-        if(learning_tool.isChecked()){
-            intent.putExtra("learningTool", true);
-        }
-        else
-        {
-            intent.putExtra("learningTool", false);
-        }
-        /*
-        if(difficulty_status <25) {
-            intent.putExtra("gameMode", "AiEasy");
-        }
-        else if(difficulty_status >25 && difficulty_status <50){
-            intent.putExtra("gameMode", "AiMedium");
-        }
-        else if(difficulty_status >50 && difficulty_status <75){
-            intent.putExtra("gameMode", "AiHard");
-        }
-        else if(difficulty_status >75){
-            intent.putExtra("gameMode", "AiInsane");
-        }
-        else
-        {
-            intent.putExtra("gameMode", "AiEasy");
-        }*/
-        //intent.putExtra("Difficulty", difficulty_status); //Setting Difficulty
-        startActivity(intent);
+        listDataHeader.add("Textures");
+        List<String> textures = new ArrayList<String>();
+        textures.add("Wooden");
+        textures.add("Metallic");
+        textures.add("Blue & Red");
+        listDataChild.put(listDataHeader.get(0), textures);
     }
 }
