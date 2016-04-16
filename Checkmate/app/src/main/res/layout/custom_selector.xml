@@ -1,0 +1,11 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="wrap_content">
+
+    <!-- Arrow downloaded from: http://www.icon2s.com/img128/128x128-arrow-down-orange.png -->
+    <!-- Size and scale modified -->
+    <item android:drawable="@mipmap/arrow_up"
+        android:state_expanded="true"/>
+    <item android:drawable="@mipmap/arrow_down"
+        android:state_expanded="false"/>
+</selector>
