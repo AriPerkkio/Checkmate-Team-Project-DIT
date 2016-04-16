@@ -143,6 +143,15 @@ public class DatabaseManager {
         }
         return mCursor;
     }
+    // Get settings for specific game
+    public Cursor getSettingsById(int rowId) throws SQLException {
+        Cursor mCursor = db.query(true, DATABASE_TABLE_GAMES, new String[]{
+                games_GameMode, games_LearningTool, games_ThemeId}, games_GameId+ "=" + rowId, null, null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
 
     // Delete game and its fenStrings
     public void deleteGame(int gameId) throws SQLException {
