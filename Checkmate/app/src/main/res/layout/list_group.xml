@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:weightSum="1.0"
     android:padding="0dp"
-    android:background="#000000"
+    android:background="@color/colorPrimaryDark"
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
     <TextView
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:layout_weight="1"
-        android:textColor="#f9f93d"
+        android:textColor="@color/colorAccent"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/groupSecText"
-        android:textColor="#f9f93d"
+        android:textColor="@color/colorAccent"
         android:textSize="20sp"
         android:layout_alignBottom="@+id/lblListHeader"
         android:layout_toEndOf="@+id/lblListHeader"
