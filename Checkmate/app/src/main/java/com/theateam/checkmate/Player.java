@@ -135,7 +135,6 @@ public class Player {
 
     public void decreaseTimer(){
         timer --;
-        Log.d("increaseTimer", toString()+" time "+timer);
         if(this.isFirst())
             GameActivity.updateTimer(timer, 1);
         else
