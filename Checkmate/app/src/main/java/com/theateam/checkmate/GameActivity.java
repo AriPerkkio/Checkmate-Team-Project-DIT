@@ -94,7 +94,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         themeId = getIntent().getExtras().getInt("themeId");
         if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
         else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
-        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, fenToTimers, themeId);
+        gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, fenToTimers, timeLimit, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_game);
@@ -300,7 +300,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 timerOneText.setText(timeText);
             if (timerSelect == 2)
                 timerTwoText.setText(timeText);
-            if(minutes==timeLimit)
+            if(minutes==0 && seconds ==0)
                 setTimeEnd(timerSelect);
         }
     }

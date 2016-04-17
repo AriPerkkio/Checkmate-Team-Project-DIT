@@ -133,8 +133,8 @@ public class Player {
             chessTimer.start();
     }
 
-    public void increaseTimer(){
-        timer ++;
+    public void decreaseTimer(){
+        timer --;
         Log.d("increaseTimer", toString()+" time "+timer);
         if(this.isFirst())
             GameActivity.updateTimer(timer, 1);

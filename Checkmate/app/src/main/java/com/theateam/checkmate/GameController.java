@@ -28,7 +28,8 @@ public class GameController {
     private int themeId;
     private String fenString = ""; // Board layout using FEN
     private int drawCounter = 0;   //counter for fifty move rule draw
-    private boolean timerRunning = false;
+    private boolean timerRunning = false; // Indicator for both timers' status
+    private int timiLimit; // Game time limit
 
     //References for other classes
     private Board board;
@@ -60,7 +61,7 @@ public class GameController {
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
     private Map<String, long[]> mapFenToTimers = new HashMap<>(); // FenList + TimerOne, TimerTwo
 
-    public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory, Map<String, long[]> fenToTimers, int _themeId) {
+    public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory, Map<String, long[]> fenToTimers,int _timeLimit, int _themeId) {
         // Instances
         OpenGLRenderer.gameController = this;
         graphics = OpenGLRenderer.getInstance();
@@ -77,7 +78,7 @@ public class GameController {
             fenList.add(fenHistory.get(i));
             mapFenToTimers.put(fenHistory.get(i), fenToTimers.get(fenHistory.get(i)));
         }
-
+        timiLimit = _timeLimit;
         themeId = _themeId;
         switch (gameMode) { // Determine game mode
             case "TwoPlayer":
@@ -113,7 +114,7 @@ public class GameController {
         textureIdToPiece = fenParser.setupFromFen(startingFenString, playerOne, playerTwo, board); // Get latest textureId&Piece pairs
         if (!fenList.contains(startingFenString)) {
             fenList.add(startingFenString); // Add starting board layout to fenList
-            mapFenToTimers.put(startingFenString, new long[]{0, 0});
+            mapFenToTimers.put(startingFenString, new long[]{_timeLimit, _timeLimit});
         }
         // Set enPassSquare from startingFen
         String enPassSquare = fenParser.getEnPassSquare(startingFenString);
@@ -126,12 +127,9 @@ public class GameController {
         }
         // Set turn from startingFen
         turn = fenParser.getTurn(_startingFenString);
-        playerOne.setTimer(0);
-        playerTwo.setTimer(0);
-        // Set timers from mapFenToTimers
+        // Set timers from mapFenToTimers to latest values
         playerOne.setTimer(mapFenToTimers.get(fenList.get(fenList.size() - 1))[0]);
         playerTwo.setTimer(mapFenToTimers.get(fenList.get(fenList.size() - 1))[1]);
-
         if (turn) playerOne.startTimer(); // Start player's timer
         else playerTwo.startTimer();
         timerRunning = true;
@@ -606,6 +604,10 @@ public class GameController {
     // This is only called when user has to pick specific piece for pawn promoting
     public boolean processPromoting(String _square) {
 
+        // Pause timers
+        playerOne.pauseTimer();
+        playerTwo.pauseTimer();
+
         Player playerChooser = playerOne; // Initialize as playerOne
         String textureName = ""; // See Coordinates.java for constructing this
 
@@ -699,6 +701,14 @@ public class GameController {
         selectedPiece = null;
         pawnPromoting = false; // Turn off promoting for pawn
         updateFen(); // Update FEN since new piece on board
+        // Resume timers
+        if (turn) {
+            playerOne.resumeTimer();
+            playerTwo.pauseTimer();
+        } else {
+            playerOne.pauseTimer();
+            playerTwo.resumeTimer();
+        }
         return true;
     }
 

@@ -89,7 +89,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         }
         while(cursorFenlist.moveToNext());
 
-        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, fenToTimers, themeId);
+        gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, fenToTimers, timeLimit, themeId);
         setContentView(R.layout.activity_previous_fenlist);
 
         btnBack = (Button) findViewById(R.id.btnPrevfenlistBack);

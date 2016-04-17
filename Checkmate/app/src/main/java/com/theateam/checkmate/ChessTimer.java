@@ -20,7 +20,7 @@ public class ChessTimer extends CountDownTimer {
 
     @Override
     public void onTick(long millisUntilFinished) {
-        player.increaseTimer();
+        player.decreaseTimer();
     }
 
     public void pause(){

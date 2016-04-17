@@ -149,8 +149,8 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
         intent.putExtra("learningTool", (learning_tool.isChecked()));
-        intent.putExtra("timerOne", new long[1]);
-        intent.putExtra("timerTwo", new long[1]);
+        intent.putExtra("timerOne", new long[]{});
+        intent.putExtra("timerTwo", new long[]{});
         intent.putExtra("timeLimit", 1800); // Read from setting
         PreviousFenlist.setStatus(false);
         startActivity(intent);
