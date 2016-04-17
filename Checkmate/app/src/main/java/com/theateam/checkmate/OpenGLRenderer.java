@@ -91,6 +91,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer{
                 theme,  // Picture for the theme package
                 gameController.getTextureIdToPiece());
 
+        /** REF: http://stackoverflow.com/a/14551979
+         * Converting HEX Color #263238 to 8-bit RGB **/
+        GLES20.glClearColor((float) 26/255, (float) 32/255, (float) 38/255, 1);
+        /** Result is not perfect but as close as possible  **/
+
         if(!gameController.getTurn() && rotated){ // Check if board was rotated before
             rotate();
             rotated=!rotated;

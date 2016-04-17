@@ -4,8 +4,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.provider.ContactsContract;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,15 +22,25 @@ import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class PreviousFenlist extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener{
 
-    private Button btnBack;
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+    @InjectView(R.id.drawer_recyclerView)
+    RecyclerView drawerRecyclerView;
     private ImageButton btnNext;
     private ImageButton btnPrev;
     private ImageButton btnPlay;
@@ -91,9 +106,26 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
 
         gameController = new GameController(gameMode, (learningTool.equals("ON")), fenList.get(0), fenList, fenToTimers, timeLimit, themeId);
         setContentView(R.layout.activity_previous_fenlist);
+        ButterKnife.inject(this);
+        setSupportActionBar(toolbar);
 
-        btnBack = (Button) findViewById(R.id.btnPrevfenlistBack);
-        btnBack.setOnClickListener(this);
+        ActionBarDrawerToggle drawerToggle;
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        drawerLayout.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        List<String> rows = new ArrayList<>();
+        rows.add("Update");
+        rows.add("Home");
+        rows.add("Analysis");
+        rows.add("Settings");
+        rows.add("Resume");
+
+        DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
+        drawerRecyclerView.setAdapter(drawerAdapter);
+        drawerRecyclerView.setHasFixedSize(true);
+        drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         btnNext = (ImageButton) findViewById(R.id.btnPrevfenNext);
         btnNext.setOnClickListener(this);
         btnPrev = (ImageButton) findViewById(R.id.btnPrevfenPrev);
@@ -116,11 +148,6 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
 
     public void onClick(View v){
         switch(v.getId()){
-            case R.id.btnPrevfenlistBack:
-                gameController = null;
-                status = false;
-                finish();
-            break;
             case R.id.btnPrevfenNext:
                 if(fenList.indexOf(selectedFen)==fenList.size()-1)
                     break;
@@ -156,5 +183,80 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         selectedFen = fenList.get(position);
     }
 
+    public void drawerClick(View v) {
+        String clickedText = ((TextView) v).getText().toString();
+        switch (clickedText) {
+            case "Update":
+                Toast.makeText(this, "You are already running ad-free version", Toast.LENGTH_SHORT).show();
+                break;
+            case "Home":
+                Intent intent = new Intent(this, Home.class);
+                startActivity(intent);
+                break;
+            case "Analysis":
+                drawerLayout.closeDrawers();
+                break;
+            case "Settings":
+                Log.d("onClick", "Settings");
+                break;
+            case "Resume":
+                try {
+                    databaseManager.open();
+                    int latestId = databaseManager.getHighestId();
+                    if (latestId == 0) {
+                        Toast.makeText(this, "No games found", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Cursor fenCursor = databaseManager.getFenStringsById(latestId);
+                    Cursor gameSettings = databaseManager.getSettingsById(latestId);
+                    databaseManager.close();
+                    ArrayList<String> fenList = new ArrayList<>();
+                    long[] timerOne = new long[fenCursor.getCount()];
+                    long[] timerTwo = new long[fenCursor.getCount()];
+                    ;
+                    int i = 0;
+                    do {
+                        fenList.add(fenCursor.getString(1));
+                        timerOne[i] = (long) fenCursor.getInt(2);
+                        timerTwo[i] = (long) fenCursor.getInt(3);
+                        i++;
+                    }
+                    while (fenCursor.moveToNext());
+                    intent = new Intent(this, GameActivity.class);
+                    intent.putExtra("gameMode", gameSettings.getString(0));
+                    intent.putExtra("learningTool", (gameSettings.getString(1).equals("ON")));
+                    intent.putExtra("themeId", gameSettings.getInt(2));
+                    intent.putExtra("fenList", fenList);
+                    intent.putExtra("startingFen", fenList.get(fenList.size() - 1));
+                    intent.putExtra("timerOne", timerOne);
+                    intent.putExtra("timerTwo", timerTwo);
+                    intent.putExtra("gameId", latestId);
+                    intent.putExtra("timeLimit", gameSettings.getInt(3));
+                    status = false;
+                    startActivity(intent);
+                } catch (SQLException e) {
+                    Log.e("DrawerResume", "e: " + e.toString());
+                }
+                break;
+        }
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+    }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        status = false;
+    }
 }

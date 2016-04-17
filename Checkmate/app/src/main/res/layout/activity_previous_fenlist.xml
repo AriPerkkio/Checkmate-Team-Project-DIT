@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:weightSum="16">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffffff"
-    android:weightSum="16"
-    android:padding="5dp">
-<RelativeLayout
-    android:background="#000000"
+    android:background="@color/colorPrimary">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:elevation="4dp"
+            android:background="@color/colorPrimaryDark"
+            android:alpha="0.7"/>
+
+        <RelativeLayout
+    android:background="@color/colorPrimary"
     android:layout_height="0dp"
     android:layout_width="match_parent"
     android:layout_weight="9" >
@@ -22,25 +38,17 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:background="#fcfcfc"
+        android:background="@color/colorPrimary"
         android:layout_height="0dp"
         android:layout_width="match_parent"
-        android:layout_weight="7" >
+        android:layout_weight="6" >
 
         <ListView
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:id="@+id/prevfenlistList"
-            android:layout_above="@+id/btnPrevfenlistBack"
-            android:layout_alignParentEnd="true" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TEMP BUTTON\nBack"
-            android:id="@+id/btnPrevfenlistBack"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentEnd="true"
+            android:layout_above="@+id/btnPrevfenNext" />
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -48,7 +56,7 @@
             android:id="@+id/btnPrevfenNext"
             android:src="@android:drawable/ic_media_next"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/btnPrevfenPlay" />
+            android:layout_toEndOf="@+id/btnPrevfenPrev" />
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -56,7 +64,7 @@
             android:id="@+id/btnPrevfenPrev"
             android:src="@android:drawable/ic_media_previous"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/btnPrevfenNext" />
+            android:layout_alignParentStart="true" />
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -67,4 +75,14 @@
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
-</LinearLayout>
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/drawer_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:scrollbars="vertical"
+        android:background="@color/colorPrimaryDark"/>
+
+</android.support.v4.widget.DrawerLayout>
