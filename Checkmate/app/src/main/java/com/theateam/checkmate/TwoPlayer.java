@@ -140,9 +140,13 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                         break;
                     case "Blitz": // Group 1, Child 2, Id 2
                         // Uncomment these once game mode implemented
-                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
-                        //expListView.collapseGroup(1); // Hide list after click
-                        Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
+                        ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
+                        expListView.collapseGroup(1); // Hide list after click
+                        gameMode = "Blitz";
+                        timeLimitBar.setProgress(3);
+                        timeLimitText.setText("02:00");
+                        timeLimitStatus = 120;
+                        //Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
                         break;
                 }
         }
@@ -224,31 +228,37 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     public void onStopTrackingTouch(SeekBar seekBar){ } // Not used
     public void onStartTrackingTouch(SeekBar seekBar){ } // Not used
 
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-        // Min value 60s, Max value 1800s
-        /**
-         * 0-100
-         * 0x + b= 60, b=60
-         * 100x +b = 1800
-         * 100x = 1800-60
-         * 100x = 1740
-         * x = 17,4
-         * 60-1800
-         */
-        int totalSeconds = (int) Math.round(progress * 17.4 + 60);
-        int minutes = totalSeconds / 60;
-        int seconds = totalSeconds - minutes*60;
-        Log.d("****", "Minutes: "+minutes+" & Seconds: "+seconds);
-        Log.d("seconds from", totalSeconds +"-"+ minutes*60);
-        String timeUpdate = "";
-        if(minutes<10)
-            timeUpdate+="0";
-        timeUpdate+=minutes+":";
-        if(seconds<10)
-            timeUpdate+="0";
-        timeUpdate+=seconds;
-        timeLimitText.setText(timeUpdate);
-        timeLimitStatus = totalSeconds;
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (!gameMode.equals("Blitz")) {
+            Log.d("Progress", progress + ".");
+            // Min value 60s, Max value 1800s
+            /**
+             * 0-100
+             * 0x + b= 60, b=60
+             * 100x +b = 1800
+             * 100x = 1800-60
+             * 100x = 1740
+             * x = 17,4
+             * 60-1800
+             */
+            int totalSeconds = (int) Math.round(progress * 17.4 + 60);
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds - minutes * 60;
+            String timeUpdate = "";
+            if (minutes < 10)
+                timeUpdate += "0";
+            timeUpdate += minutes + ":";
+            if (seconds < 10)
+                timeUpdate += "0";
+            timeUpdate += seconds;
+            timeLimitText.setText(timeUpdate);
+            timeLimitStatus = totalSeconds;
+        }
+        else {
+            timeLimitBar.setProgress(3);
+            timeLimitText.setText("02:00");
+            timeLimitStatus = 120;
+        }
     }
 
     private void prepareListData() {

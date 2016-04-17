@@ -60,6 +60,7 @@ public class GameController {
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
     private Map<String, long[]> mapFenToTimers = new HashMap<>(); // FenList + TimerOne, TimerTwo
     private boolean modeKingOfTheHill = false;
+    private boolean modeBlitz = false;
 
     public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory, Map<String, long[]> fenToTimers,int _timeLimit, int _themeId) {
         // Instances
@@ -76,7 +77,10 @@ public class GameController {
         startingFenString = _startingFenString;
         for (int i = 0; i < fenHistory.size(); i++) { // Add FEN history to list
             fenList.add(fenHistory.get(i));
-            mapFenToTimers.put(fenHistory.get(i), fenToTimers.get(fenHistory.get(i)));
+            if(!modeBlitz)
+                mapFenToTimers.put(fenHistory.get(i), fenToTimers.get(fenHistory.get(i)));
+            else
+                mapFenToTimers.put(fenHistory.get(i), new long[]{2, 2});
         }
         themeId = _themeId;
 
@@ -86,6 +90,10 @@ public class GameController {
                 break;
             case "KingOfTheHill":
                 modeKingOfTheHill = true;
+                playerTwo = new Player("Human", false); // Player two is human
+                break;
+            case "Blitz":
+                modeBlitz = true;
                 playerTwo = new Player("Human", false); // Player two is human
                 break;
             case "AiEasy":
@@ -280,6 +288,8 @@ public class GameController {
             mapFenToTimers.put(fenString, new long[]{playerOne.getTimer(), playerTwo.getTimer()});
             Log.d("updateFen", "Map size: " + mapFenToTimers.size() + ". FenList size: " + fenList.size());
         }
+        if(modeBlitz)
+            setBlitzTimers();
     }
 
     /* Method to check for 50 move rule
@@ -929,6 +939,18 @@ public class GameController {
             return true;
         }
         return false;
+    }
+
+    public boolean setBlitzTimers(){
+        if(!modeBlitz) // Wrong call
+            return false;
+        playerOne.pauseTimer();
+        playerTwo.pauseTimer();
+        playerOne.setTimer(120); // 2 min timers
+        playerTwo.setTimer(120);
+        GameActivity.updateTimer(playerOne.getTimer(), 1); // Refresh timers in GUI
+        GameActivity.updateTimer(playerTwo.getTimer(), 2);
+        return true;
     }
 
     // Check if king's valid moves are exposed
