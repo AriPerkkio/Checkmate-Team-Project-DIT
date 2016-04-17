@@ -114,23 +114,26 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         switch(listDataHeader.get(groupPosition)){
             case "Theme":
                 switch (listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
-                    // Manually change colors of each childPosition row
                     case "Wooden": // Group 0, Child 0, Id 0
                         themeId = R.mipmap.wooden;
-                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
                         expListView.collapseGroup(0); // Hide list after click
-                    break;
-                    case "Metallic": // Group 0, Child 1, Id 1
-                        // Uncomment these once theme implemented
-                        //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
-                        //expListView.collapseGroup(0); // Hide list after click
-                        Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
-                    break;
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
+                        break;
+                    case "Marble": // Group 0, Child 1, Id 1
+                        themeId = R.mipmap.marble;
+                        expListView.collapseGroup(0); // Hide list after click
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Marble");
+                        break;
                     case "Blue & Red": // Group 0, Child 2, Id 2
                         themeId = R.mipmap.defaulttheme;
-                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
                         expListView.collapseGroup(0); // Hide list after click
-                    break;
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
+                        break;
+                    case "Gold & Silver": // Group 0, Child 3, Id 3
+                        themeId = R.mipmap.silvergold;
+                        expListView.collapseGroup(0); // Hide list after click
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Gold & Silver");
+                        break;
                 }
         }
         return false;
@@ -258,7 +261,8 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         listDataHeader.add("Theme");
         List<String> textures = new ArrayList<String>();
         textures.add("Wooden");
-        textures.add("Metallic");
+        textures.add("Marble");
+        textures.add("Gold & Silver");
         textures.add("Blue & Red");
         listDataChild.put(listDataHeader.get(0), textures);
     }

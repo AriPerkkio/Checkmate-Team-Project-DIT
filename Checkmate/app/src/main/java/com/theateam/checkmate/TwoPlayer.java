@@ -114,16 +114,20 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                         expListView.collapseGroup(0); // Hide list after click
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Wooden");
                         break;
-                    case "Metallic": // Group 0, Child 1, Id 1
-                        // Uncomment these once theme implemented
-                        //expListView.collapseGroup(0); // Hide list after click
-                        //((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Metallic");
-                        Toast.makeText(this, "Metallic theme is not supported yet", Toast.LENGTH_LONG).show();
+                    case "Marble": // Group 0, Child 1, Id 1
+                        themeId = R.mipmap.marble;
+                        expListView.collapseGroup(0); // Hide list after click
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Marble");
                         break;
                     case "Blue & Red": // Group 0, Child 2, Id 2
                         themeId = R.mipmap.defaulttheme;
                         expListView.collapseGroup(0); // Hide list after click
                         ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Blue & Red");
+                        break;
+                    case "Gold & Silver": // Group 0, Child 3, Id 3
+                        themeId = R.mipmap.silvergold;
+                        expListView.collapseGroup(0); // Hide list after click
+                        ((TextView) expListView.getChildAt(0).findViewById(R.id.groupSecText)).setText(": Gold & Silver");
                         break;
                 }
             case "Game Mode":
@@ -269,7 +273,8 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         listDataHeader.add("Game Mode");
         List<String> textures = new ArrayList<String>();
         textures.add("Wooden");
-        textures.add("Metallic");
+        textures.add("Marble");
+        textures.add("Gold & Silver");
         textures.add("Blue & Red");
         List<String> gamemodes = new ArrayList<String>();
         gamemodes.add("Normal");
