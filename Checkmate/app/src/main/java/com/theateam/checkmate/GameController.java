@@ -29,7 +29,6 @@ public class GameController {
     private String fenString = ""; // Board layout using FEN
     private int drawCounter = 0;   //counter for fifty move rule draw
     private boolean timerRunning = false; // Indicator for both timers' status
-    private int timiLimit; // Game time limit
 
     //References for other classes
     private Board board;
@@ -60,6 +59,7 @@ public class GameController {
     private String startingFenString; // StartPosFEN: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     private List<String> fenList = new Vector<>(); // Holds FEN-Strings from each move
     private Map<String, long[]> mapFenToTimers = new HashMap<>(); // FenList + TimerOne, TimerTwo
+    private boolean modeKingOfTheHill = false;
 
     public GameController(String gameMode, boolean _learningTool, String _startingFenString, List<String> fenHistory, Map<String, long[]> fenToTimers,int _timeLimit, int _themeId) {
         // Instances
@@ -78,10 +78,14 @@ public class GameController {
             fenList.add(fenHistory.get(i));
             mapFenToTimers.put(fenHistory.get(i), fenToTimers.get(fenHistory.get(i)));
         }
-        timiLimit = _timeLimit;
         themeId = _themeId;
+
         switch (gameMode) { // Determine game mode
             case "TwoPlayer":
+                playerTwo = new Player("Human", false); // Player two is human
+                break;
+            case "KingOfTheHill":
+                modeKingOfTheHill = true;
                 playerTwo = new Player("Human", false); // Player two is human
                 break;
             case "AiEasy":
@@ -146,6 +150,9 @@ public class GameController {
     public boolean selectSquare(String _square) {
 
         clickedSquare = _square; // update attribute - clickedSquare is used in other methods in this class
+
+        if(modeKingOfTheHill)
+            checkKingOfTheHill();
 
         if (checkKingsForCheckmate()) // Check if either of kings  are in checkmate
             return true; // One king in checkmate, break here
@@ -446,7 +453,7 @@ public class GameController {
                     if (castlingSquares.contains(board.getSquare(clickedSquare))) // Target square is one of the castling rules squares. Make move for rook also
                         movePiece(rookForSquare.get(board.getSquare(clickedSquare)), squareForRook.get(rookForSquare.get(board.getSquare(clickedSquare))), rookForSquare.get(board.getSquare(clickedSquare)).getSquare());
                 // Check if the move caused check
-                if (checkKingsForCheckmate() || checkForStalemate())
+                if (checkKingsForCheckmate() || checkForStalemate() || (modeKingOfTheHill && checkKingOfTheHill()))
                     return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
@@ -476,7 +483,7 @@ public class GameController {
                 updateFen(); // Update FEN before changing board layout
                 checkDraw(null, null, true); //checks for 50 move rule
                 // Check if the move caused check
-                if (checkKingsForCheckmate() || checkForStalemate())
+                if (checkKingsForCheckmate() || checkForStalemate() || (modeKingOfTheHill && checkKingOfTheHill()))
                     return false; // One king in checkmate, break here
                 checkRotating(); // Check if playerTwo is AI and rotate
                 return true;
@@ -905,6 +912,25 @@ public class GameController {
         return false;
     }
 
+    public boolean checkKingOfTheHill(){
+        if(!modeKingOfTheHill)
+            return false;
+        List<Square> hillSquares = new Vector<>();
+        hillSquares.add(board.getSquare("D4"));
+        hillSquares.add(board.getSquare("D5"));
+        hillSquares.add(board.getSquare("E4"));
+        hillSquares.add(board.getSquare("E5"));
+        if(hillSquares.contains(playerOne.getPieceByType("King").getSquare())){
+            GameActivity.setKingOfTheHill(1);
+            return true;
+        }
+        if(hillSquares.contains(playerTwo.getPieceByType("King").getSquare())){
+            GameActivity.setKingOfTheHill(2);
+            return true;
+        }
+        return false;
+    }
+
     // Check if king's valid moves are exposed
     // I.e. Check if moving king to A4 makes it exposed to enemy pieces' captures.
     // Also works for capture movements. Checks if king becomes exposed after eliminating enemy piece
@@ -1106,7 +1132,8 @@ public class GameController {
                 checkRotating(); // No promoting - rotate board
                 turn = !turn; // And flip turn
             }
-        if (OpenGLRenderer.rotated && turn)
+        // Fix conflicts with rotated board
+        if ((OpenGLRenderer.rotated && turn) || (!OpenGLRenderer.rotated && !turn && playerTwo.isHuman()))
             graphics.rotate();
         if (checkForStalemate())
             checkKingsForCheckmate();

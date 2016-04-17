@@ -229,6 +229,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public static void setKingOfTheHill(int status){
+        switch(status) {
+            case 1:
+                instance.setupDialog("Player One reached the hill", "King of the Hill: Player One");
+                break;
+            case 2:
+                instance.setupDialog("Player Two reached the hill", "King of the Hill: Player Two");
+                break;
+        }
+    }
+
     private void setupDialog(String _message, String _title){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(_message).setTitle(_title); // Add message and title for dialog

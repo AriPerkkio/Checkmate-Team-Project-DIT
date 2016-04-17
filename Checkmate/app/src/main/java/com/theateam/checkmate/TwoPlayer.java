@@ -47,7 +47,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     private SeekBar timeLimitBar;
     private int timeLimitStatus;
     private TextView timeLimitText;
-
+    private String gameMode = "TwoPlayer"; // Initial value
 
     public void onCreate(Bundle savedInstanceState) {
         // Hide navigation bar and keep it hidden when pressing
@@ -130,13 +130,13 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                 switch(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
                     case "Normal": // Group 1, Child 0, Id 0
                         ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Normal");
+                        gameMode = "TwoPlayer";
                         expListView.collapseGroup(1); // Hide list after click
                         break;
                     case "King of the hill": // Group 1, Child 1, Id 1
-                        // Uncomment these once game mode implemented
-                        //((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
-                        //expListView.collapseGroup(1); // Hide list after click
-                        Toast.makeText(this, "King of the hill is not supported yet", Toast.LENGTH_LONG).show();
+                        ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
+                        expListView.collapseGroup(1); // Hide list after click
+                        gameMode = "KingOfTheHill";
                         break;
                     case "Blitz": // Group 1, Child 2, Id 2
                         // Uncomment these once game mode implemented
@@ -152,7 +152,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     public void StartTwoPlayer_intent(View view) {
 
         Intent intent = new Intent(TwoPlayer.this, GameActivity.class);
-        intent.putExtra("gameMode", "TwoPlayer"); // Always TwoPlayer
+        intent.putExtra("gameMode", gameMode);
         intent.putExtra("startingFen", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"); // Always this one, it's starting position fen
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
