@@ -36,23 +36,22 @@ import butterknife.InjectView;
 /**
  * Created by FionnMcguire on 31/03/2016.
  */
-public class OnePlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener{
-    TextView mProgressText;
-    TextView mTrackingText;
-    //final Context mCtx;
+public class OnePlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener, SeekBar.OnSeekBarChangeListener{
+    TextView timeLimitText;
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     @InjectView(R.id.toolbar) Toolbar toolbar;
     @InjectView(R.id.drawer_recyclerView)
     RecyclerView drawerRecyclerView;
     private SeekBar difficulty;
+    private SeekBar timeLimitBar;
+    private int timeLimitStatus;
     Switch learning_tool;
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
     List<String> listDataHeader;
     int themeId = R.mipmap.defaulttheme;
     DatabaseManager databaseManager;
-
     HashMap<String, List<String>> listDataChild;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -71,10 +70,14 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         ButterKnife.inject(this);
 
         setSupportActionBar(toolbar);
+        timeLimitText = (TextView) findViewById(R.id.playerOneTimeText);
         learning_tool = (Switch)findViewById(R.id.learning_tool_switch);
         difficulty = (SeekBar)findViewById(R.id.difficulty_bar);
+        timeLimitBar = (SeekBar) findViewById(R.id.playerOnetimelimit_bar);
+        timeLimitBar.setOnSeekBarChangeListener(this);
         int difficulty_status = difficulty.getProgress();
-        System.out.println("Current Progress = " + difficulty_status);
+        timeLimitBar.setProgress(100);
+        timeLimitStatus = 1800; // Initialize as max value
 
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
@@ -140,9 +143,9 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("fenList", new ArrayList<String>()); // As in empty fenList
         intent.putExtra("themeId", themeId);
         intent.putExtra("learningTool", (learning_tool.isChecked()));
-        intent.putExtra("timerOne", new long[1]);
-        intent.putExtra("timerTwo", new long[1]);
-        intent.putExtra("timeLimit", 60); // Read from setting
+        intent.putExtra("timerOne", new long[]{});
+        intent.putExtra("timerTwo", new long[]{});
+        intent.putExtra("timeLimit", timeLimitStatus);
 
         int difficulty_status = difficulty.getProgress();
         if(difficulty_status <25)
@@ -218,6 +221,36 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         }
     }
 
+    public void onStopTrackingTouch(SeekBar seekBar){ } // Not used
+    public void onStartTrackingTouch(SeekBar seekBar){ } // Not used
+
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+        // Min value 60s, Max value 1800s
+        /**
+         * 0-100
+         * 0x + b= 60, b=60
+         * 100x +b = 1800
+         * 100x = 1800-60
+         * 100x = 1740
+         * x = 17,4
+         * 60-1800
+         */
+        int totalSeconds = (int) Math.round(progress * 17.4 + 60);
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds - minutes*60;
+        Log.d("****", "Minutes: "+minutes+" & Seconds: "+seconds);
+        Log.d("seconds from", totalSeconds +"-"+ minutes*60);
+        String timeUpdate = "";
+        if(minutes<10)
+            timeUpdate+="0";
+        timeUpdate+=minutes+":";
+        if(seconds<10)
+            timeUpdate+="0";
+        timeUpdate+=seconds;
+        timeLimitText.setText(timeUpdate);
+        timeLimitStatus = totalSeconds;
+    }
+
     private void prepareListData() {
         //Set up items in expandableList
         listDataHeader = new ArrayList<String>();
@@ -228,5 +261,19 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         textures.add("Metallic");
         textures.add("Blue & Red");
         listDataChild.put(listDataHeader.get(0), textures);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 }

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,8 +30,7 @@ import butterknife.InjectView;
 /**
  * Created by FionnMcguire on 31/03/2016.
  */
-public class TwoPlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener
-{
+public class TwoPlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener, SeekBar.OnSeekBarChangeListener {
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     @InjectView(R.id.toolbar) Toolbar toolbar;
@@ -44,6 +44,9 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     Button startGameButton;
     HashMap<String, List<String>> listDataChild;
     DatabaseManager databaseManager;
+    private SeekBar timeLimitBar;
+    private int timeLimitStatus;
+    private TextView timeLimitText;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -79,6 +82,11 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         drawerRecyclerView.setAdapter(drawerAdapter);
         drawerRecyclerView.setHasFixedSize(true);
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        timeLimitText = (TextView) findViewById(R.id.playerTwoTimeText);
+        timeLimitBar = (SeekBar) findViewById(R.id.playerTwotimelimit_bar);
+        timeLimitBar.setOnSeekBarChangeListener(this);
+        timeLimitBar.setProgress(100);
+        timeLimitStatus = 1800; // Initialize as max value
 
         expListView = (ExpandableListView) findViewById(R.id.lvExp);
         //Set up the list with headers and items
@@ -151,7 +159,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         intent.putExtra("learningTool", (learning_tool.isChecked()));
         intent.putExtra("timerOne", new long[]{});
         intent.putExtra("timerTwo", new long[]{});
-        intent.putExtra("timeLimit", 1800); // Read from setting
+        intent.putExtra("timeLimit", timeLimitStatus); // Read from setting
         PreviousFenlist.setStatus(false);
         startActivity(intent);
     }
@@ -213,6 +221,36 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         }
     }
 
+    public void onStopTrackingTouch(SeekBar seekBar){ } // Not used
+    public void onStartTrackingTouch(SeekBar seekBar){ } // Not used
+
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+        // Min value 60s, Max value 1800s
+        /**
+         * 0-100
+         * 0x + b= 60, b=60
+         * 100x +b = 1800
+         * 100x = 1800-60
+         * 100x = 1740
+         * x = 17,4
+         * 60-1800
+         */
+        int totalSeconds = (int) Math.round(progress * 17.4 + 60);
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds - minutes*60;
+        Log.d("****", "Minutes: "+minutes+" & Seconds: "+seconds);
+        Log.d("seconds from", totalSeconds +"-"+ minutes*60);
+        String timeUpdate = "";
+        if(minutes<10)
+            timeUpdate+="0";
+        timeUpdate+=minutes+":";
+        if(seconds<10)
+            timeUpdate+="0";
+        timeUpdate+=seconds;
+        timeLimitText.setText(timeUpdate);
+        timeLimitStatus = totalSeconds;
+    }
+
     private void prepareListData() {
         //Set up items in expandableList
         listDataHeader = new ArrayList<String>();
@@ -229,5 +267,19 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         gamemodes.add("Blitz");
         listDataChild.put(listDataHeader.get(0), textures);
         listDataChild.put(listDataHeader.get(1), gamemodes);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
     }
 }
