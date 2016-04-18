@@ -5,4 +5,11 @@
     android:layout_height="160dp"
     android:background="@color/colorPrimary">
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_launcher" />
 </RelativeLayout>

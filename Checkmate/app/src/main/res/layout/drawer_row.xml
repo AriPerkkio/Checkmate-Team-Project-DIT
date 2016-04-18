@@ -5,10 +5,9 @@
     android:layout_height="48dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="72dp"
-        android:layout_gravity="center_vertical"
+        android:layout_gravity="center"
         android:textColor="@color/colorAccent"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:singleLine="true"
@@ -17,6 +16,14 @@
         android:textStyle="bold"
         android:text="default text"
         android:textAlignment="center"
-        android:textSize="20dp" />
+        android:textSize="25dp"
+        android:layout_marginBottom="5dp" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="right|bottom"></LinearLayout>
 
 </FrameLayout>
