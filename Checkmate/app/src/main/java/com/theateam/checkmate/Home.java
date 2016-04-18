@@ -146,6 +146,7 @@ public class Home extends AppCompatActivity{
                     intent.putExtra("timerTwo", timerTwo);
                     intent.putExtra("timeLimit", gameSettings.getInt(3));
                     intent.putExtra("gameId", latestId);
+                    PreviousFenlist.setStatus(false);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

@@ -70,7 +70,9 @@
                 android:layout_height="50dp"
                 android:id="@+id/playerTwotimelimit_bar"
                 android:layout_below="@+id/textView7"
-                android:layout_alignStart="@+id/textView7" />
+                android:layout_alignStart="@+id/textView7"
+                android:progressBackgroundTint="@color/colorPrimaryDark"
+                android:progressBackgroundTintMode="add" />
         </RelativeLayout>
 
         <Button

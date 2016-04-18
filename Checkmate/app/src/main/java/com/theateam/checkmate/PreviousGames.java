@@ -169,6 +169,7 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
                     intent.putExtra("timerTwo", timerTwo);
                     intent.putExtra("gameId", latestId);
                     intent.putExtra("timeLimit", gameSettings.getInt(3));
+                    PreviousFenlist.setStatus(false);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());

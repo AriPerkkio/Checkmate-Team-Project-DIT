@@ -1165,6 +1165,19 @@ public class GameController {
         return true; // Move was undone
     }
 
+    public String getHelpMove(){
+        if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
+        String move = aiEngine.getAiMove(fenList.get(fenList.size()-1), 20, 100, 20);
+        Log.d("getHelpMove", move);
+        if(move.length()!=4) return "No help move available";
+        if(Character.isDigit(move.charAt(0)) || Character.isDigit(move.charAt(2)) ||
+          !Character.isDigit(move.charAt(1)) || !Character.isDigit(move.charAt(3))) return "No help move available";
+        Square from = board.getSquare(Character.toUpperCase(move.charAt(0))+""+Integer.parseInt(move.charAt(1)+""));
+        Square target = board.getSquare(Character.toUpperCase(move.charAt(2))+""+Integer.parseInt(move.charAt(3)+""));
+        if(from==null || target == null || from.getPiece()==null) return "No help move available";
+        return from.getPiece().getPieceType()+" from "+from.getId()+ " to "+target.getId();
+    }
+
     public void pauseGame() {
         playerOne.pauseTimer();
         playerTwo.pauseTimer();
