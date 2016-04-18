@@ -62,7 +62,7 @@ public class PreviousGames extends AppCompatActivity implements ListView.OnItemC
         setContentView(R.layout.activity_previous_games);
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
-
+        toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);

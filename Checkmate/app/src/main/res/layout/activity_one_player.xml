@@ -18,8 +18,7 @@
             android:layout_height="wrap_content"
 
             android:elevation="4dp"
-            android:background="@color/colorPrimaryDark"
-            android:alpha="0.7"/>
+            android:background="@color/colorPrimaryDark" />
 
         <Space
             android:layout_width="fill_parent"

@@ -42,7 +42,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder
         if (holder.viewType == ROW_TYPE) {
             String rowText = rows.get(position - 1);
             holder.textView.setText(rowText);
-            holder.imageView.setImageResource(R.mipmap.ic_launcher);
         }
     }
 
@@ -61,8 +60,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         protected int viewType;
 
-        @InjectView(R.id.drawer_row_icon)
-        ImageView imageView;
         @InjectView(R.id.drawer_row_text)
         TextView textView;
 

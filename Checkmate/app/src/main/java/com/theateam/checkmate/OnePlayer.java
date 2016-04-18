@@ -68,8 +68,8 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_player);
         ButterKnife.inject(this);
-
         setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
         timeLimitText = (TextView) findViewById(R.id.playerOneTimeText);
         learning_tool = (Switch)findViewById(R.id.learning_tool_switch);
         difficulty = (SeekBar)findViewById(R.id.difficulty_bar);

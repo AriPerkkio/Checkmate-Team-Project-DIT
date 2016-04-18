@@ -18,9 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimaryDark"
-            android:alpha="0.7"
             android:textColor="@color/colorAccent"
-            android:elevation="4dp" />
+            android:elevation="4dp"
+            android:textStyle="bold"
+            android:textAlignment="center" />
 
         <LinearLayout
             android:orientation="vertical"
@@ -37,7 +38,6 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-
                     android:text="One Player"
                     android:id="@+id/button2"
                     android:layout_alignParentLeft="true"
@@ -91,7 +91,6 @@
                 android:background="@color/colorPrimaryDark"
                 android:layout_alignRight="@+id/button3"
                 android:layout_alignEnd="@+id/button3"
-
                 android:textColor="@color/colorAccent"
                 android:textStyle="bold"
                 android:textSize="25dp"

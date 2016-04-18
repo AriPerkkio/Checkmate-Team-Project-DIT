@@ -19,8 +19,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:elevation="4dp"
-            android:background="@color/colorPrimaryDark"
-            android:alpha="0.7"/>
+            android:background="@color/colorPrimaryDark" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="5dp"
+            android:background="@color/colorPrimary"></LinearLayout>
 
         <RelativeLayout
     android:background="@color/colorPrimary"

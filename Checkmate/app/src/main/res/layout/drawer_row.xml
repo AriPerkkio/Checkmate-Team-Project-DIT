@@ -4,23 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="48dp">
 
-    <ImageView
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:id="@+id/drawer_row_icon"
-        android:layout_marginLeft="16dp"
-        android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_launcher" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="72dp"
         android:layout_gravity="center_vertical"
-        android:textColor="#FF757575"
+        android:textColor="@color/colorAccent"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:singleLine="true"
         android:id="@+id/drawer_row_text"
-        android:onClick="drawerClick" />
+        android:onClick="drawerClick"
+        android:textStyle="bold"
+        android:text="default text"
+        android:textAlignment="center"
+        android:textSize="20dp" />
 
 </FrameLayout>

@@ -66,6 +66,8 @@ public class Home extends AppCompatActivity{
         directory = getFilesDir().toString()+"/engines/";
         writeEngineToDevice();
 
+        toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
+        toolbar.
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);

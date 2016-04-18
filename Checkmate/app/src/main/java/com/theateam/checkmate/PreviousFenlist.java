@@ -108,7 +108,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         setContentView(R.layout.activity_previous_fenlist);
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
-
+        toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(drawerToggle);
