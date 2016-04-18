@@ -100,6 +100,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_game);
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
+        if(getSupportActionBar()!=null) getSupportActionBar().setTitle(gameModeSelect);
+
         toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
         ActionBarDrawerToggle drawerToggle;
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);

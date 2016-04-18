@@ -75,7 +75,6 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         difficulty = (SeekBar)findViewById(R.id.difficulty_bar);
         timeLimitBar = (SeekBar) findViewById(R.id.playerOnetimelimit_bar);
         timeLimitBar.setOnSeekBarChangeListener(this);
-        int difficulty_status = difficulty.getProgress();
         timeLimitBar.setProgress(100);
         timeLimitStatus = 1800; // Initialize as max value
 
@@ -152,15 +151,15 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
 
         int difficulty_status = difficulty.getProgress();
         if(difficulty_status <25)
-            intent.putExtra("gameMode", "AiEasy");
+            intent.putExtra("gameMode", "AI Easy");
         else if(difficulty_status >25 && difficulty_status <50)
-            intent.putExtra("gameMode", "AiMedium");
+            intent.putExtra("gameMode", "AI Medium");
         else if(difficulty_status >50 && difficulty_status <75)
-            intent.putExtra("gameMode", "AiHard");
+            intent.putExtra("gameMode", "AI Hard");
         else if(difficulty_status >75)
-            intent.putExtra("gameMode", "AiInsane");
+            intent.putExtra("gameMode", "AI Insane");
         else
-            intent.putExtra("gameMode", "AiEasy");
+            intent.putExtra("gameMode", "AI Easy");
         PreviousFenlist.setStatus(false);
         startActivity(intent);
     }

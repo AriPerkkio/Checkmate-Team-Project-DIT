@@ -41,13 +41,12 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     ExpandableListView expListView;
     List<String> listDataHeader;
     int themeId = R.mipmap.defaulttheme;
-    Button startGameButton;
     HashMap<String, List<String>> listDataChild;
     DatabaseManager databaseManager;
     private SeekBar timeLimitBar;
     private int timeLimitStatus;
     private TextView timeLimitText;
-    private String gameMode = "TwoPlayer"; // Initial value
+    private String gameMode = "Two Player"; // Initial value
 
     public void onCreate(Bundle savedInstanceState) {
         // Hide navigation bar and keep it hidden when pressing
@@ -103,8 +102,8 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
         int increase = 0;
-        if(expListView.getChildCount()==8) // Number of themes + game modes
-            increase = 3; // Number of themes
+        if(expListView.getChildCount()==9) // Number of themes + game modes + groups
+            increase = 4; // Number of themes
 
         switch(listDataHeader.get(groupPosition)){
             case "Theme":
@@ -134,23 +133,21 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                 switch(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)){
                     case "Normal": // Group 1, Child 0, Id 0
                         ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Normal");
-                        gameMode = "TwoPlayer";
+                        gameMode = "Two Player";
                         expListView.collapseGroup(1); // Hide list after click
                         break;
-                    case "King of the hill": // Group 1, Child 1, Id 1
+                    case "King Of The Hill": // Group 1, Child 1, Id 1
                         ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": King of the hill");
                         expListView.collapseGroup(1); // Hide list after click
-                        gameMode = "KingOfTheHill";
+                        gameMode = "King Of The Hill";
                         break;
                     case "Blitz": // Group 1, Child 2, Id 2
-                        // Uncomment these once game mode implemented
                         ((TextView) expListView.getChildAt(1+increase).findViewById(R.id.groupSecText)).setText(": Blitz");
                         expListView.collapseGroup(1); // Hide list after click
                         gameMode = "Blitz";
                         timeLimitBar.setProgress(3);
                         timeLimitText.setText("02:00");
                         timeLimitStatus = 120;
-                        //Toast.makeText(this, "Blitz is not supported yet", Toast.LENGTH_LONG).show();
                         break;
                 }
         }
@@ -278,7 +275,7 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         textures.add("Blue & Red");
         List<String> gamemodes = new ArrayList<String>();
         gamemodes.add("Normal");
-        gamemodes.add("King of the hill");
+        gamemodes.add("King Of The Hill");
         gamemodes.add("Blitz");
         listDataChild.put(listDataHeader.get(0), textures);
         listDataChild.put(listDataHeader.get(1), gamemodes);

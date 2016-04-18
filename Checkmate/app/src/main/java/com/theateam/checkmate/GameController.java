@@ -85,10 +85,10 @@ public class GameController {
         themeId = _themeId;
 
         switch (gameMode) { // Determine game mode
-            case "TwoPlayer":
+            case "Two Player":
                 playerTwo = new Player("Human", false); // Player two is human
                 break;
-            case "KingOfTheHill":
+            case "King Of The Hill":
                 modeKingOfTheHill = true;
                 playerTwo = new Player("Human", false); // Player two is human
                 break;
@@ -96,25 +96,25 @@ public class GameController {
                 modeBlitz = true;
                 playerTwo = new Player("Human", false); // Player two is human
                 break;
-            case "AiEasy":
+            case "AI Easy":
                 playerTwo = new Player("AI", false);
                 thinkTime = 1; // AI ThinkTime 1ms
                 thinkDepth = 1; // Thinks only one move
                 level = 0; // Minimum level
                 break;
-            case "AiMedium":
+            case "AI Medium":
                 playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
                 thinkTime = 3; // AI ThinkTime 3ms
                 thinkDepth = 3; // Thinks only three moves ahead
                 level = 0; // Minimum level
                 break;
-            case "AiHard":
+            case "AI Hard":
                 playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
                 thinkTime = 5; // AI ThinkTime 1ms
                 thinkDepth = 5; // Thinks only one move
                 level = 5; // Level 5
                 break;
-            case "AiInsane":
+            case "AI Insane":
                 playerTwo = new Player("AI", false); // Can be set as "AI" or "Human"
                 thinkTime = 100; // AI ThinkTime 0.1s
                 thinkDepth = 20; // Think plenty of moves ahead

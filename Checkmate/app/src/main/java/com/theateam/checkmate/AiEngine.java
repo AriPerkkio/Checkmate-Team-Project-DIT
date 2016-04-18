@@ -49,7 +49,6 @@ public class AiEngine {
             do{
                 text = in.readLine(); // Read AI's response
                 if(text!=null){
-                    Log.i("Full text", text); // Logging, should be removed later
                     if(text.split(" ").length>1) {
                         oneLine = text.split(" ")[0]; // First word
                         move = text.split(" ")[1]; // Second word / given move, i.e "bestmove a1a2"
