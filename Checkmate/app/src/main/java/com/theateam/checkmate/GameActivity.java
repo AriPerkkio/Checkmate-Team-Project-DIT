@@ -103,6 +103,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             case "5:3":
                 setContentView(R.layout.activity_game_53);
             break;
+            case "3:2":
+                setContentView(R.layout.activity_game_32);
+            break;
+            case "15:9":
+                setContentView(R.layout.activity_game_159);
+            break;
             default: // 16:9, most common
                 setContentView(R.layout.activity_game);
         }
