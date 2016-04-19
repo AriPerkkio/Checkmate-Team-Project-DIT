@@ -50,7 +50,19 @@
             android:textColor="@color/colorAccent"
             android:textStyle="bold"
             android:background="@color/colorPrimaryDark" />
-    </RelativeLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ask help\nfor move"
+                android:id="@+id/btnHelp"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/btnRedo"
+                android:layout_marginRight="5dp" />
+        </RelativeLayout>
 
     <LinearLayout
         android:background="@color/colorPrimary"

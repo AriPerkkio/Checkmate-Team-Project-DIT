@@ -51,6 +51,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static GameActivity instance;
     private Button btnUndoMove;
     private Button btnSave;
+    private Button btnHelp;
     private String gameModeSelect;
     private boolean learningToolSwitch;
     private String gameStartingFen;
@@ -86,9 +87,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         long[] timerOne = getIntent().getExtras().getLongArray("timerOne");
         long[] timerTwo = getIntent().getExtras().getLongArray("timerTwo");
         timeLimit = getIntent().getExtras().getInt("timeLimit");
-        Log.d("GameActivity", "getIntent() timelimit: "+timeLimit+" s");
-        Log.d("GameActivity", "GameMode: "+gameModeSelect);
-        Log.d("GameActivity", "List: "+gameFenHistory.size()+". TimerOne: "+timerOne.length+". TimerTwo: "+timerTwo.length);
         for(int i=0;i<gameFenHistory.size();i++)
             fenToTimers.put(gameFenHistory.get(i), new long[]{timerOne[i], timerTwo[i]});
         themeId = getIntent().getExtras().getInt("themeId");
@@ -123,6 +121,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         btnUndoMove.setOnClickListener(this);
         btnSave = (Button) findViewById(R.id.btnSave);
         btnSave.setOnClickListener(this);
+        btnHelp = (Button) findViewById(R.id.btnHelp);
+        btnHelp.setOnClickListener(this);
         // Timers are not used when in analyse mode / layout
         if(!PreviousFenlist.getStatus()) timerOneText = (TextView) findViewById(R.id.textTimerOne);
         if(!PreviousFenlist.getStatus()) timerTwoText = (TextView) findViewById(R.id.textTimerTwo);
@@ -157,6 +157,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 Toast.makeText(this, "Game saved.", Toast.LENGTH_SHORT).show();
                 finish();
+            break;
+            case R.id.btnHelp:
+                Toast.makeText(this, gameController.getHelpMove(), Toast.LENGTH_LONG).show();
             break;
         }
     }

@@ -193,13 +193,11 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     Cursor gameSettings = databaseManager.getSettingsById(latestId);
                     databaseManager.close();
                     ArrayList<String> fenList = new ArrayList<>();
-                    Map<String, long[]> fenToTimers = new HashMap<String, long[]>();
                     long[] timerOne = new long[fenCursor.getCount()];
                     long[] timerTwo = new long[fenCursor.getCount()];;
                     int i=0;
                     do{
                         fenList.add(fenCursor.getString(1));
-                        fenToTimers.put(fenCursor.getString(1), new long[]{(long) fenCursor.getInt(2), (long) fenCursor.getInt(3)});
                         timerOne[i] = (long) fenCursor.getInt(2);
                         timerTwo[i] = (long) fenCursor.getInt(3);
                         i++;
@@ -215,6 +213,7 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
                     intent.putExtra("timerTwo", timerTwo);
                     intent.putExtra("timeLimit", gameSettings.getInt(3));
                     intent.putExtra("gameId", latestId);
+                    PreviousFenlist.setStatus(false);
                     startActivity(intent);
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());
