@@ -70,11 +70,11 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
         drawerToggle.syncState();
 
         List<String> rows = new ArrayList<>();
-        rows.add("Update");
+        rows.add("Resume");
         rows.add("Home");
         rows.add("Analysis");
-        rows.add("Settings");
-        rows.add("Resume");
+        rows.add("Update");
+        rows.add("Exit");
 
         learning_tool = (Switch)findViewById(R.id.learning_tool_switch2);
         DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
@@ -183,9 +183,6 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                 intent = new Intent(this, PreviousGames.class);
                 startActivity(intent);
                 break;
-            case "Settings":
-                Log.d("onClick", "Settings");
-                break;
             case "Resume":
                 try{
                     databaseManager.open();
@@ -223,6 +220,12 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());
                 }
+                break;
+            case "Exit":
+                intent = new Intent(this, Home.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("Exit", true);
+                startActivity(intent);
                 break;
         }
     }

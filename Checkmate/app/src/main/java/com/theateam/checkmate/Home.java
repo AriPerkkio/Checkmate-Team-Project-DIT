@@ -74,16 +74,18 @@ public class Home extends AppCompatActivity{
         drawerToggle.syncState();
 
         List<String> rows = new ArrayList<>();
-        rows.add("Update");
+        rows.add("Resume");
         rows.add("Home");
         rows.add("Analysis");
-        rows.add("Settings");
-        rows.add("Resume");
+        rows.add("Update");
+        rows.add("Exit");
 
         DrawerAdapter drawerAdapter = new DrawerAdapter(rows);
         drawerRecyclerView.setAdapter(drawerAdapter);
         drawerRecyclerView.setHasFixedSize(true);
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        if(getIntent().hasExtra("Exit")) finish();
     }
     public void OnePlayer_intent(View view) {
         Intent intent = new Intent(this, OnePlayer.class);
@@ -110,9 +112,6 @@ public class Home extends AppCompatActivity{
             break;
             case "Analysis":
                 Analysis_intent(v);
-            break;
-            case "Settings":
-                Log.d("onClick", "Settings");
             break;
             case "Resume":
                 try{
@@ -151,6 +150,12 @@ public class Home extends AppCompatActivity{
                 }catch(SQLException e){
                     Log.e("DrawerResume", "e: "+e.toString());
                 }
+            break;
+            case "Exit":
+                Intent intent = new Intent(this, Home.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("Exit", true);
+                startActivity(intent);
             break;
         }
     }
