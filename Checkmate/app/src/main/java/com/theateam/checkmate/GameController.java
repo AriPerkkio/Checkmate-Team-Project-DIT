@@ -1167,7 +1167,7 @@ public class GameController {
 
     public String getHelpMove(){
         if (aiEngine == null) aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
-        String move = aiEngine.getAiMove(fenList.get(fenList.size()-1), 20, 100, 20);
+        String move = aiEngine.getAiMove(fenList.get(fenList.size()-1), 20, 500, 20);
         Log.d("getHelpMove", move);
         if(move.length()!=4) return "No help move available";
         if(Character.isDigit(move.charAt(0)) || Character.isDigit(move.charAt(2)) ||
