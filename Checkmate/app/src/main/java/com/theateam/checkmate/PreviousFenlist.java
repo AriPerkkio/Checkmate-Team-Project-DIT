@@ -48,6 +48,8 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
     private DatabaseManager databaseManager;
     private Cursor cursorFenlist;
     private ArrayList<String> fenList = new ArrayList<String>();
+    private ArrayList<String> parsedFenList = new ArrayList<String>();
+    private ArrayList<String> moveList = new ArrayList<String>();
     private Map<String, long[]> fenToTimers = new HashMap<String, long[]>();
     private long[] timerOne;
     private long[] timerTwo;
@@ -135,7 +137,24 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         listFenlist = (ListView) findViewById(R.id.prevfenlistList);
         listFenlist.setOnItemClickListener(this);
 
-        arrayAdapter = new ArrayAdapter<String>(this, R.layout.fenstringrow, fenList);
+        int j=0;
+        do{
+            parsedFenList.add(fenList.get(j));
+
+            if(j == fenList.size()-2){
+                j++;
+            } else if(j == fenList.size() -1){
+                j  = fenList.size();
+            } else {
+                j+=2;
+            }
+        }while(j != fenList.size());
+
+        for(j=0;j<parsedFenList.size();j++){
+            moveList.add("Move " + (j));
+        }
+
+        arrayAdapter = new ArrayAdapter<String>(this, R.layout.fenstringrow, moveList);
         listFenlist.setAdapter(arrayAdapter);
         selectedFen = fenList.get(0);
     }
@@ -166,7 +185,7 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 Intent play =  new Intent(PreviousFenlist.this, GameActivity.class);
                 play.putExtra("gameMode", gameMode);
                 play.putExtra("learningTool", (learningTool.equals("ON")));
-                play.putExtra("startingFen", fenList.get(fenList.size()-1)); // Last FEN from the fenList
+                play.putExtra("startingFen", selectedFen); // Last FEN from the fenList | EDIT , start from selected fen
                 play.putExtra("fenList", fenList);
                 play.putExtra("gameId", gameId);
                 play.putExtra("themeId", themeId);
@@ -179,8 +198,8 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         }
     }
     public void onItemClick(AdapterView<?> adapterView, View v, int position, long arg){
-        gameController.previewFen(fenList.get(position));
-        selectedFen = fenList.get(position);
+        gameController.previewFen(parsedFenList.get(position));
+        selectedFen = parsedFenList.get(position);
     }
 
     public void drawerClick(View v) {
