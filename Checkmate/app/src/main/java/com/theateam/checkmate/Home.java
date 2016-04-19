@@ -7,6 +7,7 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -16,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,6 +48,7 @@ public class Home extends AppCompatActivity{
     RecyclerView drawerRecyclerView;
     private DatabaseManager db;
     private static String directory;
+    public static String screenRatio;
 
     public void onCreate(Bundle savedInstanceState) {
         // Hide navigation bar and keep it hidden when pressing
@@ -86,6 +89,14 @@ public class Home extends AppCompatActivity{
         drawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         if(getIntent().hasExtra("Exit")) finish();
+        double rawRatio = getScreenRatio();
+        Log.d("Home", "ScreenRatio: "+rawRatio);
+        Log.d("Home", "rawRatio*16 : "+(int) (rawRatio*16));
+        if((int) (rawRatio*16) == 9) screenRatio = "16:9"; // I.e. 1920x1080, 2560x1440
+        if((int) (rawRatio*16) == 10) screenRatio = "16:10"; // I.e. 1280×800
+        if((int) (rawRatio*5) == 3) screenRatio = "5:3"; // I.e. 800*480
+        if(screenRatio==null) Toast.makeText(this, "Device screen ratio is not supported", Toast.LENGTH_LONG).show();
+        Log.d("Home", "2nd: "+screenRatio);
     }
     public void OnePlayer_intent(View view) {
         Intent intent = new Intent(this, OnePlayer.class);
@@ -215,6 +226,13 @@ public class Home extends AppCompatActivity{
                 | View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private double getScreenRatio() {
+        Display display = this.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return (double) size.x / (double) size.y;
     }
 }
 

@@ -95,7 +95,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, fenToTimers, timeLimit, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
-        setContentView(R.layout.activity_game);
+
+        switch(Home.screenRatio){
+            case "16:10":
+                setContentView(R.layout.activity_game_1610);
+            break;
+            case "5:3":
+                setContentView(R.layout.activity_game_53);
+            break;
+            default: // 16:9, most common
+                setContentView(R.layout.activity_game);
+        }
+
         ButterKnife.inject(this);
         setSupportActionBar(toolbar);
         if(getSupportActionBar()!=null) getSupportActionBar().setTitle(gameModeSelect);
@@ -131,6 +142,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if(!PreviousFenlist.getStatus()) updateTimer(gameController.getTimers()[1],2);
         instance = this;
         directory = getApplicationContext().getFilesDir().toString()+"/engines/";
+        Log.d("GameActivity", "ScreenRatio: "+(double) getscreenwidth() / (double) getscreenheight()+".");
     }
 
     public void onClick(View v) {
@@ -285,22 +297,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         int height = size.y;
         return height;
     }
-    public static String getorientation()
-    {
-        Display display = ((WindowManager)instance.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int rotation = display.getRotation();
-        String orientation = "";
-        if (Surface.ROTATION_0 == rotation) {
-            orientation = "portrait";
-        } else if(Surface.ROTATION_180 == rotation) {
-            orientation = "portrait";
-        } else if(Surface.ROTATION_90 == rotation) {
-            orientation = "landscape";
-        } else if(Surface.ROTATION_270 == rotation) {
-            orientation = "landscape";
-        }
-        return orientation;
-    }
+
     public static String getDirectory(){
         return directory;
     }

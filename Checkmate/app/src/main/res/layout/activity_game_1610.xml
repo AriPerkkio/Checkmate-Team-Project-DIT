@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="16">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:padding="0dp">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:elevation="4dp"
+            android:background="@color/colorPrimaryDark"
+            android:textAlignment="center" />
+
+        <RelativeLayout
+        android:background="@color/colorPrimary"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="2"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Undo\n move"
+            android:id="@+id/btnRedo"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save &amp; Exit"
+            android:id="@+id/btnSave"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:background="@color/colorPrimaryDark" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ask help\nfor move"
+                android:id="@+id/btnHelp"
+                android:background="@color/colorPrimaryDark"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/btnRedo"
+                android:layout_marginRight="5dp" />
+        </RelativeLayout>
+
+    <LinearLayout
+        android:background="@color/colorPrimary"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="10" >
+
+        <fragment
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:name="com.theateam.checkmate.GameFragment"
+            android:id="@+id/fragment" />
+    </LinearLayout>
+    <RelativeLayout
+        android:background="@color/colorPrimary"
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="3" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Player One"
+            android:id="@+id/textView4"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Player Two"
+            android:id="@+id/textView5"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:paddingTop="5dp"
+            android:paddingRight="5dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="00:00"
+            android:id="@+id/textTimerOne"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_below="@+id/textView4"
+            android:layout_alignEnd="@+id/textView4" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="00:00"
+            android:id="@+id/textTimerTwo"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_alignBottom="@+id/textTimerOne"
+            android:layout_alignEnd="@+id/textView5"
+            android:layout_alignStart="@+id/textView5" />
+
+    </RelativeLayout>
+    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+android:id="@+id/drawer_recyclerView"
+android:layout_width="fill_parent"
+android:layout_height="match_parent"
+android:layout_gravity="start"
+android:scrollbars="vertical"
+android:background="@color/colorPrimaryDark"/>
+    </android.support.v4.widget.DrawerLayout>
