@@ -250,12 +250,18 @@ public class TwoPlayer extends AppCompatActivity implements ExpandableListView.O
             int minutes = totalSeconds / 60;
             int seconds = totalSeconds - minutes * 60;
             String timeUpdate = "";
-            if (minutes < 10)
+
+            //rounds off total seconds to the minute
+            if(seconds != 0){
+                totalSeconds -= seconds;
+                minutes = totalSeconds / 60;
+            }
+
+            if(minutes < 10)
                 timeUpdate += "0";
-            timeUpdate += minutes + ":";
-            if (seconds < 10)
-                timeUpdate += "0";
-            timeUpdate += seconds;
+            timeUpdate += minutes + ":00";
+
+
             timeLimitText.setText(timeUpdate);
             timeLimitStatus = totalSeconds;
         }

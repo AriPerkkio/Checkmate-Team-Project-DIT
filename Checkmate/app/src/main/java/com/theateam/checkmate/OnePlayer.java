@@ -38,6 +38,7 @@ import butterknife.InjectView;
  */
 public class OnePlayer extends AppCompatActivity implements ExpandableListView.OnChildClickListener, SeekBar.OnSeekBarChangeListener{
     TextView timeLimitText;
+    TextView difficultyText;
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     @InjectView(R.id.toolbar) Toolbar toolbar;
@@ -71,8 +72,10 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(this.getResources().getColor(R.color.colorAccent));
         timeLimitText = (TextView) findViewById(R.id.playerOneTimeText);
+        difficultyText = (TextView) findViewById(R.id.playerOneDifficulty);
         learning_tool = (Switch)findViewById(R.id.learning_tool_switch);
         difficulty = (SeekBar)findViewById(R.id.difficulty_bar);
+        difficulty.setOnSeekBarChangeListener(this);
         timeLimitBar = (SeekBar) findViewById(R.id.playerOnetimelimit_bar);
         timeLimitBar.setOnSeekBarChangeListener(this);
         timeLimitBar.setProgress(100);
@@ -229,30 +232,51 @@ public class OnePlayer extends AppCompatActivity implements ExpandableListView.O
     public void onStartTrackingTouch(SeekBar seekBar){ } // Not used
 
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-        // Min value 60s, Max value 1800s
-        /**
-         * 0-100
-         * 0x + b= 60, b=60
-         * 100x +b = 1800
-         * 100x = 1800-60
-         * 100x = 1740
-         * x = 17,4
-         * 60-1800
-         */
-        int totalSeconds = (int) Math.round(progress * 17.4 + 60);
-        int minutes = totalSeconds / 60;
-        int seconds = totalSeconds - minutes*60;
-        Log.d("****", "Minutes: "+minutes+" & Seconds: "+seconds);
-        Log.d("seconds from", totalSeconds +"-"+ minutes*60);
-        String timeUpdate = "";
-        if(minutes<10)
-            timeUpdate+="0";
-        timeUpdate+=minutes+":";
-        if(seconds<10)
-            timeUpdate+="0";
-        timeUpdate+=seconds;
-        timeLimitText.setText(timeUpdate);
-        timeLimitStatus = totalSeconds;
+        if(seekBar == difficulty){
+            if(progress <25)
+                difficultyText.setText("Easy");
+            else if(progress >25 && progress <50)
+                difficultyText.setText("Medium");
+            else if(progress >50 && progress <75)
+                difficultyText.setText("Hard");
+            else if(progress >75)
+                difficultyText.setText("Insane");
+        }else {
+
+            // Min value 60s, Max value 1800s
+            /**
+             * 0-100
+             * 0x + b= 60, b=60
+             * 100x +b = 1800
+             * 100x = 1800-60
+             * 100x = 1740
+             * x = 17,4
+             * 60-1800
+             */
+
+            int totalSeconds = (int) Math.round(progress * 17.4 + 60);
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds - minutes * 60;
+
+            Log.d("****", "Minutes: " + minutes + " & Seconds: " + seconds);
+            Log.d("seconds from", totalSeconds + "-" + minutes * 60);
+
+            String timeUpdate = "";
+
+            //rounds off total seconds to the minute
+            if (seconds != 0) {
+                totalSeconds -= seconds;
+                minutes = totalSeconds / 60;
+            }
+
+            if (minutes < 10)
+                timeUpdate += "0";
+            timeUpdate += minutes + ":00";
+
+
+            timeLimitText.setText(timeUpdate);
+            timeLimitStatus = totalSeconds;
+        }
     }
 
     private void prepareListData() {
