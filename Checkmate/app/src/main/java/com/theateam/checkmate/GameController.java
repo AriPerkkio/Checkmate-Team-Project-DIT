@@ -366,6 +366,7 @@ public class GameController {
         return playerTwo.isHuman() && !turn;
     }
 
+    int aiRequestRound = 0;
     public void aiMove() {
         // Since this function is called inside the selectSquare() after playerOne made the move, it cannot be interrupted by tapping screen multiple time
         highlightsOff();
@@ -383,15 +384,25 @@ public class GameController {
                 if (aiEngine == null)
                     aiEngine = new AiEngine(GameActivity.getDirectory() + "stockfish"); // Initialize AI Engine
                 String bestMove = aiEngine.getAiMove(fenString, level, _thinkTime, thinkDepth); // Get best move from AI calculations
-                clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + Character.toUpperCase(bestMove.charAt(1)); // From square - Get piece from this one
-                clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + Character.toUpperCase(bestMove.charAt(3)); // Target square - Move here
+                if(bestMove.length()<4){
+                    GameActivity.setEnding(4); // AI couldn't make a move with 15 thinking rounds
+                    break;
+                }
+                clickedSquareOne = Character.toUpperCase(bestMove.charAt(0)) + "" + bestMove.charAt(1); // From square - Get piece from this one
+                clickedSquareTwo = Character.toUpperCase(bestMove.charAt(2)) + "" + bestMove.charAt(3); // Target square - Move here
                 if (bestMove.length() == 5) pawnPromoteClick = bestMove.charAt(4);
                 selectSquare(clickedSquareOne); // AI makes "click" to select piece
                 if (selectedPiece == null || // Invalid pieceSelect
                         !(board.getValidMoves(selectedPiece)[0].contains(board.getSquare(clickedSquareTwo))) && // Piece with no moves
                                 !(board.getValidMoves(selectedPiece)[1].contains(board.getSquare(clickedSquareTwo)))) {
                     thinkTime++; // Give AI more time to think for a proper move
+                    aiRequestRound ++;
+                    Log.d("aiMove", "RequestRound: "+aiRequestRound);
                     selectedPiece = null; // Search for new piece
+                    if(aiRequestRound>15) {
+                        GameActivity.setEnding(4); // AI couldn't make a move with 15 thinking rounds
+                        break;
+                    }
                 }
                 if (selectedPiece != null)
                     movementMade = (selectSquare(clickedSquareTwo) || checkKingsForCheckmate()); // AI makes "click" to move the piece
@@ -412,6 +423,7 @@ public class GameController {
         if (kingInCheck(playerOne) || kingInCheck(playerTwo)) // Highlight possible checked king
             checkKingsForCheckmate(); // Check for checkmate
         highlightsOff(); // Highlight
+        aiRequestRound = 0; // Reset round counter
     }
 
     public void checkAiClick(String _clickedSquare) {

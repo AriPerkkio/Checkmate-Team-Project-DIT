@@ -253,6 +253,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 gameEnd = true;
                 instance.setupDialog("Insufficient material", "Game over");
             break;
+            case 4:
+                gameEnd = true;
+                instance.setupDialog("AI cannot decide a move", "Player One won");
+                break;
         }
     }
 
