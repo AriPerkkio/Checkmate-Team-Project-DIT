@@ -2,11 +2,17 @@
 Android Chess, checkmate.
 
 Team project with six members.
+
 @fionnmcguire
+
 @jamalm
+
 @craigbrennan24
+
 @chrisdrakeford
+
 @c13493258
+
 @AriPerkkio
 
 APK Download:
