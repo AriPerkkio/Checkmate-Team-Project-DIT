@@ -1,6 +1,9 @@
 # Checkmate-Team-Project-DIT
 Android Chess, checkmate.
 
+APK Download:
+http://chess.aperkkio.me
+
 Team project with six members.
 
 [@fionnmcguire](https://github.com/fionnmcguire)
@@ -14,11 +17,6 @@ Team project with six members.
 [@c13493258](https://github.com/c13493258)
 
 [@AriPerkkio](https://github.com/AriPerkkio)
-
-
-APK Download:
-
-http://chess.aperkkio.me
 
 
 ![Home](https://github.com/AriPerkkio/Checkmate-Team-Project-DIT/blob/master/Wikipictures/allPictures.gif)
