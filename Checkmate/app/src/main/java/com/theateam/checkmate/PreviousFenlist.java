@@ -183,21 +183,12 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
                 gameController = null;
                 status = false;
 
-                Log.i("Play","**************************");
                 int index = fenList.indexOf(selectedFen); // Index of selected fen
-                Log.d("Play", "Picked index "+index);
-                Log.d("Play", "Picked FEN "+selectedFen);
-                Log.d("Play", "FenList last index: "+ (fenList.size()-1));
-                for(int i=0;i<fenList.size();i++)
-                    Log.i("Play "+i, fenList.get(i));
 
-                do{ // Remove all fens after selected one
-                    fenList.remove(fenList.size()-1); // Remove last one
-                }while(fenList.size()-1!=index); // Reached selected fen
-
-                Log.d("Play", "Modified FenList, last index: "+ (fenList.size()-1));
-                for(int i=0;i<fenList.size();i++)
-                    Log.i("Play "+i, fenList.get(i));
+                if((fenList.size()-1!=index)) // Not last index
+                    do{ // Remove all fens after selected one
+                        fenList.remove(fenList.size()-1); // Remove last one
+                    }while(fenList.size()-1!=index); // Reached selected fen
 
                 Intent play =  new Intent(PreviousFenlist.this, GameActivity.class);
                 play.putExtra("gameMode", gameMode);

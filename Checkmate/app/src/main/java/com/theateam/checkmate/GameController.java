@@ -145,7 +145,7 @@ public class GameController {
         if (turn) playerOne.startTimer(); // Start player's timer
         else playerTwo.startTimer();
         timerRunning = true;
-
+        if(!PreviousFenlist.getStatus() && !turn && !playerTwo.isHuman()) aiMove(); // Game continued from specific FEN-String + it's AI game + AI's turn -> Make move
     }
 
     public static GameController getInstance() {

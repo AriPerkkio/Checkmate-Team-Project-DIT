@@ -92,6 +92,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         themeId = getIntent().getExtras().getInt("themeId");
         if(getIntent().getExtras().containsKey("gameId")) gameId = getIntent().getExtras().getInt("gameId");
         else gameId = 0; // New games have no gameId-key. Initialize gameId as 0.
+        instance = this;
+        directory = getApplicationContext().getFilesDir().toString()+"/engines/"; // Directory has to be initialized before Game Controller
         gameController = new GameController(gameModeSelect, learningToolSwitch, gameStartingFen, gameFenHistory, fenToTimers, timeLimit, themeId);
         if(gameController.initialRotate()) // When starting Two Player game with turn 'b', board will be rotated when started -> Black screen for a while
             Toast.makeText(this, "Setting up rotated board...", Toast.LENGTH_SHORT).show();
@@ -103,7 +105,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             case "5:3":
                 setContentView(R.layout.activity_game_53);
             break;
-            case "3:2":
+            case "3:2": // Same thing as 15:9...
                 setContentView(R.layout.activity_game_32);
             break;
             case "15:9":
@@ -146,9 +148,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if(!PreviousFenlist.getStatus()) timerTwoText = (TextView) findViewById(R.id.textTimerTwo);
         if(!PreviousFenlist.getStatus()) updateTimer(gameController.getTimers()[0],1);
         if(!PreviousFenlist.getStatus()) updateTimer(gameController.getTimers()[1],2);
-        instance = this;
-        directory = getApplicationContext().getFilesDir().toString()+"/engines/";
-        Log.d("GameActivity", "ScreenRatio: "+(double) getscreenwidth() / (double) getscreenheight()+".");
     }
 
     public void onClick(View v) {
