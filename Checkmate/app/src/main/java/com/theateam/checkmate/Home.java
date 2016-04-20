@@ -90,15 +90,13 @@ public class Home extends AppCompatActivity{
 
         if(getIntent().hasExtra("Exit")) finish();
         double rawRatio = getScreenRatio();
-        Log.d("Home", "ScreenRatio: "+rawRatio);
-        Log.d("Home", "rawRatio*16 : "+(int) (rawRatio*16));
         if((int) (rawRatio*16) == 9) screenRatio = "16:9"; // I.e. 1920x1080, 2560x1440
         if((int) (rawRatio*16) == 10) screenRatio = "16:10"; // I.e. 1280×800
-        if((int) (rawRatio*5) == 3) screenRatio = "5:3"; // I.e. 800*480
+        if((int) (rawRatio*5) == 3) screenRatio = "5:3"; // I.e. 800*480 | Update: Same thing as 15:9...
         if((int) (rawRatio*3) == 2) screenRatio = "3:2"; // I.e. 1200x800
         if((int) (rawRatio*15) == 9) screenRatio = "15:9"; // I.e. 800*480
         if(screenRatio==null) Toast.makeText(this, "Device screen ratio is not supported", Toast.LENGTH_LONG).show();
-        Log.d("Home", "2nd: "+screenRatio);
+        Log.d("Home", "Picked screen ratio: "+screenRatio);
     }
     public void OnePlayer_intent(View view) {
         Intent intent = new Intent(this, OnePlayer.class);
