@@ -1,7 +1,7 @@
 # Checkmate-Team-Project-DIT
 Android Chess, checkmate.
 
-APK Download:
+APK Download: (Android +5.0)
 http://chess.aperkkio.me
 
 Team project with six members.
