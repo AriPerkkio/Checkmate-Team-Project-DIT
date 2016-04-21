@@ -137,22 +137,28 @@ public class PreviousFenlist extends AppCompatActivity implements View.OnClickLi
         listFenlist = (ListView) findViewById(R.id.prevfenlistList);
         listFenlist.setOnItemClickListener(this);
 
-        int j=0;
+        int j=0;    //counter for parsing fenList
         do{
+            //add the fenString
             parsedFenList.add(fenList.get(j));
 
+            //check if j is gonna equal the size of the list on the next loop(out of bounds)
             if(j == fenList.size()-2){
-                j++;
-            } else if(j == fenList.size() -1){
-                j  = fenList.size();
-            } else {
+                j++;    //just add one to index to avoid going out of bounds
+            }
+            //check if index(j) is going to go out of bounds on next loop
+            else if(j == fenList.size() -1){
+                j  = fenList.size(); //make it break out of the loop by satisfying while condition
+            } else {    //else just add 2 to index
                 j+=2;
             }
-        }while(j != fenList.size());
+        }while(j != fenList.size());    //while not at the end of the fenlist
 
+        //write number of moves into a string array for displaying to user
         for(j=0;j<parsedFenList.size();j++){
             moveList.add("Move " + (j));
         }
+
 
         arrayAdapter = new ArrayAdapter<String>(this, R.layout.fenstringrow, moveList);
         listFenlist.setAdapter(arrayAdapter);
